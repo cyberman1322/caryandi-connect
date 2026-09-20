@@ -1,2 +1,2 @@
-import {createFileRoute} from '@tanstack/react-router'; import {DirectoryPage} from '@/components/caryandi/listing-pages';
-export const Route=createFileRoute('/parts')({head:()=>({meta:[{title:'Automotive Parts Marketplace — Caryandi'},{name:'description',content:'Find new, used and reconditioned vehicle parts in Zambia.'},{property:'og:title',content:'Automotive Parts Marketplace — Caryandi'},{property:'og:description',content:'Find new, used and reconditioned vehicle parts in Zambia.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),component:()=> <DirectoryPage type="parts"/>});
+import {createFileRoute, Outlet} from '@tanstack/react-router';
+export const Route=createFileRoute('/parts')({component:Outlet});
