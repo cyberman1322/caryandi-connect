@@ -1,0 +1,2 @@
+import {createFileRoute} from '@tanstack/react-router'; import {AuthPage} from '@/components/caryandi/auth-pages';
+export const Route=createFileRoute('/login')({head:()=>({meta:[{title:'Sign In — Caryandi'},{name:'description',content:'Sign in to your Caryandi account.'},{property:'og:title',content:'Sign In — Caryandi'},{property:'og:description',content:'Sign in to your Caryandi account.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:()=> <AuthPage mode="login"/>});
