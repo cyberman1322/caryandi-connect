@@ -10,15 +10,58 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountVerificationRouteImport } from './routes/account-verification'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AgentsRouteImport } from './routes/agents'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as InformationRouteImport } from './routes/information'
 import { Route as LocationsRouteImport } from './routes/locations'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PartsRouteImport } from './routes/parts'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SellersRouteImport } from './routes/sellers'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as VehiclesRouteImport } from './routes/vehicles'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminContentRouteImport } from './routes/admin.content'
+import { Route as AdminDealersRouteImport } from './routes/admin.dealers'
+import { Route as AdminImportAgentsRouteImport } from './routes/admin.import-agents'
+import { Route as AdminMechanicsRouteImport } from './routes/admin.mechanics'
+import { Route as AdminPartsSellersRouteImport } from './routes/admin.parts-sellers'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminReviewsRouteImport } from './routes/admin.reviews'
+import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
+import { Route as AdminServicingCompaniesRouteImport } from './routes/admin.servicing-companies'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminVehiclesRouteImport } from './routes/admin.vehicles'
+import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardAddPartRouteImport } from './routes/dashboard.add-part'
+import { Route as DashboardAddVehicleRouteImport } from './routes/dashboard.add-vehicle'
+import { Route as DashboardAvailabilityRouteImport } from './routes/dashboard.availability'
+import { Route as DashboardCategoriesRouteImport } from './routes/dashboard.categories'
+import { Route as DashboardEditVehicleRouteImport } from './routes/dashboard.edit-vehicle'
+import { Route as DashboardEnquiriesRouteImport } from './routes/dashboard.enquiries'
+import { Route as DashboardInventoryRouteImport } from './routes/dashboard.inventory'
+import { Route as DashboardListingsRouteImport } from './routes/dashboard.listings'
+import { Route as DashboardMessagesRouteImport } from './routes/dashboard.messages'
+import { Route as DashboardNotificationsRouteImport } from './routes/dashboard.notifications'
+import { Route as DashboardPartsRouteImport } from './routes/dashboard.parts'
+import { Route as DashboardPricingRouteImport } from './routes/dashboard.pricing'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
+import { Route as DashboardRequestsRouteImport } from './routes/dashboard.requests'
+import { Route as DashboardReviewsRouteImport } from './routes/dashboard.reviews'
+import { Route as DashboardRoutesRouteImport } from './routes/dashboard.routes'
+import { Route as DashboardSavedRouteImport } from './routes/dashboard.saved'
+import { Route as DashboardServicesRouteImport } from './routes/dashboard.services'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
+import { Route as DashboardTeamRouteImport } from './routes/dashboard.team'
+import { Route as DashboardVerificationRouteImport } from './routes/dashboard.verification'
 import { Route as InformationSlugRouteImport } from './routes/information.$slug'
 import { Route as PartsPartIdRouteImport } from './routes/parts.$partId'
 import { Route as SellersSellerIdRouteImport } from './routes/sellers.$sellerId'
@@ -30,9 +73,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountVerificationRoute = AccountVerificationRouteImport.update({
+  id: '/account-verification',
+  path: '/account-verification',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentsRoute = AgentsRouteImport.update({
   id: '/agents',
   path: '/agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpRoute = HelpRouteImport.update({
@@ -50,9 +113,24 @@ const LocationsRoute = LocationsRouteImport.update({
   path: '/locations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartsRoute = PartsRouteImport.update({
   id: '/parts',
   path: '/parts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellersRoute = SellersRouteImport.update({
@@ -65,15 +143,195 @@ const ServicesRoute = ServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VehiclesRoute = VehiclesRouteImport.update({
   id: '/vehicles',
   path: '/vehicles',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminContentRoute = AdminContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDealersRoute = AdminDealersRouteImport.update({
+  id: '/dealers',
+  path: '/dealers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminImportAgentsRoute = AdminImportAgentsRouteImport.update({
+  id: '/import-agents',
+  path: '/import-agents',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMechanicsRoute = AdminMechanicsRouteImport.update({
+  id: '/mechanics',
+  path: '/mechanics',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPartsSellersRoute = AdminPartsSellersRouteImport.update({
+  id: '/parts-sellers',
+  path: '/parts-sellers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReviewsRoute = AdminReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSellersRoute = AdminSellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminServicingCompaniesRoute = AdminServicingCompaniesRouteImport.update({
+  id: '/servicing-companies',
+  path: '/servicing-companies',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminVehiclesRoute = AdminVehiclesRouteImport.update({
+  id: '/vehicles',
+  path: '/vehicles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
+  id: '/verifications',
+  path: '/verifications',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AgentsAgentIdRoute = AgentsAgentIdRouteImport.update({
   id: '/$agentId',
   path: '/$agentId',
   getParentRoute: () => AgentsRoute,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAddPartRoute = DashboardAddPartRouteImport.update({
+  id: '/add-part',
+  path: '/add-part',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAddVehicleRoute = DashboardAddVehicleRouteImport.update({
+  id: '/add-vehicle',
+  path: '/add-vehicle',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAvailabilityRoute = DashboardAvailabilityRouteImport.update({
+  id: '/availability',
+  path: '/availability',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCategoriesRoute = DashboardCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardEditVehicleRoute = DashboardEditVehicleRouteImport.update({
+  id: '/edit-vehicle',
+  path: '/edit-vehicle',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardEnquiriesRoute = DashboardEnquiriesRouteImport.update({
+  id: '/enquiries',
+  path: '/enquiries',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardInventoryRoute = DashboardInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardListingsRoute = DashboardListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMessagesRoute = DashboardMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardNotificationsRoute = DashboardNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPartsRoute = DashboardPartsRouteImport.update({
+  id: '/parts',
+  path: '/parts',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPricingRoute = DashboardPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardRequestsRoute = DashboardRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardReviewsRoute = DashboardReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardRoutesRoute = DashboardRoutesRouteImport.update({
+  id: '/routes',
+  path: '/routes',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSavedRoute = DashboardSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardServicesRoute = DashboardServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTeamRoute = DashboardTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardVerificationRoute = DashboardVerificationRouteImport.update({
+  id: '/verification',
+  path: '/verification',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const InformationSlugRoute = InformationSlugRouteImport.update({
   id: '/$slug',
@@ -103,119 +361,381 @@ const VehiclesVehicleIdRoute = VehiclesVehicleIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account-verification': typeof AccountVerificationRoute
+  '/admin': typeof AdminRouteWithChildren
   '/agents': typeof AgentsRouteWithChildren
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
+  '/login': typeof LoginRoute
   '/parts': typeof PartsRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/sellers': typeof SellersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/vehicles': typeof VehiclesRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
+  '/admin/dealers': typeof AdminDealersRoute
+  '/admin/import-agents': typeof AdminImportAgentsRoute
+  '/admin/mechanics': typeof AdminMechanicsRoute
+  '/admin/parts-sellers': typeof AdminPartsSellersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/admin/sellers': typeof AdminSellersRoute
+  '/admin/servicing-companies': typeof AdminServicingCompaniesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/vehicles': typeof AdminVehiclesRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/dashboard/add-part': typeof DashboardAddPartRoute
+  '/dashboard/add-vehicle': typeof DashboardAddVehicleRoute
+  '/dashboard/availability': typeof DashboardAvailabilityRoute
+  '/dashboard/categories': typeof DashboardCategoriesRoute
+  '/dashboard/edit-vehicle': typeof DashboardEditVehicleRoute
+  '/dashboard/enquiries': typeof DashboardEnquiriesRoute
+  '/dashboard/inventory': typeof DashboardInventoryRoute
+  '/dashboard/listings': typeof DashboardListingsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/notifications': typeof DashboardNotificationsRoute
+  '/dashboard/parts': typeof DashboardPartsRoute
+  '/dashboard/pricing': typeof DashboardPricingRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/requests': typeof DashboardRequestsRoute
+  '/dashboard/reviews': typeof DashboardReviewsRoute
+  '/dashboard/routes': typeof DashboardRoutesRoute
+  '/dashboard/saved': typeof DashboardSavedRoute
+  '/dashboard/services': typeof DashboardServicesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/team': typeof DashboardTeamRoute
+  '/dashboard/verification': typeof DashboardVerificationRoute
   '/information/$slug': typeof InformationSlugRoute
   '/parts/$partId': typeof PartsPartIdRoute
   '/sellers/$sellerId': typeof SellersSellerIdRoute
   '/services/$serviceId': typeof ServicesServiceIdRoute
   '/vehicles/$vehicleId': typeof VehiclesVehicleIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account-verification': typeof AccountVerificationRoute
   '/agents': typeof AgentsRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
+  '/login': typeof LoginRoute
   '/parts': typeof PartsRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/sellers': typeof SellersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/vehicles': typeof VehiclesRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
+  '/admin/dealers': typeof AdminDealersRoute
+  '/admin/import-agents': typeof AdminImportAgentsRoute
+  '/admin/mechanics': typeof AdminMechanicsRoute
+  '/admin/parts-sellers': typeof AdminPartsSellersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/admin/sellers': typeof AdminSellersRoute
+  '/admin/servicing-companies': typeof AdminServicingCompaniesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/vehicles': typeof AdminVehiclesRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/dashboard/add-part': typeof DashboardAddPartRoute
+  '/dashboard/add-vehicle': typeof DashboardAddVehicleRoute
+  '/dashboard/availability': typeof DashboardAvailabilityRoute
+  '/dashboard/categories': typeof DashboardCategoriesRoute
+  '/dashboard/edit-vehicle': typeof DashboardEditVehicleRoute
+  '/dashboard/enquiries': typeof DashboardEnquiriesRoute
+  '/dashboard/inventory': typeof DashboardInventoryRoute
+  '/dashboard/listings': typeof DashboardListingsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/notifications': typeof DashboardNotificationsRoute
+  '/dashboard/parts': typeof DashboardPartsRoute
+  '/dashboard/pricing': typeof DashboardPricingRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/requests': typeof DashboardRequestsRoute
+  '/dashboard/reviews': typeof DashboardReviewsRoute
+  '/dashboard/routes': typeof DashboardRoutesRoute
+  '/dashboard/saved': typeof DashboardSavedRoute
+  '/dashboard/services': typeof DashboardServicesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/team': typeof DashboardTeamRoute
+  '/dashboard/verification': typeof DashboardVerificationRoute
   '/information/$slug': typeof InformationSlugRoute
   '/parts/$partId': typeof PartsPartIdRoute
   '/sellers/$sellerId': typeof SellersSellerIdRoute
   '/services/$serviceId': typeof ServicesServiceIdRoute
   '/vehicles/$vehicleId': typeof VehiclesVehicleIdRoute
+  '/admin': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account-verification': typeof AccountVerificationRoute
+  '/admin': typeof AdminRouteWithChildren
   '/agents': typeof AgentsRouteWithChildren
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
+  '/login': typeof LoginRoute
   '/parts': typeof PartsRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/sellers': typeof SellersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
+  '/settings': typeof SettingsRoute
   '/vehicles': typeof VehiclesRouteWithChildren
+  '/admin/content': typeof AdminContentRoute
+  '/admin/dealers': typeof AdminDealersRoute
+  '/admin/import-agents': typeof AdminImportAgentsRoute
+  '/admin/mechanics': typeof AdminMechanicsRoute
+  '/admin/parts-sellers': typeof AdminPartsSellersRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/reviews': typeof AdminReviewsRoute
+  '/admin/sellers': typeof AdminSellersRoute
+  '/admin/servicing-companies': typeof AdminServicingCompaniesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/vehicles': typeof AdminVehiclesRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/dashboard/add-part': typeof DashboardAddPartRoute
+  '/dashboard/add-vehicle': typeof DashboardAddVehicleRoute
+  '/dashboard/availability': typeof DashboardAvailabilityRoute
+  '/dashboard/categories': typeof DashboardCategoriesRoute
+  '/dashboard/edit-vehicle': typeof DashboardEditVehicleRoute
+  '/dashboard/enquiries': typeof DashboardEnquiriesRoute
+  '/dashboard/inventory': typeof DashboardInventoryRoute
+  '/dashboard/listings': typeof DashboardListingsRoute
+  '/dashboard/messages': typeof DashboardMessagesRoute
+  '/dashboard/notifications': typeof DashboardNotificationsRoute
+  '/dashboard/parts': typeof DashboardPartsRoute
+  '/dashboard/pricing': typeof DashboardPricingRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/requests': typeof DashboardRequestsRoute
+  '/dashboard/reviews': typeof DashboardReviewsRoute
+  '/dashboard/routes': typeof DashboardRoutesRoute
+  '/dashboard/saved': typeof DashboardSavedRoute
+  '/dashboard/services': typeof DashboardServicesRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/team': typeof DashboardTeamRoute
+  '/dashboard/verification': typeof DashboardVerificationRoute
   '/information/$slug': typeof InformationSlugRoute
   '/parts/$partId': typeof PartsPartIdRoute
   '/sellers/$sellerId': typeof SellersSellerIdRoute
   '/services/$serviceId': typeof ServicesServiceIdRoute
   '/vehicles/$vehicleId': typeof VehiclesVehicleIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account-verification'
+    | '/admin'
     | '/agents'
+    | '/dashboard'
+    | '/forgot-password'
     | '/help'
     | '/information'
     | '/locations'
+    | '/login'
     | '/parts'
+    | '/profile'
+    | '/register'
     | '/sellers'
     | '/services'
+    | '/settings'
     | '/vehicles'
+    | '/admin/content'
+    | '/admin/dealers'
+    | '/admin/import-agents'
+    | '/admin/mechanics'
+    | '/admin/parts-sellers'
+    | '/admin/reports'
+    | '/admin/reviews'
+    | '/admin/sellers'
+    | '/admin/servicing-companies'
+    | '/admin/users'
+    | '/admin/vehicles'
+    | '/admin/verifications'
     | '/agents/$agentId'
+    | '/dashboard/add-part'
+    | '/dashboard/add-vehicle'
+    | '/dashboard/availability'
+    | '/dashboard/categories'
+    | '/dashboard/edit-vehicle'
+    | '/dashboard/enquiries'
+    | '/dashboard/inventory'
+    | '/dashboard/listings'
+    | '/dashboard/messages'
+    | '/dashboard/notifications'
+    | '/dashboard/parts'
+    | '/dashboard/pricing'
+    | '/dashboard/profile'
+    | '/dashboard/requests'
+    | '/dashboard/reviews'
+    | '/dashboard/routes'
+    | '/dashboard/saved'
+    | '/dashboard/services'
+    | '/dashboard/settings'
+    | '/dashboard/team'
+    | '/dashboard/verification'
     | '/information/$slug'
     | '/parts/$partId'
     | '/sellers/$sellerId'
     | '/services/$serviceId'
     | '/vehicles/$vehicleId'
+    | '/admin/'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account-verification'
     | '/agents'
+    | '/forgot-password'
     | '/help'
     | '/information'
     | '/locations'
+    | '/login'
     | '/parts'
+    | '/profile'
+    | '/register'
     | '/sellers'
     | '/services'
+    | '/settings'
     | '/vehicles'
+    | '/admin/content'
+    | '/admin/dealers'
+    | '/admin/import-agents'
+    | '/admin/mechanics'
+    | '/admin/parts-sellers'
+    | '/admin/reports'
+    | '/admin/reviews'
+    | '/admin/sellers'
+    | '/admin/servicing-companies'
+    | '/admin/users'
+    | '/admin/vehicles'
+    | '/admin/verifications'
     | '/agents/$agentId'
+    | '/dashboard/add-part'
+    | '/dashboard/add-vehicle'
+    | '/dashboard/availability'
+    | '/dashboard/categories'
+    | '/dashboard/edit-vehicle'
+    | '/dashboard/enquiries'
+    | '/dashboard/inventory'
+    | '/dashboard/listings'
+    | '/dashboard/messages'
+    | '/dashboard/notifications'
+    | '/dashboard/parts'
+    | '/dashboard/pricing'
+    | '/dashboard/profile'
+    | '/dashboard/requests'
+    | '/dashboard/reviews'
+    | '/dashboard/routes'
+    | '/dashboard/saved'
+    | '/dashboard/services'
+    | '/dashboard/settings'
+    | '/dashboard/team'
+    | '/dashboard/verification'
     | '/information/$slug'
     | '/parts/$partId'
     | '/sellers/$sellerId'
     | '/services/$serviceId'
     | '/vehicles/$vehicleId'
+    | '/admin'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
+    | '/account-verification'
+    | '/admin'
     | '/agents'
+    | '/dashboard'
+    | '/forgot-password'
     | '/help'
     | '/information'
     | '/locations'
+    | '/login'
     | '/parts'
+    | '/profile'
+    | '/register'
     | '/sellers'
     | '/services'
+    | '/settings'
     | '/vehicles'
+    | '/admin/content'
+    | '/admin/dealers'
+    | '/admin/import-agents'
+    | '/admin/mechanics'
+    | '/admin/parts-sellers'
+    | '/admin/reports'
+    | '/admin/reviews'
+    | '/admin/sellers'
+    | '/admin/servicing-companies'
+    | '/admin/users'
+    | '/admin/vehicles'
+    | '/admin/verifications'
     | '/agents/$agentId'
+    | '/dashboard/add-part'
+    | '/dashboard/add-vehicle'
+    | '/dashboard/availability'
+    | '/dashboard/categories'
+    | '/dashboard/edit-vehicle'
+    | '/dashboard/enquiries'
+    | '/dashboard/inventory'
+    | '/dashboard/listings'
+    | '/dashboard/messages'
+    | '/dashboard/notifications'
+    | '/dashboard/parts'
+    | '/dashboard/pricing'
+    | '/dashboard/profile'
+    | '/dashboard/requests'
+    | '/dashboard/reviews'
+    | '/dashboard/routes'
+    | '/dashboard/saved'
+    | '/dashboard/services'
+    | '/dashboard/settings'
+    | '/dashboard/team'
+    | '/dashboard/verification'
     | '/information/$slug'
     | '/parts/$partId'
     | '/sellers/$sellerId'
     | '/services/$serviceId'
     | '/vehicles/$vehicleId'
+    | '/admin/'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountVerificationRoute: typeof AccountVerificationRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AgentsRoute: typeof AgentsRouteWithChildren
+  DashboardRoute: typeof DashboardRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
   InformationRoute: typeof InformationRouteWithChildren
   LocationsRoute: typeof LocationsRoute
+  LoginRoute: typeof LoginRoute
   PartsRoute: typeof PartsRouteWithChildren
+  ProfileRoute: typeof ProfileRoute
+  RegisterRoute: typeof RegisterRoute
   SellersRoute: typeof SellersRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
+  SettingsRoute: typeof SettingsRoute
   VehiclesRoute: typeof VehiclesRouteWithChildren
 }
 
@@ -228,11 +748,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account-verification': {
+      id: '/account-verification'
+      path: '/account-verification'
+      fullPath: '/account-verification'
+      preLoaderRoute: typeof AccountVerificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agents': {
       id: '/agents'
       path: '/agents'
       fullPath: '/agents'
       preLoaderRoute: typeof AgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/help': {
@@ -256,11 +804,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parts': {
       id: '/parts'
       path: '/parts'
       fullPath: '/parts'
       preLoaderRoute: typeof PartsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sellers': {
@@ -277,6 +846,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vehicles': {
       id: '/vehicles'
       path: '/vehicles'
@@ -284,12 +860,257 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VehiclesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/content': {
+      id: '/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AdminContentRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dealers': {
+      id: '/admin/dealers'
+      path: '/dealers'
+      fullPath: '/admin/dealers'
+      preLoaderRoute: typeof AdminDealersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/import-agents': {
+      id: '/admin/import-agents'
+      path: '/import-agents'
+      fullPath: '/admin/import-agents'
+      preLoaderRoute: typeof AdminImportAgentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/mechanics': {
+      id: '/admin/mechanics'
+      path: '/mechanics'
+      fullPath: '/admin/mechanics'
+      preLoaderRoute: typeof AdminMechanicsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/parts-sellers': {
+      id: '/admin/parts-sellers'
+      path: '/parts-sellers'
+      fullPath: '/admin/parts-sellers'
+      preLoaderRoute: typeof AdminPartsSellersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reviews': {
+      id: '/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AdminReviewsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sellers': {
+      id: '/admin/sellers'
+      path: '/sellers'
+      fullPath: '/admin/sellers'
+      preLoaderRoute: typeof AdminSellersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/servicing-companies': {
+      id: '/admin/servicing-companies'
+      path: '/servicing-companies'
+      fullPath: '/admin/servicing-companies'
+      preLoaderRoute: typeof AdminServicingCompaniesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/vehicles': {
+      id: '/admin/vehicles'
+      path: '/vehicles'
+      fullPath: '/admin/vehicles'
+      preLoaderRoute: typeof AdminVehiclesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/verifications': {
+      id: '/admin/verifications'
+      path: '/verifications'
+      fullPath: '/admin/verifications'
+      preLoaderRoute: typeof AdminVerificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/agents/$agentId': {
       id: '/agents/$agentId'
       path: '/$agentId'
       fullPath: '/agents/$agentId'
       preLoaderRoute: typeof AgentsAgentIdRouteImport
       parentRoute: typeof AgentsRoute
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/add-part': {
+      id: '/dashboard/add-part'
+      path: '/add-part'
+      fullPath: '/dashboard/add-part'
+      preLoaderRoute: typeof DashboardAddPartRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/add-vehicle': {
+      id: '/dashboard/add-vehicle'
+      path: '/add-vehicle'
+      fullPath: '/dashboard/add-vehicle'
+      preLoaderRoute: typeof DashboardAddVehicleRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/availability': {
+      id: '/dashboard/availability'
+      path: '/availability'
+      fullPath: '/dashboard/availability'
+      preLoaderRoute: typeof DashboardAvailabilityRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/categories': {
+      id: '/dashboard/categories'
+      path: '/categories'
+      fullPath: '/dashboard/categories'
+      preLoaderRoute: typeof DashboardCategoriesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/edit-vehicle': {
+      id: '/dashboard/edit-vehicle'
+      path: '/edit-vehicle'
+      fullPath: '/dashboard/edit-vehicle'
+      preLoaderRoute: typeof DashboardEditVehicleRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/enquiries': {
+      id: '/dashboard/enquiries'
+      path: '/enquiries'
+      fullPath: '/dashboard/enquiries'
+      preLoaderRoute: typeof DashboardEnquiriesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/inventory': {
+      id: '/dashboard/inventory'
+      path: '/inventory'
+      fullPath: '/dashboard/inventory'
+      preLoaderRoute: typeof DashboardInventoryRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/listings': {
+      id: '/dashboard/listings'
+      path: '/listings'
+      fullPath: '/dashboard/listings'
+      preLoaderRoute: typeof DashboardListingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/messages': {
+      id: '/dashboard/messages'
+      path: '/messages'
+      fullPath: '/dashboard/messages'
+      preLoaderRoute: typeof DashboardMessagesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/notifications': {
+      id: '/dashboard/notifications'
+      path: '/notifications'
+      fullPath: '/dashboard/notifications'
+      preLoaderRoute: typeof DashboardNotificationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/parts': {
+      id: '/dashboard/parts'
+      path: '/parts'
+      fullPath: '/dashboard/parts'
+      preLoaderRoute: typeof DashboardPartsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/pricing': {
+      id: '/dashboard/pricing'
+      path: '/pricing'
+      fullPath: '/dashboard/pricing'
+      preLoaderRoute: typeof DashboardPricingRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/requests': {
+      id: '/dashboard/requests'
+      path: '/requests'
+      fullPath: '/dashboard/requests'
+      preLoaderRoute: typeof DashboardRequestsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/reviews': {
+      id: '/dashboard/reviews'
+      path: '/reviews'
+      fullPath: '/dashboard/reviews'
+      preLoaderRoute: typeof DashboardReviewsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/routes': {
+      id: '/dashboard/routes'
+      path: '/routes'
+      fullPath: '/dashboard/routes'
+      preLoaderRoute: typeof DashboardRoutesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/saved': {
+      id: '/dashboard/saved'
+      path: '/saved'
+      fullPath: '/dashboard/saved'
+      preLoaderRoute: typeof DashboardSavedRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/services': {
+      id: '/dashboard/services'
+      path: '/services'
+      fullPath: '/dashboard/services'
+      preLoaderRoute: typeof DashboardServicesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/team': {
+      id: '/dashboard/team'
+      path: '/team'
+      fullPath: '/dashboard/team'
+      preLoaderRoute: typeof DashboardTeamRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/verification': {
+      id: '/dashboard/verification'
+      path: '/verification'
+      fullPath: '/dashboard/verification'
+      preLoaderRoute: typeof DashboardVerificationRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/information/$slug': {
       id: '/information/$slug'
@@ -329,6 +1150,40 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminContentRoute: typeof AdminContentRoute
+  AdminDealersRoute: typeof AdminDealersRoute
+  AdminImportAgentsRoute: typeof AdminImportAgentsRoute
+  AdminMechanicsRoute: typeof AdminMechanicsRoute
+  AdminPartsSellersRoute: typeof AdminPartsSellersRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminReviewsRoute: typeof AdminReviewsRoute
+  AdminSellersRoute: typeof AdminSellersRoute
+  AdminServicingCompaniesRoute: typeof AdminServicingCompaniesRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminVehiclesRoute: typeof AdminVehiclesRoute
+  AdminVerificationsRoute: typeof AdminVerificationsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminContentRoute: AdminContentRoute,
+  AdminDealersRoute: AdminDealersRoute,
+  AdminImportAgentsRoute: AdminImportAgentsRoute,
+  AdminMechanicsRoute: AdminMechanicsRoute,
+  AdminPartsSellersRoute: AdminPartsSellersRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminReviewsRoute: AdminReviewsRoute,
+  AdminSellersRoute: AdminSellersRoute,
+  AdminServicingCompaniesRoute: AdminServicingCompaniesRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminVehiclesRoute: AdminVehiclesRoute,
+  AdminVerificationsRoute: AdminVerificationsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface AgentsRouteChildren {
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
 }
@@ -339,6 +1194,60 @@ const AgentsRouteChildren: AgentsRouteChildren = {
 
 const AgentsRouteWithChildren =
   AgentsRoute._addFileChildren(AgentsRouteChildren)
+
+interface DashboardRouteChildren {
+  DashboardAddPartRoute: typeof DashboardAddPartRoute
+  DashboardAddVehicleRoute: typeof DashboardAddVehicleRoute
+  DashboardAvailabilityRoute: typeof DashboardAvailabilityRoute
+  DashboardCategoriesRoute: typeof DashboardCategoriesRoute
+  DashboardEditVehicleRoute: typeof DashboardEditVehicleRoute
+  DashboardEnquiriesRoute: typeof DashboardEnquiriesRoute
+  DashboardInventoryRoute: typeof DashboardInventoryRoute
+  DashboardListingsRoute: typeof DashboardListingsRoute
+  DashboardMessagesRoute: typeof DashboardMessagesRoute
+  DashboardNotificationsRoute: typeof DashboardNotificationsRoute
+  DashboardPartsRoute: typeof DashboardPartsRoute
+  DashboardPricingRoute: typeof DashboardPricingRoute
+  DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardRequestsRoute: typeof DashboardRequestsRoute
+  DashboardReviewsRoute: typeof DashboardReviewsRoute
+  DashboardRoutesRoute: typeof DashboardRoutesRoute
+  DashboardSavedRoute: typeof DashboardSavedRoute
+  DashboardServicesRoute: typeof DashboardServicesRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardTeamRoute: typeof DashboardTeamRoute
+  DashboardVerificationRoute: typeof DashboardVerificationRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAddPartRoute: DashboardAddPartRoute,
+  DashboardAddVehicleRoute: DashboardAddVehicleRoute,
+  DashboardAvailabilityRoute: DashboardAvailabilityRoute,
+  DashboardCategoriesRoute: DashboardCategoriesRoute,
+  DashboardEditVehicleRoute: DashboardEditVehicleRoute,
+  DashboardEnquiriesRoute: DashboardEnquiriesRoute,
+  DashboardInventoryRoute: DashboardInventoryRoute,
+  DashboardListingsRoute: DashboardListingsRoute,
+  DashboardMessagesRoute: DashboardMessagesRoute,
+  DashboardNotificationsRoute: DashboardNotificationsRoute,
+  DashboardPartsRoute: DashboardPartsRoute,
+  DashboardPricingRoute: DashboardPricingRoute,
+  DashboardProfileRoute: DashboardProfileRoute,
+  DashboardRequestsRoute: DashboardRequestsRoute,
+  DashboardReviewsRoute: DashboardReviewsRoute,
+  DashboardRoutesRoute: DashboardRoutesRoute,
+  DashboardSavedRoute: DashboardSavedRoute,
+  DashboardServicesRoute: DashboardServicesRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardTeamRoute: DashboardTeamRoute,
+  DashboardVerificationRoute: DashboardVerificationRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 interface InformationRouteChildren {
   InformationSlugRoute: typeof InformationSlugRoute
@@ -399,13 +1308,21 @@ const VehiclesRouteWithChildren = VehiclesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountVerificationRoute: AccountVerificationRoute,
+  AdminRoute: AdminRouteWithChildren,
   AgentsRoute: AgentsRouteWithChildren,
+  DashboardRoute: DashboardRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
   InformationRoute: InformationRouteWithChildren,
   LocationsRoute: LocationsRoute,
+  LoginRoute: LoginRoute,
   PartsRoute: PartsRouteWithChildren,
+  ProfileRoute: ProfileRoute,
+  RegisterRoute: RegisterRoute,
   SellersRoute: SellersRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
+  SettingsRoute: SettingsRoute,
   VehiclesRoute: VehiclesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
