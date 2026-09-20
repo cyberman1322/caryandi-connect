@@ -56,3 +56,5 @@ export const roles = [
 ] as const;
 
 export const adminSections = ['Users','Dealers','Private sellers','Mechanics','Servicing companies','Parts sellers','Import agents','Vehicles','Verification requests','Reports','Reviews','Information content'];
+
+export function firstOf<T>(items: readonly T[]): T { const item=items[0]; if (!item) throw new Error('Mock data is empty'); return item; }
