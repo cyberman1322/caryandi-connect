@@ -1,0 +1,2 @@
+import {createFileRoute} from '@tanstack/react-router'; import {DashboardPage} from '@/components/caryandi/dashboard-pages';
+export const Route=createFileRoute('/profile')({head:()=>({meta:[{title:'Profile — Caryandi'},{name:'description',content:'Review your Caryandi profile.'},{property:'og:title',content:'Profile — Caryandi'},{property:'og:description',content:'Review your Caryandi profile.'},{property:'og:type',content:'profile'},{name:'twitter:card',content:'summary'}]}),component:()=> <DashboardPage page="profile"/>});

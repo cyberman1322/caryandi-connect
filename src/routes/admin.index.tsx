@@ -1,0 +1,2 @@
+import {createFileRoute} from '@tanstack/react-router'; import {AdminPage} from '@/components/caryandi/dashboard-pages';
+export const Route=createFileRoute('/admin/')({head:()=>({meta:[{title:'Administration — Caryandi'},{name:'description',content:'Caryandi platform administration overview.'},{property:'og:title',content:'Administration — Caryandi'},{property:'og:description',content:'Caryandi platform administration overview.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:AdminPage});

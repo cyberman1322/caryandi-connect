@@ -1,0 +1,2 @@
+import {useRouterState} from '@tanstack/react-router'; import {PublicHeader,Footer} from './public-shell';
+export function AppChrome({children}:{children:React.ReactNode}){const path=useRouterState({select:s=>s.location.pathname}); const bare=path.startsWith('/dashboard')||path.startsWith('/admin')||['/login','/register','/forgot-password'].includes(path); return <>{!bare&&<PublicHeader/>}{children}{!bare&&<Footer/>}</>}
