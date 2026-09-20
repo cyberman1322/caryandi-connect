@@ -39,6 +39,7 @@ import { Route as AdminServicingCompaniesRouteImport } from './routes/admin.serv
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminVehiclesRouteImport } from './routes/admin.vehicles'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
+import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAddPartRouteImport } from './routes/dashboard.add-part'
@@ -62,10 +63,15 @@ import { Route as DashboardServicesRouteImport } from './routes/dashboard.servic
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardTeamRouteImport } from './routes/dashboard.team'
 import { Route as DashboardVerificationRouteImport } from './routes/dashboard.verification'
+import { Route as InformationIndexRouteImport } from './routes/information.index'
 import { Route as InformationSlugRouteImport } from './routes/information.$slug'
+import { Route as PartsIndexRouteImport } from './routes/parts.index'
 import { Route as PartsPartIdRouteImport } from './routes/parts.$partId'
+import { Route as SellersIndexRouteImport } from './routes/sellers.index'
 import { Route as SellersSellerIdRouteImport } from './routes/sellers.$sellerId'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesServiceIdRouteImport } from './routes/services.$serviceId'
+import { Route as VehiclesIndexRouteImport } from './routes/vehicles.index'
 import { Route as VehiclesVehicleIdRouteImport } from './routes/vehicles.$vehicleId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -218,6 +224,11 @@ const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
   path: '/verifications',
   getParentRoute: () => AdminRoute,
 } as any)
+const AgentsIndexRoute = AgentsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AgentsRoute,
+} as any)
 const AgentsAgentIdRoute = AgentsAgentIdRouteImport.update({
   id: '/$agentId',
   path: '/$agentId',
@@ -333,25 +344,50 @@ const DashboardVerificationRoute = DashboardVerificationRouteImport.update({
   path: '/verification',
   getParentRoute: () => DashboardRoute,
 } as any)
+const InformationIndexRoute = InformationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InformationRoute,
+} as any)
 const InformationSlugRoute = InformationSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => InformationRoute,
+} as any)
+const PartsIndexRoute = PartsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PartsRoute,
 } as any)
 const PartsPartIdRoute = PartsPartIdRouteImport.update({
   id: '/$partId',
   path: '/$partId',
   getParentRoute: () => PartsRoute,
 } as any)
+const SellersIndexRoute = SellersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SellersRoute,
+} as any)
 const SellersSellerIdRoute = SellersSellerIdRouteImport.update({
   id: '/$sellerId',
   path: '/$sellerId',
   getParentRoute: () => SellersRoute,
 } as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ServicesRoute,
+} as any)
 const ServicesServiceIdRoute = ServicesServiceIdRouteImport.update({
   id: '/$serviceId',
   path: '/$serviceId',
   getParentRoute: () => ServicesRoute,
+} as any)
+const VehiclesIndexRoute = VehiclesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => VehiclesRoute,
 } as any)
 const VehiclesVehicleIdRoute = VehiclesVehicleIdRouteImport.update({
   id: '/$vehicleId',
@@ -417,24 +453,24 @@ export interface FileRoutesByFullPath {
   '/services/$serviceId': typeof ServicesServiceIdRoute
   '/vehicles/$vehicleId': typeof VehiclesVehicleIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/agents/': typeof AgentsIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/information/': typeof InformationIndexRoute
+  '/parts/': typeof PartsIndexRoute
+  '/sellers/': typeof SellersIndexRoute
+  '/services/': typeof ServicesIndexRoute
+  '/vehicles/': typeof VehiclesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account-verification': typeof AccountVerificationRoute
-  '/agents': typeof AgentsRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
-  '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
-  '/parts': typeof PartsRouteWithChildren
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
-  '/sellers': typeof SellersRouteWithChildren
-  '/services': typeof ServicesRouteWithChildren
   '/settings': typeof SettingsRoute
-  '/vehicles': typeof VehiclesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/dealers': typeof AdminDealersRoute
   '/admin/import-agents': typeof AdminImportAgentsRoute
@@ -475,7 +511,13 @@ export interface FileRoutesByTo {
   '/services/$serviceId': typeof ServicesServiceIdRoute
   '/vehicles/$vehicleId': typeof VehiclesVehicleIdRoute
   '/admin': typeof AdminIndexRoute
+  '/agents': typeof AgentsIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/information': typeof InformationIndexRoute
+  '/parts': typeof PartsIndexRoute
+  '/sellers': typeof SellersIndexRoute
+  '/services': typeof ServicesIndexRoute
+  '/vehicles': typeof VehiclesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -536,7 +578,13 @@ export interface FileRoutesById {
   '/services/$serviceId': typeof ServicesServiceIdRoute
   '/vehicles/$vehicleId': typeof VehiclesVehicleIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/agents/': typeof AgentsIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/information/': typeof InformationIndexRoute
+  '/parts/': typeof PartsIndexRoute
+  '/sellers/': typeof SellersIndexRoute
+  '/services/': typeof ServicesIndexRoute
+  '/vehicles/': typeof VehiclesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -598,24 +646,24 @@ export interface FileRouteTypes {
     | '/services/$serviceId'
     | '/vehicles/$vehicleId'
     | '/admin/'
+    | '/agents/'
     | '/dashboard/'
+    | '/information/'
+    | '/parts/'
+    | '/sellers/'
+    | '/services/'
+    | '/vehicles/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/account-verification'
-    | '/agents'
     | '/forgot-password'
     | '/help'
-    | '/information'
     | '/locations'
     | '/login'
-    | '/parts'
     | '/profile'
     | '/register'
-    | '/sellers'
-    | '/services'
     | '/settings'
-    | '/vehicles'
     | '/admin/content'
     | '/admin/dealers'
     | '/admin/import-agents'
@@ -656,7 +704,13 @@ export interface FileRouteTypes {
     | '/services/$serviceId'
     | '/vehicles/$vehicleId'
     | '/admin'
+    | '/agents'
     | '/dashboard'
+    | '/information'
+    | '/parts'
+    | '/sellers'
+    | '/services'
+    | '/vehicles'
   id:
     | '__root__'
     | '/'
@@ -716,7 +770,13 @@ export interface FileRouteTypes {
     | '/services/$serviceId'
     | '/vehicles/$vehicleId'
     | '/admin/'
+    | '/agents/'
     | '/dashboard/'
+    | '/information/'
+    | '/parts/'
+    | '/sellers/'
+    | '/services/'
+    | '/vehicles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -951,6 +1011,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminVerificationsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/agents/': {
+      id: '/agents/'
+      path: '/'
+      fullPath: '/agents/'
+      preLoaderRoute: typeof AgentsIndexRouteImport
+      parentRoute: typeof AgentsRoute
+    }
     '/agents/$agentId': {
       id: '/agents/$agentId'
       path: '/$agentId'
@@ -1112,12 +1179,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardVerificationRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/information/': {
+      id: '/information/'
+      path: '/'
+      fullPath: '/information/'
+      preLoaderRoute: typeof InformationIndexRouteImport
+      parentRoute: typeof InformationRoute
+    }
     '/information/$slug': {
       id: '/information/$slug'
       path: '/$slug'
       fullPath: '/information/$slug'
       preLoaderRoute: typeof InformationSlugRouteImport
       parentRoute: typeof InformationRoute
+    }
+    '/parts/': {
+      id: '/parts/'
+      path: '/'
+      fullPath: '/parts/'
+      preLoaderRoute: typeof PartsIndexRouteImport
+      parentRoute: typeof PartsRoute
     }
     '/parts/$partId': {
       id: '/parts/$partId'
@@ -1126,6 +1207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartsPartIdRouteImport
       parentRoute: typeof PartsRoute
     }
+    '/sellers/': {
+      id: '/sellers/'
+      path: '/'
+      fullPath: '/sellers/'
+      preLoaderRoute: typeof SellersIndexRouteImport
+      parentRoute: typeof SellersRoute
+    }
     '/sellers/$sellerId': {
       id: '/sellers/$sellerId'
       path: '/$sellerId'
@@ -1133,12 +1221,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellersSellerIdRouteImport
       parentRoute: typeof SellersRoute
     }
+    '/services/': {
+      id: '/services/'
+      path: '/'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof ServicesRoute
+    }
     '/services/$serviceId': {
       id: '/services/$serviceId'
       path: '/$serviceId'
       fullPath: '/services/$serviceId'
       preLoaderRoute: typeof ServicesServiceIdRouteImport
       parentRoute: typeof ServicesRoute
+    }
+    '/vehicles/': {
+      id: '/vehicles/'
+      path: '/'
+      fullPath: '/vehicles/'
+      preLoaderRoute: typeof VehiclesIndexRouteImport
+      parentRoute: typeof VehiclesRoute
     }
     '/vehicles/$vehicleId': {
       id: '/vehicles/$vehicleId'
@@ -1186,10 +1288,12 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AgentsRouteChildren {
   AgentsAgentIdRoute: typeof AgentsAgentIdRoute
+  AgentsIndexRoute: typeof AgentsIndexRoute
 }
 
 const AgentsRouteChildren: AgentsRouteChildren = {
   AgentsAgentIdRoute: AgentsAgentIdRoute,
+  AgentsIndexRoute: AgentsIndexRoute,
 }
 
 const AgentsRouteWithChildren =
@@ -1251,10 +1355,12 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 interface InformationRouteChildren {
   InformationSlugRoute: typeof InformationSlugRoute
+  InformationIndexRoute: typeof InformationIndexRoute
 }
 
 const InformationRouteChildren: InformationRouteChildren = {
   InformationSlugRoute: InformationSlugRoute,
+  InformationIndexRoute: InformationIndexRoute,
 }
 
 const InformationRouteWithChildren = InformationRoute._addFileChildren(
@@ -1263,20 +1369,24 @@ const InformationRouteWithChildren = InformationRoute._addFileChildren(
 
 interface PartsRouteChildren {
   PartsPartIdRoute: typeof PartsPartIdRoute
+  PartsIndexRoute: typeof PartsIndexRoute
 }
 
 const PartsRouteChildren: PartsRouteChildren = {
   PartsPartIdRoute: PartsPartIdRoute,
+  PartsIndexRoute: PartsIndexRoute,
 }
 
 const PartsRouteWithChildren = PartsRoute._addFileChildren(PartsRouteChildren)
 
 interface SellersRouteChildren {
   SellersSellerIdRoute: typeof SellersSellerIdRoute
+  SellersIndexRoute: typeof SellersIndexRoute
 }
 
 const SellersRouteChildren: SellersRouteChildren = {
   SellersSellerIdRoute: SellersSellerIdRoute,
+  SellersIndexRoute: SellersIndexRoute,
 }
 
 const SellersRouteWithChildren =
@@ -1284,10 +1394,12 @@ const SellersRouteWithChildren =
 
 interface ServicesRouteChildren {
   ServicesServiceIdRoute: typeof ServicesServiceIdRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
 }
 
 const ServicesRouteChildren: ServicesRouteChildren = {
   ServicesServiceIdRoute: ServicesServiceIdRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
 }
 
 const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
@@ -1296,10 +1408,12 @@ const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
 
 interface VehiclesRouteChildren {
   VehiclesVehicleIdRoute: typeof VehiclesVehicleIdRoute
+  VehiclesIndexRoute: typeof VehiclesIndexRoute
 }
 
 const VehiclesRouteChildren: VehiclesRouteChildren = {
   VehiclesVehicleIdRoute: VehiclesVehicleIdRoute,
+  VehiclesIndexRoute: VehiclesIndexRoute,
 }
 
 const VehiclesRouteWithChildren = VehiclesRoute._addFileChildren(
