@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as InformationRouteImport } from './routes/information'
 import { Route as LocationsRouteImport } from './routes/locations'
@@ -102,6 +103,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpRoute = HelpRouteImport.update({
@@ -402,6 +408,7 @@ export interface FileRoutesByFullPath {
   '/agents': typeof AgentsRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/help': typeof HelpRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
@@ -465,6 +472,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account-verification': typeof AccountVerificationRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/help': typeof HelpRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
@@ -527,6 +535,7 @@ export interface FileRoutesById {
   '/agents': typeof AgentsRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/help': typeof HelpRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
@@ -595,6 +604,7 @@ export interface FileRouteTypes {
     | '/agents'
     | '/dashboard'
     | '/forgot-password'
+    | '/reset-password'
     | '/help'
     | '/information'
     | '/locations'
@@ -658,6 +668,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account-verification'
     | '/forgot-password'
+    | '/reset-password'
     | '/help'
     | '/locations'
     | '/login'
@@ -719,6 +730,7 @@ export interface FileRouteTypes {
     | '/agents'
     | '/dashboard'
     | '/forgot-password'
+    | '/reset-password'
     | '/help'
     | '/information'
     | '/locations'
@@ -786,6 +798,7 @@ export interface RootRouteChildren {
   AgentsRoute: typeof AgentsRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   HelpRoute: typeof HelpRoute
   InformationRoute: typeof InformationRouteWithChildren
   LocationsRoute: typeof LocationsRoute
@@ -841,6 +854,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/help': {
@@ -1427,6 +1447,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgentsRoute: AgentsRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   HelpRoute: HelpRoute,
   InformationRoute: InformationRouteWithChildren,
   LocationsRoute: LocationsRoute,
