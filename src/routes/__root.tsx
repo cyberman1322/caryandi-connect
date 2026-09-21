@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppChrome } from "../components/caryandi/app-chrome";
 import { Toaster } from "../components/ui/sonner";
+import { AuthProvider } from "../lib/auth/auth-context";
 
 function NotFoundComponent() {
   return (
@@ -121,8 +122,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppChrome><Outlet /></AppChrome>
-      <Toaster position="top-right" />
+      <AuthProvider>
+        <AppChrome><Outlet /></AppChrome>
+        <Toaster position="top-right" />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
