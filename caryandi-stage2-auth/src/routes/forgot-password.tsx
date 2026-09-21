@@ -1,2 +1,0 @@
-import {createFileRoute} from '@tanstack/react-router'; import {AuthPage} from '@/components/caryandi/auth-pages';
-export const Route=createFileRoute('/forgot-password')({head:()=>({meta:[{title:'Reset Password — Caryandi'},{name:'description',content:'Reset your Caryandi account password.'},{property:'og:title',content:'Reset Password — Caryandi'},{property:'og:description',content:'Reset your Caryandi account password.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:()=> <AuthPage mode="forgot"/>});
