@@ -15,7 +15,6 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as InformationRouteImport } from './routes/information'
 import { Route as LocationsRouteImport } from './routes/locations'
@@ -23,6 +22,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as PartsRouteImport } from './routes/parts'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SellersRouteImport } from './routes/sellers'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -105,11 +105,6 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
@@ -143,6 +138,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellersRoute = SellersRouteImport.update({
@@ -408,7 +408,6 @@ export interface FileRoutesByFullPath {
   '/agents': typeof AgentsRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/help': typeof HelpRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
@@ -416,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/parts': typeof PartsRouteWithChildren
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sellers': typeof SellersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/settings': typeof SettingsRoute
@@ -472,12 +472,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account-verification': typeof AccountVerificationRoute
   '/forgot-password': typeof ForgotPasswordRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/help': typeof HelpRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/dealers': typeof AdminDealersRoute
@@ -535,7 +535,6 @@ export interface FileRoutesById {
   '/agents': typeof AgentsRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/help': typeof HelpRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
@@ -543,6 +542,7 @@ export interface FileRoutesById {
   '/parts': typeof PartsRouteWithChildren
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sellers': typeof SellersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/settings': typeof SettingsRoute
@@ -604,7 +604,6 @@ export interface FileRouteTypes {
     | '/agents'
     | '/dashboard'
     | '/forgot-password'
-    | '/reset-password'
     | '/help'
     | '/information'
     | '/locations'
@@ -612,6 +611,7 @@ export interface FileRouteTypes {
     | '/parts'
     | '/profile'
     | '/register'
+    | '/reset-password'
     | '/sellers'
     | '/services'
     | '/settings'
@@ -668,12 +668,12 @@ export interface FileRouteTypes {
     | '/'
     | '/account-verification'
     | '/forgot-password'
-    | '/reset-password'
     | '/help'
     | '/locations'
     | '/login'
     | '/profile'
     | '/register'
+    | '/reset-password'
     | '/settings'
     | '/admin/content'
     | '/admin/dealers'
@@ -730,7 +730,6 @@ export interface FileRouteTypes {
     | '/agents'
     | '/dashboard'
     | '/forgot-password'
-    | '/reset-password'
     | '/help'
     | '/information'
     | '/locations'
@@ -738,6 +737,7 @@ export interface FileRouteTypes {
     | '/parts'
     | '/profile'
     | '/register'
+    | '/reset-password'
     | '/sellers'
     | '/services'
     | '/settings'
@@ -798,7 +798,6 @@ export interface RootRouteChildren {
   AgentsRoute: typeof AgentsRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
   HelpRoute: typeof HelpRoute
   InformationRoute: typeof InformationRouteWithChildren
   LocationsRoute: typeof LocationsRoute
@@ -806,6 +805,7 @@ export interface RootRouteChildren {
   PartsRoute: typeof PartsRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SellersRoute: typeof SellersRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
   SettingsRoute: typeof SettingsRoute
@@ -856,13 +856,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/help': {
       id: '/help'
       path: '/help'
@@ -910,6 +903,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sellers': {
@@ -1447,7 +1447,6 @@ const rootRouteChildren: RootRouteChildren = {
   AgentsRoute: AgentsRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
   HelpRoute: HelpRoute,
   InformationRoute: InformationRouteWithChildren,
   LocationsRoute: LocationsRoute,
@@ -1455,6 +1454,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartsRoute: PartsRouteWithChildren,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SellersRoute: SellersRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
   SettingsRoute: SettingsRoute,
