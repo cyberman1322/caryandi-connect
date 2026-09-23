@@ -1074,6 +1074,18 @@ export type Database = {
         }
         Relationships: []
       }
+      review_feed: {
+        Row: {
+          id: string | null
+          business_id: string | null
+          seller_id: string | null
+          rating: number | null
+          body: string | null
+          created_at: string | null
+          reviewer_name: string | null
+        }
+        Relationships: []
+      }
       vehicle_listings: {
         Row: {
           id: string | null
@@ -1114,6 +1126,33 @@ export type Database = {
           seller_rating_avg: number | null
           seller_rating_count: number | null
           primary_image_path: string | null
+        }
+        Relationships: []
+      }
+      vehicle_make_counts: {
+        Row: {
+          make: string | null
+          listing_count: number | null
+        }
+        Relationships: []
+      }
+      vehicle_sellers: {
+        Row: {
+          seller_kind: string | null
+          id: string | null
+          slug: string | null
+          name: string | null
+          seller_type: string | null
+          province: Database["public"]["Enums"]["zambia_province"] | null
+          city: string | null
+          area: string | null
+          image_path: string | null
+          about: string | null
+          is_verified: boolean | null
+          rating_avg: number | null
+          rating_count: number | null
+          active_vehicle_count: number | null
+          created_at: string | null
         }
         Relationships: []
       }
@@ -1185,6 +1224,10 @@ export type Database = {
           whatsapp_number: string | null
           whatsapp_link: string | null
         }[]
+      }
+      my_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       request_meetup: {
         Args: {
