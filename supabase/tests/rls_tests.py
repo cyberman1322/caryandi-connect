@@ -260,6 +260,99 @@ denied("reviews: client cannot set rating aggregates directly",
 denied("reviews: cannot review yourself",
        f"insert into public.reviews (seller_id, rating) values ('{U['seller']}', 5);", U["seller"], match="yourself")
 
+# ---------------------------------------------------------------- stage 3 read models
+ok("sellers: directory lists the dealer (business) for anonymous visitors",
+   f"select name || ':' || seller_kind || ':' || active_vehicle_count from public.vehicle_sellers where id = '{BIZ}';",
+   role="anon", expect="Autoworld Zambia:business:2")
+ok("sellers: directory lists private seller with a live listing",
+   f"select seller_kind || ':' || active_vehicle_count from public.vehicle_sellers where id = '{U['seller']}';",
+   role="anon", expect="private:1")
+ok("sellers: mechanics are not in the vehicle seller directory",
+   f"select count(*) from public.vehicle_sellers where id = '{MECH}';", role="anon", expect="0")
+ok("sellers: buyers without listings are not in the directory",
+   f"select count(*) from public.vehicle_sellers where id = '{U['buyer']}';", role="anon", expect="0")
+ok("makes: live makes with counts",
+   "select string_agg(make || '=' || listing_count, ',' order by make) from public.vehicle_make_counts;",
+   role="anon", expect="Isuzu=1,Toyota=2")
+ok("reviews: public feed shows reviewer as first name + initial",
+   f"select reviewer_name || ' ' || rating from public.review_feed where business_id = '{MECH}';",
+   role="anon", expect="Natasha M. 5")
+ok("stats: dealer sees counts for business listings incl. staff's",
+   "select (s->>'active_listings') || '/' || (s->>'times_saved') || '/' || (s->>'contact_requests_total') "
+   "from (select public.my_dashboard_stats() s) x;", U["dealer"], expect="2/1/1")
+ok("stats: buyer with no listings gets zeros",
+   "select public.my_dashboard_stats()->>'active_listings';", U["buyer"], expect="0")
+denied("stats: anonymous visitors cannot call dashboard stats",
+       "select public.my_dashboard_stats();", role="anon", match="permission denied")
+
+# ---------------------------------------------------------------- stage 3 app flows (same queries the app sends)
+NV = ok("app: private seller creates a draft (createVehicle)",
+        "insert into public.vehicles (owner_id, business_id, listing_status, make, model, year, price, condition, transmission, fuel_type, "
+        "registration_status, duty_status, import_status, province, city) values (auth.uid(), null, 'draft', 'Honda', 'Fit', 2016, 98000, "
+        "'used_good', 'automatic', 'petrol', 'registered', 'paid', 'imported', 'copperbelt', 'Ndola') returning id;", U["seller"]).split("\n")[0]
+ok("app: draft is hidden from the public", f"select count(*) from public.vehicle_listings where id = '{NV}';", role="anon", expect="0")
+ok("app: owner can load their draft (getMyVehicle)", f"select make from public.vehicles where id = '{NV}' and deleted_at is null;", U["seller"], expect="Honda")
+ok("app: first photo registered as main (addVehiclePhotos)",
+   f"insert into public.vehicle_images (vehicle_id, storage_path, position, is_primary) values ('{NV}', '{U['seller']}/vehicles-{NV}/a.jpg', 0, true);", U["seller"])
+IMG2 = ok("app: second photo", f"insert into public.vehicle_images (vehicle_id, storage_path, position, is_primary) values "
+          f"('{NV}', '{U['seller']}/vehicles-{NV}/b.jpg', 1, false) returning id;", U["seller"]).split("\n")[0]
+denied("app: attacker cannot attach photos to someone else's car",
+       f"insert into public.vehicle_images (vehicle_id, storage_path, position) values ('{NV}', '{U['attacker']}/x.jpg', 2);", U["attacker"], match="row-level security")
+ok("app: change main photo in two steps (setPrimaryPhoto)",
+   f"update public.vehicle_images set is_primary = false where vehicle_id = '{NV}' and is_primary; "
+   f"update public.vehicle_images set is_primary = true where id = '{IMG2}'; "
+   f"select storage_path from public.vehicle_images where vehicle_id = '{NV}' and is_primary;", U["seller"], expect="/b.jpg")
+denied("app: attacker cannot change the main photo",
+       f"with u as (update public.vehicle_images set is_primary = false where vehicle_id = '{NV}' returning 1) select count(*) from u;", U["attacker"])
+denied("app: attacker cannot publish someone else's draft",
+       f"with u as (update public.vehicles set listing_status = 'active' where id = '{NV}' returning 1) select count(*) from u;", U["attacker"])
+ok("app: owner publishes (setVehicleStatus returns the row)",
+   f"with u as (update public.vehicles set listing_status = 'active' where id = '{NV}' returning id) select count(*) from u;", U["seller"], expect="1")
+ok("app: live listing uses the chosen main photo",
+   f"select primary_image_path from public.vehicle_listings where id = '{NV}';", role="anon", expect="/b.jpg")
+ok("app: search by word across make/model (searchVehicles)",
+   "select count(*) from public.vehicle_listings where listing_status = 'active' and (search_text ilike '%fit%' or city ilike '%fit%');",
+   role="anon", expect="1")
+ok("app: owner edits details (updateVehicle)", f"update public.vehicles set price = 95000 where id = '{NV}';", U["seller"])
+ok("app: soft delete returns the row to the owner (deleteVehicle)",
+   f"with u as (update public.vehicles set deleted_at = now(), listing_status = 'archived' where id = '{NV}' returning id) select count(*) from u;",
+   U["seller"], expect="1")
+ok("app: deleted listing disappears from 'my listings'", f"select count(*) from public.vehicle_listings where id = '{NV}';", U["seller"], expect="0")
+denied("app: deleted listing can no longer be edited",
+       f"with u as (update public.vehicles set price = 1 where id = '{NV}' returning 1) select count(*) from u;", U["seller"])
+
+admin("insert into auth.users (id, email, raw_user_meta_data) values "
+      f"('{U['buyer'][:-4]}beef', 'newdealer@example.com', '{{\"full_name\":\"Lweendo Hamoonga\",\"account_type\":\"dealer\"}}');")
+ND = U["buyer"][:-4] + "beef"
+NB = ok("app: new dealer creates business with blank slug (saveMyBusiness)",
+        "insert into public.businesses (owner_id, business_type, slug, name, province, city) values "
+        "(auth.uid(), 'dealer', '', 'Kafue Road Motors', 'lusaka', 'Lusaka') returning id;", ND).split("\n")[0]
+denied("app: a second business for the same owner is rejected (double submit)",
+       "insert into public.businesses (owner_id, business_type, slug, name, province, city) values "
+       "(auth.uid(), 'dealer', '', 'Kafue Road Motors', 'lusaka', 'Lusaka');", ND, match="businesses_one_per_owner")
+ok("app: slug generated from the name", f"select slug from public.businesses where id = '{NB}';", ND, expect="kafue-road-motors")
+ok("app: owner becomes a business member (getMyBusiness)", f"select role from public.business_members where business_id = '{NB}' and profile_id = auth.uid();", ND, expect="owner")
+DV3 = ok("app: dealer adds a vehicle under the business",
+         f"insert into public.vehicles (owner_id, business_id, listing_status, make, model, year, price, condition, transmission, fuel_type, "
+         f"registration_status, duty_status, import_status, province, city) values (auth.uid(), '{NB}', 'draft', 'Mazda', 'CX-5', 2018, 310000, "
+         f"'used_excellent', 'automatic', 'petrol', 'unregistered', 'unpaid', 'imported', 'lusaka', 'Lusaka') returning id;", ND).split("\n")[0]
+denied("app: cannot publish before a business or personal phone exists",
+       f"update public.vehicles set listing_status = 'active' where id = '{DV3}';", ND, match="phone number")
+ok("app: business contacts upsert (saveMyBusiness)",
+   f"insert into public.business_contacts (business_id, phone, whatsapp_number) values ('{NB}', '+260977000111', '+260977000111') "
+   f"on conflict (business_id) do update set phone = excluded.phone, whatsapp_number = excluded.whatsapp_number;", ND)
+ok("app: now the dealer can publish", f"update public.vehicles set listing_status = 'active' where id = '{DV3}';", ND)
+ok("app: unregistered + duty unpaid filters work together",
+   "select count(*) from public.vehicle_listings where registration_status = 'unregistered' and duty_status = 'unpaid';", role="anon", expect="1")
+denied("app: dealer cannot list under another dealer's business",
+       f"insert into public.vehicles (owner_id, business_id, make, model, year, price, condition, transmission, fuel_type, registration_status, "
+       f"duty_status, import_status, province, city) values (auth.uid(), '{BIZ}', 'X', 'Y', 2020, 1, 'new', 'manual', 'petrol', 'registered', "
+       f"'paid', 'local', 'lusaka', 'Lusaka');", ND, match="row-level security")
+ok("app: new dealer appears in the seller directory by slug",
+   "select seller_kind || ':' || active_vehicle_count from public.vehicle_sellers where slug like 'kafue-road-motors%';", role="anon", expect="business:1")
+ok("app: buyer reveal of the new dealer uses the business number",
+   f"select phone from public.get_contact('business', '{NB}');", U["buyer"], expect="+260977000111")
+
 # ---------------------------------------------------------------- reports & scam flow
 REP = ok("reports: buyer reports seller as scam",
          f"insert into public.reports (target_type, target_id, category, details) values "
