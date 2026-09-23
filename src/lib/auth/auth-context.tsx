@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Session } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
 import { getSupabase } from '@/lib/supabase/client';
 import { fetchMyAccount, type MyAccount } from './profile-service';
 import { signOut as signOutRequest } from './auth-service';
@@ -78,6 +79,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadingFor.current = null;
     setState({ status: 'signed-out' });
   }, []);
+
+  // When the signed-in person changes (sign out, or another account on a shared phone),
+  // drop every cached query so nobody sees the previous user's listings or documents.
+  const queryClient = useQueryClient();
+  const currentUserId = state.status === 'signed-in' || state.status === 'error' ? state.session.user.id : null;
+  const previousUserId = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (state.status === 'loading') return;
+    if (previousUserId.current !== undefined && previousUserId.current !== currentUserId) queryClient.clear();
+    previousUserId.current = currentUserId;
+  }, [state.status, currentUserId, queryClient]);
 
   const value = useMemo<AuthContextValue>(
     () => ({ ...state, passwordRecovery, refreshAccount, signOut }),

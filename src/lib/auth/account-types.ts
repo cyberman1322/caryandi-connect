@@ -85,7 +85,7 @@ const ROLE_DASHBOARD_PATHS: Record<UiRole, string[]> = {
   mechanic: ['/dashboard/services', '/dashboard/pricing', '/dashboard/availability', '/dashboard/requests', '/dashboard/verification'],
   'servicing-company': ['/dashboard/services', '/dashboard/pricing', '/dashboard/availability', '/dashboard/requests', '/dashboard/verification'],
   'parts-seller': ['/dashboard/parts', '/dashboard/add-part', '/dashboard/categories', '/dashboard/enquiries', '/dashboard/verification'],
-  'import-agent': ['/dashboard/routes', '/dashboard/services', '/dashboard/pricing', '/dashboard/enquiries', '/dashboard/verification', '/dashboard/add-vehicle', '/dashboard/listings'],
+  'import-agent': ['/dashboard/routes', '/dashboard/services', '/dashboard/pricing', '/dashboard/enquiries', '/dashboard/verification', '/dashboard/add-vehicle', '/dashboard/edit-vehicle', '/dashboard/listings'],
 };
 
 export function canOpenDashboardPath(type: AccountType, pathname: string): boolean {
