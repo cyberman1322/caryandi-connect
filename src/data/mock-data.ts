@@ -1,12 +1,12 @@
-export type Vehicle = { id:string; name:string; price:number; year:number; mileage:string; transmission:string; fuel:string; location:string; seller:string; verified:boolean; condition:string; image:number; status?:string };
+export type Vehicle = { id:string; name:string; price:number; year:number; mileage:string; transmission:string; fuel:string; location:string; seller:string; verified:boolean; condition:string; image:number; status?:string; specs:{reference:string;chassis:string;engineCode:string;modelCode:string;engineSize:string;colour:string;drive:string;seats:number;doors:number;steering:string;dimensions:string;weight:string};features:string[] };
 export type DirectoryItem = { id:string; name:string; type:string; location:string; rating:number; reviews:number; verified:boolean; image:number; detail:string; price?:string; tags:string[] };
 export type Part = { id:string; name:string; category:string; condition:string; price:number; location:string; seller:string; image:number };
 
 export const vehicles: Vehicle[] = [
- {id:'toyota-harrier-2020',name:'Toyota Harrier Premium',price:485000,year:2020,mileage:'48,200 km',transmission:'Automatic',fuel:'Petrol',location:'Lusaka',seller:'Autoworld Zambia',verified:true,condition:'Used – excellent',image:0,status:'Active'},
- {id:'isuzu-dmax-2021',name:'Isuzu D-Max Double Cab',price:625000,year:2021,mileage:'63,100 km',transmission:'Automatic',fuel:'Diesel',location:'Ndola',seller:'Copperbelt Motors',verified:true,condition:'Used – good',image:1,status:'Active'},
- {id:'toyota-vitz-2019',name:'Toyota Vitz',price:198000,year:2019,mileage:'72,600 km',transmission:'Automatic',fuel:'Petrol',location:'Kitwe',seller:'Mwamba J.',verified:false,condition:'Used – good',image:2,status:'Pending'},
- {id:'honda-grace-2018',name:'Honda Grace Hybrid',price:245000,year:2018,mileage:'59,400 km',transmission:'Automatic',fuel:'Hybrid',location:'Lusaka',seller:'Prime Auto Imports',verified:true,condition:'Imported – unregistered',image:3,status:'Draft'},
+ {id:'toyota-harrier-2020',name:'Toyota Harrier Premium',price:485000,year:2020,mileage:'48,200 km',transmission:'Automatic',fuel:'Petrol',location:'Lusaka',seller:'Autoworld Zambia',verified:true,condition:'Used – excellent',image:0,status:'Active',specs:{reference:'CYD-10482',chassis:'MXUA80-001482',engineCode:'M20A-FKS',modelCode:'6BA-MXUA80',engineSize:'1,986 cc',colour:'Pearl white',drive:'2-wheel drive',seats:5,doors:5,steering:'Right',dimensions:'4.74 × 1.86 × 1.66 m',weight:'1,620 kg'},features:['Alloy wheels','Power steering','Power windows','Air conditioning','Airbags','ABS','Keyless entry','Push start','Reverse camera','Bluetooth','Navigation','Central locking']},
+ {id:'isuzu-dmax-2021',name:'Isuzu D-Max Double Cab',price:625000,year:2021,mileage:'63,100 km',transmission:'Automatic',fuel:'Diesel',location:'Ndola',seller:'Copperbelt Motors',verified:true,condition:'Used – good',image:1,status:'Active',specs:{reference:'CYD-20831',chassis:'MPATFS40JMT003821',engineCode:'4JJ3-TCX',modelCode:'TFS40',engineSize:'2,999 cc',colour:'Silver',drive:'4-wheel drive',seats:5,doors:4,steering:'Right',dimensions:'5.27 × 1.87 × 1.79 m',weight:'2,020 kg'},features:['Alloy wheels','Power steering','Power windows','Air conditioning','Airbags','ABS','Keyless entry','Cruise control','Reverse camera','Bluetooth','Hill assist','Traction control']},
+ {id:'toyota-vitz-2019',name:'Toyota Vitz',price:198000,year:2019,mileage:'72,600 km',transmission:'Automatic',fuel:'Petrol',location:'Kitwe',seller:'Mwamba J.',verified:false,condition:'Used – good',image:2,status:'Pending',specs:{reference:'CYD-31904',chassis:'NSP130-221904',engineCode:'1NR-FE',modelCode:'DBA-NSP130',engineSize:'1,329 cc',colour:'Blue',drive:'2-wheel drive',seats:5,doors:5,steering:'Right',dimensions:'3.95 × 1.70 × 1.50 m',weight:'1,030 kg'},features:['Power steering','Power windows','Air conditioning','Airbags','ABS','Central locking','CD player','USB input','Fog lights']},
+ {id:'honda-grace-2018',name:'Honda Grace Hybrid',price:245000,year:2018,mileage:'59,400 km',transmission:'Automatic',fuel:'Hybrid',location:'Lusaka',seller:'Prime Auto Imports',verified:true,condition:'Imported – unregistered',image:3,status:'Draft',specs:{reference:'CYD-41776',chassis:'GM4-1201776',engineCode:'LEB-H1',modelCode:'DAA-GM4',engineSize:'1,496 cc',colour:'Metallic grey',drive:'2-wheel drive',seats:5,doors:4,steering:'Right',dimensions:'4.45 × 1.70 × 1.48 m',weight:'1,170 kg'},features:['Alloy wheels','Power steering','Power windows','Climate control','Airbags','ABS','Keyless entry','Push start','Reverse camera','Bluetooth','Eco mode','Lane assist']},
 ];
 
 export const services: DirectoryItem[] = [
@@ -31,6 +31,12 @@ export const reviews = [
  {name:'Natasha M.',rating:5,date:'12 Sep 2026',text:'Clear communication and the vehicle was exactly as described.'},
  {name:'Chanda K.',rating:5,date:'4 Sep 2026',text:'Professional service, fair pricing and quick turnaround.'},
  {name:'Brian S.',rating:4,date:'28 Aug 2026',text:'Helpful throughout the process and easy to reach.'},
+];
+
+export const marketplaceReviews = [
+ {name:'Thandiwe M.',location:'Lusaka',rating:5,text:'Caryandi made it easy to compare vehicles and contact sellers without jumping between different places.'},
+ {name:'Joseph K.',location:'Ndola',rating:5,text:'The clear vehicle details and seller information helped me know what questions to ask before viewing.'},
+ {name:'Mutinta B.',location:'Kitwe',rating:4,text:'I like having cars, mechanics and parts together. It makes planning the whole purchase much simpler.'},
 ];
 
 export const notifications = [
