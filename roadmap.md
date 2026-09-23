@@ -7,3 +7,5 @@
 - [x] Build role-aware dashboard routes and reusable listing forms
 - [x] Build administrator workspace routes and management states
 - [x] Verify build, interactions, responsive layouts and runtime health
+- [x] Add marketplace feedback to the home page
+- [x] Add detailed vehicle specifications and feature lists
