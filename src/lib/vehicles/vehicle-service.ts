@@ -109,11 +109,18 @@ export async function getLatestVehicles(limit = 8): Promise<VehicleCardData[]> {
 }
 
 export async function getMakeOptions(): Promise<Array<{ make: string; count: number }>> {
-  const { data, error } = await getSupabase().from('vehicle_make_counts').select('make, listing_count').order('make');
+  const { data, error } = await getSupabase()
+    .from('vehicle_listings')
+    .select('make')
+    .eq('listing_status', 'active')
+    .order('make');
   if (error) fail('We couldn’t load vehicle makes.', error);
-  return (data ?? [])
-    .filter((r): r is { make: string; listing_count: number } => Boolean(r.make))
-    .map((r) => ({ make: r.make, count: r.listing_count ?? 0 }));
+  const counts = new Map<string, number>();
+  for (const row of data ?? []) {
+    const make = row.make;
+    if (make) counts.set(make, (counts.get(make) ?? 0) + 1);
+  }
+  return Array.from(counts, ([make, count]) => ({ make, count })).sort((a, b) => a.make.localeCompare(b.make));
 }
 
 /** One listing (any status the caller is allowed to see: live for everyone, drafts for the owner). */
