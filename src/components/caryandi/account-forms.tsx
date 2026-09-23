@@ -12,7 +12,7 @@ import { updateMyProfile } from '@/lib/auth/profile-service';
 import { changePassword, signOutEverywhere } from '@/lib/auth/auth-service';
 import { fieldErrors, newPasswordSchema, profileSchema, ZAMBIA_PROVINCES, type ProfileInput } from '@/lib/auth/validation';
 
-function Card({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
+export function Card({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   return (
     <section className="rounded-lg border bg-card p-5 sm:p-6">
       <h2 className="text-xl font-semibold">{title}</h2>
@@ -22,7 +22,7 @@ function Card({ title, description, children }: { title: string; description?: s
   );
 }
 
-function Field({ label, error, hint, children }: { label: string; error?: string | undefined; hint?: string; children: (id: string) => ReactNode }) {
+export function Field({ label, error, hint, children }: { label: string; error?: string | undefined; hint?: string; children: (id: string) => ReactNode }) {
   const id = useId();
   return (
     <div className="grid gap-2">
@@ -33,7 +33,7 @@ function Field({ label, error, hint, children }: { label: string; error?: string
   );
 }
 
-function Status({ kind, children }: { kind: 'success' | 'error'; children: ReactNode }) {
+export function Status({ kind, children }: { kind: 'success' | 'error'; children: ReactNode }) {
   return kind === 'success'
     ? <div role="status" className="flex items-start gap-2 rounded-md bg-success/10 p-3 text-sm text-success"><CheckCircle2 className="mt-0.5 size-4 shrink-0" />{children}</div>
     : <p role="alert" className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{children}</p>;
