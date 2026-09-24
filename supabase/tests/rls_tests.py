@@ -209,6 +209,25 @@ ok("verification: EVERY car of the verified business shows the badge (incl. the 
 ok("verification: private car shows badge", f"select is_verified from public.vehicle_listings where id = '{PV}';", role="anon", expect="t")
 ok("verification: requester notified", f"select count(*) from public.notifications where type = 'verification_update';", U["dealer"], expect="1")
 ok("audit: decisions written to audit log", "select count(*) from public.admin_audit_log where action like 'verification.%';", U["admin"], expect="2")
+
+# verification read model (migration 0011)
+ok("verification view: requester sees own request with car registration + duty status",
+   f"select vehicle_registration_status||'/'||vehicle_duty_status||'/'||status from public.verification_request_details where id = '{VR}';",
+   U["seller"], expect="registered/unpaid/approved")
+ok("verification view: dealer sees own business request labelled with the business name",
+   f"select business_name from public.verification_request_details where id = '{BVR}';", U["dealer"], expect="Autoworld Zambia")
+denied("verification view: other users see no requests",
+       "select count(*) from public.verification_request_details;", U["attacker"])
+denied("verification view: anonymous visitors are refused",
+       "select count(*) from public.verification_request_details;", role="anon", match="permission denied")
+ok("verification view: admin sees the whole queue with reviewer names",
+   "select count(*) from public.verification_request_details where reviewer_name is not null;", U["admin"], expect="2")
+denied("verification: approved car cannot be submitted again",
+       f"insert into public.verification_requests (requester_id, subject, vehicle_id, selfie_path, selfie_captured_at) values "
+       f"(auth.uid(), 'vehicle', '{PV}', '{U['seller']}/selfie-again.jpg', now());", U["seller"], match="already verified")
+denied("verification: document cannot be attached to another user's request",
+       f"insert into public.verification_documents (request_id, document_type, storage_path) values "
+       f"('{VR}', 'national_id', '{U['attacker']}/doc.pdf');", U["attacker"], match="row-level security")
 denied("audit: non-admins cannot read audit log", "select count(*) from public.admin_audit_log;", U["dealer"])
 
 # ---------------------------------------------------------------- contact + chat + meetups
