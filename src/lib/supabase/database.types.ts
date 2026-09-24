@@ -1160,6 +1160,38 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_request_details: {
+        Row: {
+          id: string | null
+          requester_id: string | null
+          subject: Database["public"]["Enums"]["verification_subject"] | null
+          business_id: string | null
+          vehicle_id: string | null
+          selfie_path: string | null
+          selfie_captured_at: string | null
+          requester_notes: string | null
+          status: Database["public"]["Enums"]["verification_status"] | null
+          review_notes: string | null
+          reviewed_at: string | null
+          created_at: string | null
+          requester_name: string | null
+          requester_account_type: Database["public"]["Enums"]["account_type"] | null
+          business_name: string | null
+          business_type: Database["public"]["Enums"]["business_type"] | null
+          business_verification_status: Database["public"]["Enums"]["verification_status"] | null
+          vehicle_year: number | null
+          vehicle_make: string | null
+          vehicle_model: string | null
+          vehicle_variant: string | null
+          vehicle_registration_status: Database["public"]["Enums"]["registration_status"] | null
+          vehicle_duty_status: Database["public"]["Enums"]["duty_status"] | null
+          vehicle_import_status: Database["public"]["Enums"]["import_status"] | null
+          vehicle_listing_status: Database["public"]["Enums"]["listing_status"] | null
+          document_count: number | null
+          reviewer_name: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_get_scam_report_details: {
