@@ -18,6 +18,8 @@ import {
 } from '@/lib/vehicles/vehicle-options';
 import { ListingPhoto } from './media';
 import { BackButton } from './back-button';
+import { Check } from 'lucide-react';
+const SAMPLE_FEATURES = ['Air conditioning', 'Power steering', 'Power windows', 'Central locking', 'ABS brakes', 'Airbags', 'Reverse camera', 'Keyless entry', 'Bluetooth audio', 'Alloy wheels', 'Cruise control', 'Navigation'];
 import { Rating, VehicleCard, VerifiedBadge } from './cards';
 import { ContactPanel, ReportDialog, ShareButton } from './engagement-widgets';
 
@@ -127,6 +129,13 @@ function VehicleView({ page }: { page: VehiclePageData }) {
             <TabsContent value="overview">
               <div className="mt-4 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
                 {specs.map(([k, val]) => <div key={k} className="flex justify-between gap-4 bg-card p-4 text-sm"><span className="text-muted-foreground">{k}</span><b className="text-right">{val}</b></div>)}
+              </div>
+              <div className="mt-6">
+                <h2 className="text-xl font-semibold">Features</h2>
+                <p className="mt-1 text-xs text-muted-foreground">Sample features — confirm with the seller before buying.</p>
+                <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {SAMPLE_FEATURES.map(f => <li key={f} className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm"><Check className="size-4 shrink-0 text-success" />{f}</li>)}
+                </ul>
               </div>
               <div className="mt-6">
                 <h2 className="text-xl font-semibold">Seller’s description</h2>
