@@ -6,7 +6,7 @@ import { Brand } from './brand';
 import { useAuth } from '@/lib/auth/auth-context';
 import { ACCOUNT_TYPE_LABELS, canOpenDashboardPath } from '@/lib/auth/account-types';
 import { becomePrivateSeller } from '@/lib/auth/profile-service';
-import { safeRedirectPath } from '@/lib/auth/redirect';
+import { isAuthPage, safeRedirectPath } from '@/lib/auth/redirect';
 
 function Centered({ children }: { children: ReactNode }) {
   return (
@@ -39,9 +39,10 @@ export function RequireAuth({ children, admin = false }: { children: ReactNode; 
   const navigate = useNavigate();
   const location = useRouterState({ select: (s) => s.location });
   const [switching, setSwitching] = useState(false);
-  // The guard stays mounted while the router moves to /login, and the location
-  // it sees changes mid-transition. Send the visitor to sign in once only, with
-  // the page they originally asked for, or the redirect nests into itself.
+  // The guard can stay mounted (or be mounted again) while the router moves to
+  // /login, so the location it sees may already be the sign-in page. Redirect
+  // once, only from the protected page, so the original destination is kept
+  // and ?redirect= never nests into itself.
   const redirected = useRef(false);
 
   useEffect(() => {
@@ -49,11 +50,11 @@ export function RequireAuth({ children, admin = false }: { children: ReactNode; 
       redirected.current = false;
       return;
     }
-    if (redirected.current) return;
+    if (redirected.current || isAuthPage(location.pathname)) return;
     redirected.current = true;
     const redirect = safeRedirectPath(location.href);
     void navigate({ to: '/login', search: redirect ? { redirect } : {}, replace: true });
-  }, [auth.status, location.href, navigate]);
+  }, [auth.status, location.href, location.pathname, navigate]);
 
   if (auth.status === 'loading' || auth.status === 'signed-out') return <AuthLoading />;
 
