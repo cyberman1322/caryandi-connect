@@ -895,6 +895,7 @@ export type Database = {
           created_at: string
           updated_at: string
           deleted_at: string | null
+          features: string[]
         }
         Insert: {
           id?: string
@@ -930,6 +931,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
+          features?: string[]
         }
         Update: {
           id?: string
@@ -965,6 +967,7 @@ export type Database = {
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
+          features?: string[]
         }
         Relationships: []
       }
@@ -1126,6 +1129,7 @@ export type Database = {
           seller_rating_avg: number | null
           seller_rating_count: number | null
           primary_image_path: string | null
+          features: string[] | null
         }
         Relationships: []
       }
