@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import {
   CONDITIONS, DUTY_STATUSES, FUEL_TYPES, IMPORT_STATUSES, PROVINCES, REGISTRATION_STATUSES, TRANSMISSIONS,
-  parseEngineSize,
+  VEHICLE_FEATURES, isVehicleFeature, parseEngineSize, type VehicleFeature,
 } from './vehicle-options';
 
 const enumOf = <T extends string>(options: ReadonlyArray<readonly [T, string]>, message: string) =>
@@ -82,6 +82,11 @@ export const vehicleFormSchema = z.object({
   city: z.string().trim().min(2, 'Enter the town or city').max(80),
   area: optionalText(120),
   description: optionalText(5000),
+  // Ticked features; unknown codes are dropped and the list is de-duplicated in catalogue order.
+  features: z.array(z.string()).max(VEHICLE_FEATURES.length).transform((codes): VehicleFeature[] => {
+    const chosen = new Set(codes.filter(isVehicleFeature));
+    return VEHICLE_FEATURES.map(([code]) => code).filter((code) => chosen.has(code));
+  }),
 });
 
 export type VehicleFormInput = z.input<typeof vehicleFormSchema>;
@@ -90,7 +95,7 @@ export type VehicleFormValues = z.output<typeof vehicleFormSchema>;
 export const emptyVehicleForm: VehicleFormInput = {
   make: '', model: '', variant: '', year: '', price: '', mileage: '', engineSize: '',
   condition: '', transmission: '', fuel: '', registration: '', duty: '', importStatus: 'local',
-  bodyType: '', colour: '', province: '', city: '', area: '', description: '',
+  bodyType: '', colour: '', province: '', city: '', area: '', description: '', features: [],
 };
 
 /** Form values → columns for insert/update (owner, business and status are set by the service). */
@@ -115,5 +120,6 @@ export function toVehicleColumns(v: VehicleFormValues) {
     city: v.city,
     area: v.area,
     description: v.description,
+    features: v.features,
   };
 }

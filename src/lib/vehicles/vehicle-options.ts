@@ -80,6 +80,73 @@ export const BODY_TYPES = [
   'Van', 'Coupe', 'Convertible', 'Truck', 'Bus', 'Other',
 ] as const;
 
+/**
+ * Features a seller can tick for a vehicle, grouped for the form and the vehicle page.
+ * Codes must match private.vehicle_feature_codes() in the database
+ * (supabase/migrations/20260924001000_vehicle_features.sql) — the database rejects any other code.
+ */
+export const VEHICLE_FEATURE_GROUPS = [
+  ['Comfort & convenience', [
+    ['air_conditioning', 'Air conditioning'],
+    ['climate_control', 'Climate control'],
+    ['power_steering', 'Power steering'],
+    ['power_windows', 'Power windows'],
+    ['central_locking', 'Central locking'],
+    ['keyless_entry', 'Keyless entry'],
+    ['push_button_start', 'Push-button start'],
+    ['cruise_control', 'Cruise control'],
+    ['leather_seats', 'Leather seats'],
+    ['electric_seats', 'Electric seats'],
+    ['heated_seats', 'Heated seats'],
+    ['sunroof', 'Sunroof'],
+    ['third_row_seats', 'Third-row seats'],
+  ]],
+  ['Safety & security', [
+    ['abs', 'ABS brakes'],
+    ['airbags', 'Airbags'],
+    ['stability_control', 'Stability control'],
+    ['reverse_camera', 'Reverse camera'],
+    ['parking_sensors', 'Parking sensors'],
+    ['camera_360', '360° camera'],
+    ['lane_assist', 'Lane assist'],
+    ['alarm_immobiliser', 'Alarm / immobiliser'],
+  ]],
+  ['Technology', [
+    ['bluetooth', 'Bluetooth audio'],
+    ['navigation', 'Navigation'],
+    ['touchscreen', 'Touchscreen'],
+    ['apple_carplay_android_auto', 'Apple CarPlay / Android Auto'],
+    ['usb_aux', 'USB / AUX input'],
+  ]],
+  ['Exterior & capability', [
+    ['alloy_wheels', 'Alloy wheels'],
+    ['four_wheel_drive', '4x4 / AWD'],
+    ['tow_bar', 'Tow bar'],
+    ['roof_rails', 'Roof rails'],
+    ['fog_lights', 'Fog lights'],
+    ['led_headlights', 'LED headlights'],
+    ['bull_bar', 'Bull bar'],
+    ['canopy', 'Canopy'],
+  ]],
+] as const;
+
+export type VehicleFeature = (typeof VEHICLE_FEATURE_GROUPS)[number][1][number][0];
+
+/** Flat [code, label] list in display order. */
+export const VEHICLE_FEATURES: ReadonlyArray<readonly [VehicleFeature, string]> =
+  VEHICLE_FEATURE_GROUPS.flatMap<readonly [VehicleFeature, string]>(([, items]) => items);
+
+export const isVehicleFeature = (v: unknown): v is VehicleFeature =>
+  typeof v === 'string' && VEHICLE_FEATURES.some(([code]) => code === v);
+
+/** Stored codes → labelled features in catalogue order (unknown codes are skipped). */
+export function featuresForDisplay(codes: ReadonlyArray<string> | null | undefined): Array<readonly [string, ReadonlyArray<string>]> {
+  const chosen = new Set(codes ?? []);
+  return VEHICLE_FEATURE_GROUPS
+    .map(([group, items]) => [group, items.filter(([code]) => chosen.has(code)).map(([, label]) => label)] as const)
+    .filter(([, labels]) => labels.length > 0);
+}
+
 export function labelOf<T extends string>(options: ReadonlyArray<readonly [T, string]>, value: T | null | undefined): string {
   if (!value) return '—';
   return options.find(([v]) => v === value)?.[1] ?? value;
