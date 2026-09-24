@@ -5,12 +5,15 @@ import { Badge } from '@/components/ui/badge';
 
 type Stage = 'idle' | 'live' | 'captured' | 'blocked';
 
+/** A selfie taken live from the camera, ready to upload. */
+export type CapturedSelfie = { blob: Blob; capturedAt: Date };
+
 /**
  * Camera-only selfie capture. Deliberately has NO file input and no drag/drop:
  * a live capture is the only accepted path, since stored images cannot be
  * distinguished from uploads later. Admin review is the second gate.
  */
-export function SelfieCapture() {
+export function SelfieCapture({ onChange, disabled = false }: { onChange?: (selfie: CapturedSelfie | null) => void; disabled?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -50,13 +53,17 @@ export function SelfieCapture() {
     canvas.width = video.videoWidth || 960;
     canvas.height = video.videoHeight || 720;
     canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const capturedAt = new Date();
     setShot(canvas.toDataURL('image/jpeg', 0.9));
+    // Drawing onto a canvas and re-encoding means no camera metadata leaves the device.
+    canvas.toBlob((blob) => { if (blob) onChange?.({ blob, capturedAt }); }, 'image/jpeg', 0.88);
     stop();
     setStage('captured');
   };
 
   const retake = () => {
     setShot(null);
+    onChange?.(null);
     void start();
   };
 
@@ -108,20 +115,19 @@ export function SelfieCapture() {
 
       <div className="mt-4 flex flex-wrap gap-2">
         {stage === 'live' ? (
-          <Button type="button" onClick={capture}>
+          <Button type="button" onClick={capture} disabled={disabled}>
             <Camera />
             Take selfie
           </Button>
         ) : stage === 'captured' ? (
           <>
-            <Button type="button" variant="outline" onClick={retake}>
+            <Button type="button" variant="outline" onClick={retake} disabled={disabled}>
               <RefreshCw />
               Retake
             </Button>
-            <Button type="button">Submit for review</Button>
           </>
         ) : (
-          <Button type="button" onClick={start}>
+          <Button type="button" onClick={start} disabled={disabled}>
             <Camera />
             {stage === 'blocked' ? 'Try camera again' : 'Start camera'}
           </Button>
@@ -137,7 +143,7 @@ export function SelfieCapture() {
       {stage === 'captured' && (
         <p role="status" className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
           <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warning" />
-          This is a preview. Nothing is stored yet.
+          Selfie ready. It is uploaded only when you submit the request below.
         </p>
       )}
     </section>
