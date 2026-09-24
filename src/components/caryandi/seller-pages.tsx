@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -30,7 +31,8 @@ import {
 import { emptyVehicleForm, vehicleFormSchema, type VehicleFormInput } from '@/lib/vehicles/validation';
 import {
   BODY_TYPES, COMMON_MAKES, CONDITIONS, DUTY_STATUSES, FUEL_TYPES, IMPORT_STATUSES, LISTING_STATUS_LABELS, PROVINCES,
-  REGISTRATION_STATUSES, TRANSMISSIONS, formatPrice, labelOf, vehicleTitle, type ListingStatus,
+  REGISTRATION_STATUSES, TRANSMISSIONS, VEHICLE_FEATURE_GROUPS, formatPrice, labelOf, vehicleTitle, type ListingStatus,
+  type VehicleFeature,
 } from '@/lib/vehicles/vehicle-options';
 import { timeAgo } from '@/lib/marketplace/engagement-service';
 import { Card, Field, Status } from './account-forms';
@@ -186,8 +188,12 @@ function toForm(v: NonNullable<Awaited<ReturnType<typeof getMyVehicle>>>): Vehic
     condition: v.condition, transmission: v.transmission, fuel: v.fuel_type, registration: v.registration_status,
     duty: v.duty_status, importStatus: v.import_status, bodyType: v.body_type ?? '', colour: v.colour ?? '',
     province: v.province, city: v.city, area: v.area ?? '', description: v.description ?? '',
+    features: v.features ?? [],
   };
 }
+
+/** Form fields edited as plain text (everything except the features checklist). */
+type TextKey = Exclude<keyof VehicleFormInput, 'features'>;
 
 /** Add or edit a vehicle. New vehicles are saved as drafts, then photos and documents are added before publishing. */
 export function VehicleEditor({ vehicleId }: { vehicleId?: string | undefined }) {
@@ -246,8 +252,8 @@ export function VehicleEditor({ vehicleId }: { vehicleId?: string | undefined })
     if (!existing.data) return <EmptyState title="Listing not found" body="It may have been deleted, or it belongs to another account." />;
   }
 
-  const set = (key: keyof VehicleFormInput) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setValues((v) => ({ ...v, [key]: e.target.value }));
-  const choose = (key: keyof VehicleFormInput) => (value: string) => setValues((v) => ({ ...v, [key]: value }));
+  const set = (key: TextKey) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setValues((v) => ({ ...v, [key]: e.target.value }));
+  const choose = (key: TextKey) => (value: string) => setValues((v) => ({ ...v, [key]: value }));
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -276,7 +282,10 @@ export function VehicleEditor({ vehicleId }: { vehicleId?: string | undefined })
     }
   }
 
-  const select = (key: keyof VehicleFormInput, label: string, options: ReadonlyArray<readonly [string, string]>, placeholder: string) => (
+  const toggleFeature = (code: VehicleFeature, on: boolean) =>
+    setValues((v) => ({ ...v, features: on ? [...v.features.filter((f) => f !== code), code] : v.features.filter((f) => f !== code) }));
+
+  const select = (key: TextKey, label: string, options: ReadonlyArray<readonly [string, string]>, placeholder: string) => (
     <Field label={label} error={errors[key]}>
       {(id) => (
         <Select value={values[key]} onValueChange={choose(key)}>
@@ -321,6 +330,27 @@ export function VehicleEditor({ vehicleId }: { vehicleId?: string | undefined })
           {select('province', 'Province', PROVINCES, 'Select province')}
           <Field label="Town or city" error={errors['city']}>{(id) => <Input id={id} value={values.city} onChange={set('city')} placeholder="e.g. Lusaka" maxLength={80} />}</Field>
           <Field label="Area (optional)" error={errors['area']}>{(id) => <Input id={id} value={values.area} onChange={set('area')} placeholder="e.g. Woodlands" maxLength={120} />}</Field>
+        </div>
+      </Card>
+
+      <Card title="Features" description="Tick only what this vehicle actually has. Buyers see these on the listing.">
+        <div className="grid gap-6">
+          {VEHICLE_FEATURE_GROUPS.map(([group, items]) => (
+            <fieldset key={group}>
+              <legend className="text-sm font-medium">{group}</legend>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map(([code, label]) => {
+                  const id = `feature-${code}`;
+                  return (
+                    <label key={code} htmlFor={id} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <Checkbox id={id} checked={values.features.includes(code)} onCheckedChange={(c) => toggleFeature(code, c === true)} />
+                      {label}
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+          ))}
         </div>
       </Card>
 

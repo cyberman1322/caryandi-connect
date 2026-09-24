@@ -14,12 +14,11 @@ import {
 } from '@/lib/vehicles/vehicle-service';
 import {
   CONDITIONS, DUTY_STATUSES, FUEL_TYPES, IMPORT_STATUSES, LISTING_STATUS_LABELS, PROVINCES, REGISTRATION_STATUSES, TRANSMISSIONS,
-  formatEngine, formatMileage, formatPrice, labelOf, vehicleTitle,
+  featuresForDisplay, formatEngine, formatMileage, formatPrice, labelOf, vehicleTitle,
 } from '@/lib/vehicles/vehicle-options';
 import { ListingPhoto } from './media';
 import { BackButton } from './back-button';
 import { Check } from 'lucide-react';
-const SAMPLE_FEATURES = ['Air conditioning', 'Power steering', 'Power windows', 'Central locking', 'ABS brakes', 'Airbags', 'Reverse camera', 'Keyless entry', 'Bluetooth audio', 'Alloy wheels', 'Cruise control', 'Navigation'];
 import { Rating, VehicleCard, VerifiedBadge } from './cards';
 import { ContactPanel, ReportDialog, ShareButton } from './engagement-widgets';
 
@@ -84,6 +83,7 @@ function VehicleView({ page }: { page: VehiclePageData }) {
     staleTime: 5 * 60_000,
   });
 
+  const features = featuresForDisplay(v.features);
   const specs: Array<[string, string]> = [
     ['Condition', labelOf(CONDITIONS, v.condition)],
     ['Mileage', formatMileage(v.mileage_km)],
@@ -130,13 +130,16 @@ function VehicleView({ page }: { page: VehiclePageData }) {
               <div className="mt-4 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
                 {specs.map(([k, val]) => <div key={k} className="flex justify-between gap-4 bg-card p-4 text-sm"><span className="text-muted-foreground">{k}</span><b className="text-right">{val}</b></div>)}
               </div>
-              <div className="mt-6">
+              {features.length > 0 && <div className="mt-6">
                 <h2 className="text-xl font-semibold">Features</h2>
-                <p className="mt-1 text-xs text-muted-foreground">Sample features — confirm with the seller before buying.</p>
-                <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {SAMPLE_FEATURES.map(f => <li key={f} className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm"><Check className="size-4 shrink-0 text-success" />{f}</li>)}
-                </ul>
-              </div>
+                <p className="mt-1 text-xs text-muted-foreground">As listed by the seller — confirm when you view the vehicle.</p>
+                {features.map(([group, labels]) => <div key={group} className="mt-4">
+                  <h3 className="text-sm font-medium text-muted-foreground">{group}</h3>
+                  <ul className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {labels.map(f => <li key={f} className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm"><Check className="size-4 shrink-0 text-success" />{f}</li>)}
+                  </ul>
+                </div>)}
+              </div>}
               <div className="mt-6">
                 <h2 className="text-xl font-semibold">Seller’s description</h2>
                 <p className="mt-2 whitespace-pre-line leading-7 text-muted-foreground">{v.description || 'The seller hasn’t added a description. Ask about service history and any known issues before viewing.'}</p>
