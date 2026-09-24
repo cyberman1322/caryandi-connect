@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { Loader2, LockKeyhole, ShieldAlert, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,12 +39,20 @@ export function RequireAuth({ children, admin = false }: { children: ReactNode; 
   const navigate = useNavigate();
   const location = useRouterState({ select: (s) => s.location });
   const [switching, setSwitching] = useState(false);
+  // The guard stays mounted while the router moves to /login, and the location
+  // it sees changes mid-transition. Send the visitor to sign in once only, with
+  // the page they originally asked for, or the redirect nests into itself.
+  const redirected = useRef(false);
 
   useEffect(() => {
-    if (auth.status === 'signed-out') {
-      const redirect = safeRedirectPath(location.href);
-      void navigate({ to: '/login', search: redirect ? { redirect } : {}, replace: true });
+    if (auth.status !== 'signed-out') {
+      redirected.current = false;
+      return;
     }
+    if (redirected.current) return;
+    redirected.current = true;
+    const redirect = safeRedirectPath(location.href);
+    void navigate({ to: '/login', search: redirect ? { redirect } : {}, replace: true });
   }, [auth.status, location.href, navigate]);
 
   if (auth.status === 'loading' || auth.status === 'signed-out') return <AuthLoading />;
