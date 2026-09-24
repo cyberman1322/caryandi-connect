@@ -143,6 +143,29 @@ ok("vehicle: anonymous visitor sees live listings via vehicle_listings",
 ok("vehicle: search by text works (trigram)",
    "select make||' '||model from public.vehicle_listings where search_text ilike '%harrier%';", role="anon", expect="Toyota Harrier")
 
+# vehicle features (migration 0010)
+ok("features: new listings start with no features",
+   f"select cardinality(features) from public.vehicles where id = '{PV}';", U["seller"], expect="0")
+ok("features: seller sets features on own listing",
+   f"update public.vehicles set features = array['air_conditioning','reverse_camera','four_wheel_drive'] where id = '{PV}';", U["seller"])
+ok("features: buyers see them on the public read model",
+   f"select array_to_string(features, ',') from public.vehicle_listings where id = '{PV}';", role="anon",
+   expect="air_conditioning,reverse_camera,four_wheel_drive")
+denied("features: unknown feature codes are rejected",
+       f"update public.vehicles set features = array['air_conditioning','free_fuel_for_life'] where id = '{PV}';", U["seller"],
+       match="vehicles_features_valid")
+denied("features: duplicates are rejected",
+       f"update public.vehicles set features = array['abs','abs'] where id = '{PV}';", U["seller"], match="vehicles_features_valid")
+denied("features: nulls are rejected",
+       f"update public.vehicles set features = array['abs', null] where id = '{PV}';", U["seller"], match="vehicles_features_valid")
+denied("features: attacker cannot change another seller's features",
+       f"with u as (update public.vehicles set features = '{{}}' where id = '{PV}' returning 1) select count(*) from u;", U["attacker"])
+ok("features: dealer staff can set features on a business listing",
+   f"update public.vehicles set features = array['bluetooth','tow_bar'] where id = '{DV2}';", U["dealer_staff"])
+ok("features: filter 'has reverse camera' finds only matching live cars",
+   "select count(*) from public.vehicle_listings where listing_status = 'active' and features @> array['reverse_camera'];",
+   role="anon", expect="1")
+
 # images: path must be in own folder
 ok("images: seller attaches photo from own folder",
    f"insert into public.vehicle_images (vehicle_id, storage_path, is_primary) values ('{PV}', '{U['seller']}/vitz/1.jpg', true);", U["seller"])
