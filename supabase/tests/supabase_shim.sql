@@ -12,9 +12,15 @@ create schema extensions;
 create schema auth;
 create table auth.users (
   id uuid primary key default gen_random_uuid(),
+  aud text,
+  role text,
   email text,
+  encrypted_password text,
+  email_confirmed_at timestamptz,
+  raw_app_meta_data jsonb,
   raw_user_meta_data jsonb not null default '{}',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  updated_at timestamptz
 );
 create function auth.uid() returns uuid language sql stable as $$
   select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid

@@ -296,6 +296,8 @@ ok("meetup: seller got a chat message about it",
    f"select body from public.messages where meetup_id = '{MEET}';", U["seller"], expect="would like to meet to view and inspect the 2019 Toyota Vitz")
 ok("meetup: seller got a meetup notification",
    "select count(*) from public.notifications where type = 'meetup_request';", U["seller"], expect="1")
+ok("meetup: private seller's notification opens Enquiries (a page they can use)",
+   "select link from public.notifications where type = 'meetup_request';", U["seller"], expect="/dashboard/enquiries")
 denied("meetup: buyer cannot accept their own request",
        f"select public.respond_meetup('{MEET}', 'accepted');", U["buyer"], match="only the seller")
 ok("meetup: seller accepts", f"select public.respond_meetup('{MEET}', 'accepted', 'See you then');", U["seller"])
@@ -303,6 +305,8 @@ ok("meetup: buyer notified of acceptance", "select count(*) from public.notifica
 
 M2 = ok("meetup: works for mechanic services too",
         f"select public.request_meetup('service', '{SVC}', now() + interval '1 day');", U["buyer"])
+ok("meetup: mechanic's notification opens Service requests",
+   f"select link from public.notifications where type = 'meetup_request' and data->>'meetup_id' = '{M2}';", U["mechanic"], expect="/dashboard/requests")
 ok("meetup: mechanic receives service booking message",
    f"select body from public.messages where meetup_id = '{M2}';", U["mechanic"], expect="would like to book: Pre-purchase inspection")
 M3 = ok("meetup: works for import agents",
@@ -314,6 +318,49 @@ M4 = ok("meetup: dealer listing — whole team is in the chat",
 ok("meetup: dealer staff can respond for the business",
    f"select public.respond_meetup('{M4}', 'accepted');", U["dealer_staff"])
 
+# ---------------------------------------------------------------- inbox (stage 8)
+ok("inbox: buyer sees the conversation with the seller's name and no unread (own messages)",
+   f"select counterpart_name || '|' || unread_count || '|' || started_by_me from public.inbox where id = '{CONV}';", U["buyer"],
+   expect="Mwamba Jere|")
+ok("inbox: seller sees the buyer's name as counterpart",
+   f"select counterpart_name from public.inbox where id = '{CONV}';", U["seller"], expect="Natasha")
+ok("inbox: buyer has unread messages from the seller",
+   f"select unread_count > 0 from public.inbox where id = '{CONV}';", U["buyer"], expect="t")
+ok("inbox: marking read clears the unread count",
+   f"select public.mark_conversation_read('{CONV}'); select unread_count from public.inbox where id = '{CONV}';", U["buyer"], expect="0")
+denied("inbox: other users see nothing", "select count(*) from public.inbox;", U["attacker"])
+denied("inbox: anonymous visitors cannot read the inbox", "select count(*) from public.inbox;", role="anon", match="permission denied")
+ok("inbox: thread shows sender names and my own messages flagged",
+   f"select count(*) from public.conversation_messages where conversation_id = '{CONV}' and is_mine;", U["buyer"], expect="3")
+ok("inbox: meet-up status visible on the meet-up message",
+   f"select meetup_status from public.conversation_messages where meetup_id = '{MEET}' and kind = 'meetup_request';", U["buyer"], expect="accepted")
+denied("inbox: thread messages hidden from non-participants",
+       f"select count(*) from public.conversation_messages where conversation_id = '{CONV}';", U["attacker"])
+ok("inbox: mechanic sees the service booking request with the buyer's name",
+   f"select requester_name || '|' || status from public.meetup_request_details where id = '{M2}';", U["mechanic"], expect="|pending")
+denied("inbox: meet-up details hidden from others",
+       f"select count(*) from public.meetup_request_details where id = '{M2}';", U["attacker"])
+denied("inbox: mark read cannot touch someone else's read state",
+       f"select public.mark_conversation_read('{CONV}'); select count(*) from public.conversation_participants where conversation_id = '{CONV}' and profile_id = auth.uid();",
+       U["attacker"])
+ok("inbox: message rate limit allows normal chatting",
+   f"insert into public.messages (conversation_id, body) values ('{CONV}', 'Thanks!');", U["buyer"])
+denied("inbox: message rate limit blocks floods",
+       f"insert into public.messages (conversation_id, body) select '{CONV}', 'spam ' || g from generate_series(1, 70) g;",
+       U["buyer"], match="too many messages")
+
+# ---------------------------------------------------------------- review eligibility (stage 9)
+ok("reviews: anonymous visitors are asked to sign in",
+   f"select public.review_eligibility(p_business_id => '{MECH}')->>'status';", role="anon", expect="sign_in")
+ok("reviews: buyer who contacted the mechanic may review",
+   f"select public.review_eligibility(p_business_id => '{MECH}')->>'status';", U["buyer"], expect="ok")
+ok("reviews: someone who never contacted them is told to get in touch first",
+   f"select public.review_eligibility(p_business_id => '{MECH}')->>'status';", U["attacker"], expect="not_contacted")
+ok("reviews: owner cannot review own business",
+   f"select public.review_eligibility(p_business_id => '{MECH}')->>'status';", U["mechanic"], expect="own")
+ok("reviews: private seller eligibility after chatting",
+   f"select public.review_eligibility(p_seller_id => '{U['seller']}')->>'status';", U["buyer"], expect="ok")
+
 # ---------------------------------------------------------------- favourites & reviews
 ok("favourites: buyer saves a car", f"insert into public.favourites (profile_id, vehicle_id) values (auth.uid(), '{DV}');", U["buyer"])
 denied("favourites: cannot save the same car twice",
@@ -324,6 +371,14 @@ denied("reviews: cannot review a business you never contacted",
        f"insert into public.reviews (business_id, rating, body) values ('{MECH}', 1, 'bad');", U["attacker"], match="after contacting")
 ok("reviews: buyer reviews mechanic after contacting", f"insert into public.reviews (business_id, rating, body) values ('{MECH}', 5, 'Great inspection');", U["buyer"])
 denied("reviews: one review per business", f"insert into public.reviews (business_id, rating) values ('{MECH}', 5);", U["buyer"], match="duplicate")
+ok("reviews: eligibility now reports the existing review (so the page offers edit)",
+   f"select public.review_eligibility(p_business_id => '{MECH}')->>'status';", U["buyer"], expect="already_reviewed")
+ok("reviews: author edits their rating; average recalculated",
+   f"update public.reviews set rating = 4 where business_id = '{MECH}' and reviewer_id = auth.uid(); "
+   f"select rating_avg from public.businesses where id = '{MECH}';", U["buyer"], expect="4.00")
+denied("reviews: others cannot edit someone's review",
+       f"with u as (update public.reviews set rating = 1 where business_id = '{MECH}' returning 1) select count(*) from u;", U["attacker"])
+ok("reviews: author sets it back", f"update public.reviews set rating = 5 where business_id = '{MECH}' and reviewer_id = auth.uid();", U["buyer"])
 ok("reviews: private seller review", f"insert into public.reviews (seller_id, rating) values ('{U['seller']}', 4);", U["buyer"])
 ok("reviews: business rating recalculated server-side",
    f"select rating_avg || '/' || rating_count from public.businesses where id = '{MECH}';", role="anon", expect="5.00/1")
@@ -432,6 +487,21 @@ REP = ok("reports: buyer reports seller as scam",
          f"('vehicle', '{PV}', 'scam', 'Seller took a deposit and disappeared') returning id;", U["buyer"]).split("\n")[0]
 ok("reports: admin gets urgent notification", "select title from public.notifications where type = 'report_update';", U["admin"], expect="URGENT")
 denied("reports: other users cannot read the report", "select count(*) from public.reports;", U["attacker"])
+ok("alerts: scam report queues an urgent e-mail for the Caryandi alerts address",
+   f"select subject || '|' || status || '|' || coalesce(to_email, 'ALERTS') from public.email_outbox where payload->>'report_id' = '{REP}';",
+   role=None, expect="URGENT scam report — vehicle|pending|ALERTS")
+ok("alerts: the reported seller is NOT notified about the scam report",
+   "select count(*) from public.notifications where type = 'report_update';", U["seller"], expect="0")
+denied("alerts: users cannot read the e-mail outbox", "select count(*) from public.email_outbox;", U["admin"], match="permission denied")
+denied("alerts: anonymous cannot read the e-mail outbox", "select count(*) from public.email_outbox;", role="anon", match="permission denied")
+ok("alerts: service role can read the outbox (Edge Function)", "select count(*) from public.email_outbox;", role="service_role", expect="1")
+denied("alerts: signed-in users cannot claim e-mails", "select count(*) from public.claim_email_batch(5);", U["admin"], match="permission denied")
+ok("alerts: service role claims the pending e-mail once",
+   "select count(*) from public.claim_email_batch(5);", role="service_role", expect="1")
+ok("alerts: a second claim finds nothing new", "select count(*) from public.claim_email_batch(5);", role="service_role", expect="0")
+ok("alerts: marking it sent",
+   f"select public.complete_email((select id from public.email_outbox where payload->>'report_id' = '{REP}'), true); "
+   f"select status from public.email_outbox where payload->>'report_id' = '{REP}';", role="service_role", expect="sent")
 denied("scam: details NOT released while report is still 'open'",
        f"select public.admin_get_scam_report_details('{REP}');", U["admin"], match="only available")
 ok("scam: admin moves report to reviewing", f"select public.admin_update_report('{REP}', 'reviewing', 'Investigating');", U["admin"])
@@ -459,6 +529,30 @@ ok("storage: admins can read verification selfies",
    "select count(*) from storage.objects where bucket_id = 'verification';", U["admin"], expect="1")
 denied("storage: selfies cannot be deleted/overwritten once uploaded",
        f"with d as (delete from storage.objects where bucket_id = 'verification' returning 1) select count(*) from d;", U["buyer"])
+
+# ---------------------------------------------------------------- admin read models (stage 10)
+ok("admin: platform stats for administrators",
+   "select (public.admin_platform_stats()->>'users')::int > 0;", U["admin"], expect="t")
+denied("admin: platform stats refused for everyone else", "select public.admin_platform_stats();", U["dealer"], match="administrator")
+ok("admin: user list shows banned accounts to admins",
+   f"select account_status from public.admin_users where id = '{U['seller']}';", U["admin"], expect="banned")
+for view in ["admin_users", "admin_businesses", "admin_listings", "admin_reviews", "admin_reports", "admin_audit_feed"]:
+    denied(f"admin: {view} returns nothing to non-admins", f"select count(*) from public.{view};", U["dealer"])
+    denied(f"admin: {view} closed to anonymous visitors", f"select count(*) from public.{view};", role="anon", match="permission denied")
+ok("admin: businesses list includes type and owner",
+   f"select business_type || '|' || owner_name from public.admin_businesses where id = '{MECH}';", U["admin"], expect="mechanic|Joseph Banda")
+ok("admin: listings include vehicles and parts",
+   "select count(distinct listing_type) from public.admin_listings;", U["admin"])
+ok("admin: reports show a readable target label",
+   f"select target_label from public.admin_reports where id = '{REP}';", U["admin"], expect="Toyota Vitz")
+ok("admin: audit feed shows who did what",
+   "select count(*) > 0 from public.admin_audit_feed where admin_name is not null;", U["admin"], expect="t")
+ok("admin: hide a review (audited) and the rating is recalculated",
+   f"select public.admin_moderate_review((select id from public.reviews where business_id = '{MECH}' limit 1), 'hidden', 'test'); "
+   f"select rating_count from public.businesses where id = '{MECH}';", U["admin"], expect="0")
+ok("admin: publish it again",
+   f"select public.admin_moderate_review((select id from public.reviews where business_id = '{MECH}' limit 1), 'published'); "
+   f"select rating_count from public.businesses where id = '{MECH}';", U["admin"], expect="1")
 
 # ---------------------------------------------------------------- content
 ok("content: admin publishes an info article",
