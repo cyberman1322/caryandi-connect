@@ -126,7 +126,7 @@ export function ReportDialog({ target, id, subject }: { target: ReportTarget; id
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground"><Flag className="size-3.5" />Report this {target === 'vehicle' ? 'listing' : 'seller'}</Button>
+        <Button variant="link" size="sm" className="h-auto p-0 text-xs text-muted-foreground"><Flag className="size-3.5" />{target === 'vehicle' || target === 'part' ? 'Report this listing' : target === 'message' ? 'Report this conversation' : target === 'review' ? 'Report review' : 'Report this seller'}</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

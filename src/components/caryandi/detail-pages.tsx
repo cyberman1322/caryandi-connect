@@ -14,6 +14,8 @@ import { PartPhoto, ProviderImage } from './media';
 import { Rating, VerifiedBadge } from './cards';
 import { ContactPanel, ReportDialog, ShareButton } from './engagement-widgets';
 import { BackButton } from './back-button';
+import { EnquiryActions } from './messaging-pages';
+import { ReviewAction } from './review-widgets';
 
 function NotFound({ title, body, error, to, cta }: { title: string; body: string; error?: string | undefined; to: '/services' | '/agents' | '/parts'; cta: string }) {
   return (
@@ -152,6 +154,7 @@ export function ProfileDetail({ kind, data }: { kind: ProviderKind; data: Provid
           )}
 
           <h2 className="mt-8 text-xl font-semibold">Customer reviews</h2>
+          <ReviewAction subject={{ businessId: id }} name={p.name ?? 'this business'} />
           <Reviews reviews={reviews} />
         </div>
         <aside className="self-start rounded-lg border bg-card p-5">
@@ -169,6 +172,7 @@ export function ProfileDetail({ kind, data }: { kind: ProviderKind; data: Provid
           ) : (
             <>
               <ContactPanel target="business" id={id} label={kind === 'agents' ? 'Contact agent' : 'Contact business'} whatsappMessage={`Hi ${p.name ?? ''}, I found you on Caryandi and I’d like to ask about your ${kind === 'agents' ? 'import services' : 'services'}.`} />
+              <EnquiryActions target="business" id={id} defaultMessage={`Hi ${p.name ?? ''}, I found you on Caryandi and I’d like to ask about your ${kind === 'agents' ? 'import services' : 'services'}.`} />
               <div className="mt-3 text-center"><ReportDialog target="business" id={id} subject={p.name ?? 'this business'} /></div>
             </>
           )}
@@ -234,6 +238,7 @@ export function PartDetail({ data }: { data: PartRouteData }) {
           ) : (
             <>
               <ContactPanel target="part" id={id} label="Contact seller" whatsappMessage={`Hi, I saw your ${p.title ?? 'part'} (${formatPrice(p.price)}) on Caryandi. Is it still available, and will it fit my vehicle?`} />
+              <EnquiryActions target="part" id={id} defaultMessage={`Hi, is the ${p.title ?? 'part'} still available? Will it fit my vehicle?`} />
               <div className="mt-3 text-center"><ReportDialog target="part" id={id} subject={p.title ?? 'this part'} /></div>
             </>
           )}

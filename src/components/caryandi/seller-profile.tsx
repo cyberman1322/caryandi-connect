@@ -7,6 +7,8 @@ import { PROVINCES, formatDate, formatMonthYear, labelOf } from '@/lib/vehicles/
 import { SellerImage } from './media';
 import { Rating, VehicleCard, VerifiedBadge } from './cards';
 import { ContactPanel, ReportDialog, ShareButton } from './engagement-widgets';
+import { EnquiryActions } from './messaging-pages';
+import { ReviewAction } from './review-widgets';
 import { EmptyState } from './states';
 import { BackButton } from './back-button';
 
@@ -69,6 +71,7 @@ export function SellerProfile({ data }: { data: SellerRouteData }) {
           )}
 
           <h2 className="mt-8 text-xl font-semibold">Customer reviews</h2>
+          <ReviewAction subject={isBusiness ? { businessId: id } : { sellerId: id }} name={s.name ?? 'this seller'} />
           <div className="mt-4 space-y-3">
             {reviews.length ? reviews.map((r) => (
               <article key={r.id} className="rounded-lg border p-4">
@@ -94,6 +97,7 @@ export function SellerProfile({ data }: { data: SellerRouteData }) {
           ) : (
             <>
               <ContactPanel target={isBusiness ? 'business' : 'profile'} id={id} label={`Contact ${isBusiness ? 'dealer' : 'seller'}`} whatsappMessage={`Hi ${s.name ?? ''}, I found you on Caryandi and I’m interested in your vehicles.`} />
+              <EnquiryActions target={isBusiness ? 'business' : 'profile'} id={id} meetup={isBusiness} defaultMessage={`Hi ${s.name ?? ''}, I found you on Caryandi and I’m interested in your vehicles.`} />
               <div className="mt-3 text-center"><ReportDialog target={isBusiness ? 'business' : 'profile'} id={id} subject={s.name ?? 'this seller'} /></div>
             </>
           )}

@@ -21,6 +21,7 @@ import { BackButton } from './back-button';
 import { Check } from 'lucide-react';
 import { Rating, VehicleCard, VerifiedBadge } from './cards';
 import { ContactPanel, ReportDialog, ShareButton } from './engagement-widgets';
+import { EnquiryActions } from './messaging-pages';
 
 export type VehicleRouteData = { page: VehiclePageData | null; error?: string };
 
@@ -176,7 +177,10 @@ function VehicleView({ page }: { page: VehiclePageData }) {
             {isOwner ? (
               <p className="mt-5 rounded-md bg-muted p-3 text-sm text-muted-foreground">Buyers see a “Show contact details” button here.</p>
             ) : isLive ? (
-              <ContactPanel target="vehicle" id={id} whatsappMessage={whatsappMessage} />
+              <>
+                <ContactPanel target="vehicle" id={id} whatsappMessage={whatsappMessage} />
+                <EnquiryActions target="vehicle" id={id} defaultMessage={whatsappMessage} />
+              </>
             ) : (
               <p className="mt-5 rounded-md bg-muted p-3 text-sm">This vehicle is no longer available.</p>
             )}
