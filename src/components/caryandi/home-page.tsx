@@ -118,14 +118,14 @@ function WarningLights(){
   </>;
 }
 
-function OilWarningIcon(){return <WarningSvg label="Oil pressure warning symbol"><path d="M6 26h23l7-8h5v14H12a6 6 0 0 1-6-6Z"/><path d="M12 26V16h13l4 10M38 36c0 2-1.8 4-4 4s-4-2-4-4 4-6 4-6 4 4 4 6Z"/></WarningSvg>}
-function BrakeWarningIcon(){return <WarningSvg label="Brake system warning symbol"><circle cx="24" cy="24" r="14"/><path d="M5 14a22 22 0 0 0 0 20M43 14a22 22 0 0 1 0 20M24 15v12M24 33h.01"/></WarningSvg>}
-function CoolantWarningIcon(){return <WarningSvg label="Engine coolant temperature warning symbol"><path d="M21 8v20a7 7 0 1 0 6 0V8a3 3 0 0 0-6 0Z"/><path d="M24 18v14M6 38c3-3 6 3 9 0s6 3 9 0 6 3 9 0 6 3 9 0"/></WarningSvg>}
-function BatteryWarningIcon(){return <WarningSvg label="Battery charge warning symbol"><rect x="6" y="14" width="36" height="25" rx="2"/><path d="M14 10h6M28 10h6M15 26h8M19 22v8M29 26h8"/></WarningSvg>}
-function EngineWarningIcon(){return <WarningSvg label="Check engine warning symbol"><path d="M7 19h7l4-6h17l3 6h4v17H10V24H6v7M20 13V8M30 13V8"/></WarningSvg>}
-function TyreWarningIcon(){return <WarningSvg label="Tyre pressure warning symbol"><path d="M11 10C7 17 6 26 9 36M37 10c4 7 5 16 2 26M9 36c9 4 21 4 30 0M24 16v12M24 34h.01"/></WarningSvg>}
-function AbsWarningIcon(){return <WarningSvg label="ABS warning symbol"><circle cx="24" cy="24" r="14"/><path d="M5 14a22 22 0 0 0 0 20M43 14a22 22 0 0 1 0 20"/><text x="24" y="28" textAnchor="middle" className="fill-current stroke-none text-[11px] font-bold">ABS</text></WarningSvg>}
-function AirbagWarningIcon(){return <WarningSvg label="Airbag warning symbol"><circle cx="13" cy="11" r="4"/><path d="m10 38 3-15 8 5 4 10M13 20l8 3M27 13c7 0 13 5 13 12-7 0-13-5-13-12Z"/></WarningSvg>}
+function OilWarningIcon({className}:{className?:string}){return <WarningSvg label="Oil pressure warning symbol" className={className}><path d="M6 26h23l7-8h5v14H12a6 6 0 0 1-6-6Z"/><path d="M12 26V16h13l4 10M38 36c0 2-1.8 4-4 4s-4-2-4-4 4-6 4-6 4 4 4 6Z"/></WarningSvg>}
+function BrakeWarningIcon({className}:{className?:string}){return <WarningSvg label="Brake system warning symbol" className={className}><circle cx="24" cy="24" r="14"/><path d="M5 14a22 22 0 0 0 0 20M43 14a22 22 0 0 1 0 20M24 15v12M24 33h.01"/></WarningSvg>}
+function CoolantWarningIcon({className}:{className?:string}){return <WarningSvg label="Engine coolant temperature warning symbol" className={className}><path d="M21 8v20a7 7 0 1 0 6 0V8a3 3 0 0 0-6 0Z"/><path d="M24 18v14M6 38c3-3 6 3 9 0s6 3 9 0 6 3 9 0 6 3 9 0"/></WarningSvg>}
+function BatteryWarningIcon({className}:{className?:string}){return <WarningSvg label="Battery charge warning symbol" className={className}><rect x="6" y="14" width="36" height="25" rx="2"/><path d="M14 10h6M28 10h6M15 26h8M19 22v8M29 26h8"/></WarningSvg>}
+function EngineWarningIcon({className}:{className?:string}){return <WarningSvg label="Check engine warning symbol" className={className}><path d="M7 19h7l4-6h17l3 6h4v17H10V24H6v7M20 13V8M30 13V8"/></WarningSvg>}
+function TyreWarningIcon({className}:{className?:string}){return <WarningSvg label="Tyre pressure warning symbol" className={className}><path d="M11 10C7 17 6 26 9 36M37 10c4 7 5 16 2 26M9 36c9 4 21 4 30 0M24 16v12M24 34h.01"/></WarningSvg>}
+function AbsWarningIcon({className}:{className?:string}){return <WarningSvg label="ABS warning symbol" className={className}><circle cx="24" cy="24" r="14"/><path d="M5 14a22 22 0 0 0 0 20M43 14a22 22 0 0 1 0 20"/><text x="24" y="28" textAnchor="middle" className="fill-current stroke-none text-[11px] font-bold">ABS</text></WarningSvg>}
+function AirbagWarningIcon({className}:{className?:string}){return <WarningSvg label="Airbag warning symbol" className={className}><circle cx="13" cy="11" r="4"/><path d="m10 38 3-15 8 5 4 10M13 20l8 3M27 13c7 0 13 5 13 12-7 0-13-5-13-12Z"/></WarningSvg>}
 
 /** Newest live listings (loaded on the server with the page). */
 function LatestVehicles({items}:{items:VehicleCardData[]|null}){
