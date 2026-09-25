@@ -263,6 +263,48 @@ export type Database = {
         }
         Relationships: []
       }
+      email_outbox: {
+        Row: {
+          id: string
+          to_email: string | null
+          template: string
+          subject: string
+          body_text: string
+          payload: Json
+          status: string
+          attempts: number
+          last_error: string | null
+          created_at: string
+          sent_at: string | null
+        }
+        Insert: {
+          id?: string
+          to_email?: string | null
+          template: string
+          subject: string
+          body_text: string
+          payload?: Json
+          status?: string
+          attempts?: number
+          last_error?: string | null
+          created_at?: string
+          sent_at?: string | null
+        }
+        Update: {
+          id?: string
+          to_email?: string | null
+          template?: string
+          subject?: string
+          body_text?: string
+          payload?: Json
+          status?: string
+          attempts?: number
+          last_error?: string | null
+          created_at?: string
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
       favourites: {
         Row: {
           profile_id: string
@@ -1048,6 +1090,181 @@ export type Database = {
       }
     }
     Views: {
+      admin_audit_feed: {
+        Row: {
+          id: number | null
+          action: string | null
+          target_type: string | null
+          target_id: string | null
+          details: Json | null
+          created_at: string | null
+          admin_name: string | null
+        }
+        Relationships: []
+      }
+      admin_businesses: {
+        Row: {
+          id: string | null
+          name: string | null
+          slug: string | null
+          business_type: Database["public"]["Enums"]["business_type"] | null
+          province: Database["public"]["Enums"]["zambia_province"] | null
+          city: string | null
+          verification_status: Database["public"]["Enums"]["verification_status"] | null
+          is_active: boolean | null
+          rating_avg: number | null
+          rating_count: number | null
+          created_at: string | null
+          owner_id: string | null
+          owner_name: string | null
+          owner_status: Database["public"]["Enums"]["account_status"] | null
+          live_vehicles: number | null
+          live_parts: number | null
+          active_services: number | null
+          active_routes: number | null
+        }
+        Relationships: []
+      }
+      admin_listings: {
+        Row: {
+          listing_type: string | null
+          id: string | null
+          title: string | null
+          price: number | null
+          listing_status: Database["public"]["Enums"]["listing_status"] | null
+          verification_status: Database["public"]["Enums"]["verification_status"] | null
+          province: Database["public"]["Enums"]["zambia_province"] | null
+          city: string | null
+          owner_id: string | null
+          seller_name: string | null
+          created_at: string | null
+          published_at: string | null
+        }
+        Relationships: []
+      }
+      admin_reports: {
+        Row: {
+          id: string | null
+          target_type: Database["public"]["Enums"]["report_target"] | null
+          target_id: string | null
+          category: Database["public"]["Enums"]["report_category"] | null
+          details: string | null
+          status: Database["public"]["Enums"]["report_status"] | null
+          admin_notes: string | null
+          created_at: string | null
+          updated_at: string | null
+          resolved_at: string | null
+          reporter_id: string | null
+          reporter_name: string | null
+          resolved_by_name: string | null
+          target_label: string | null
+          reports_on_target: number | null
+        }
+        Relationships: []
+      }
+      admin_reviews: {
+        Row: {
+          id: string | null
+          rating: number | null
+          body: string | null
+          status: Database["public"]["Enums"]["review_status"] | null
+          created_at: string | null
+          updated_at: string | null
+          reviewer_id: string | null
+          reviewer_name: string | null
+          business_id: string | null
+          seller_id: string | null
+          subject_name: string | null
+          subject_business_type: Database["public"]["Enums"]["business_type"] | null
+          subject_slug: string | null
+        }
+        Relationships: []
+      }
+      admin_users: {
+        Row: {
+          id: string | null
+          full_name: string | null
+          account_type: Database["public"]["Enums"]["account_type"] | null
+          account_status: Database["public"]["Enums"]["account_status"] | null
+          province: Database["public"]["Enums"]["zambia_province"] | null
+          city: string | null
+          created_at: string | null
+          rating_avg: number | null
+          rating_count: number | null
+          business_id: string | null
+          business_name: string | null
+          business_slug: string | null
+          live_vehicles: number | null
+          live_parts: number | null
+        }
+        Relationships: []
+      }
+      conversation_messages: {
+        Row: {
+          id: string | null
+          conversation_id: string | null
+          sender_id: string | null
+          is_mine: boolean | null
+          sender_name: string | null
+          kind: Database["public"]["Enums"]["message_kind"] | null
+          body: string | null
+          meetup_id: string | null
+          meetup_status: Database["public"]["Enums"]["meetup_status"] | null
+          meetup_proposed_time: string | null
+          meetup_requester_id: string | null
+          created_at: string | null
+        }
+        Relationships: []
+      }
+      inbox: {
+        Row: {
+          id: string | null
+          subject_label: string | null
+          business_id: string | null
+          vehicle_id: string | null
+          part_id: string | null
+          service_id: string | null
+          import_route_id: string | null
+          created_by: string | null
+          started_by_me: boolean | null
+          last_message_at: string | null
+          created_at: string | null
+          last_read_at: string | null
+          is_archived: boolean | null
+          last_body: string | null
+          last_kind: Database["public"]["Enums"]["message_kind"] | null
+          last_from_me: boolean | null
+          unread_count: number | null
+          counterpart_name: string | null
+        }
+        Relationships: []
+      }
+      meetup_request_details: {
+        Row: {
+          id: string | null
+          conversation_id: string | null
+          requester_id: string | null
+          recipient_id: string | null
+          business_id: string | null
+          vehicle_id: string | null
+          part_id: string | null
+          service_id: string | null
+          import_route_id: string | null
+          purpose: string | null
+          proposed_time: string | null
+          location_note: string | null
+          message: string | null
+          status: Database["public"]["Enums"]["meetup_status"] | null
+          response_note: string | null
+          responded_at: string | null
+          created_at: string | null
+          is_mine: boolean | null
+          subject_label: string | null
+          requester_name: string | null
+          recipient_name: string | null
+        }
+        Relationships: []
+      }
       part_listings: {
         Row: {
           id: string | null
@@ -1240,6 +1457,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_platform_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       admin_review_verification: {
         Args: {
           p_request_id: string
@@ -1281,6 +1502,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      claim_email_batch: {
+        Args: {
+          p_limit?: number
+        }
+        Returns: unknown[]
+      }
+      complete_email: {
+        Args: {
+          p_id: string
+          p_sent: boolean
+          p_error?: string
+        }
+        Returns: undefined
+      }
       get_contact: {
         Args: {
           p_target_type: string
@@ -1292,6 +1527,12 @@ export type Database = {
           whatsapp_number: string | null
           whatsapp_link: string | null
         }[]
+      }
+      mark_conversation_read: {
+        Args: {
+          p_conversation_id: string
+        }
+        Returns: undefined
       }
       my_dashboard_stats: {
         Args: Record<PropertyKey, never>
@@ -1314,6 +1555,13 @@ export type Database = {
           p_note?: string
         }
         Returns: undefined
+      }
+      review_eligibility: {
+        Args: {
+          p_business_id?: string
+          p_seller_id?: string
+        }
+        Returns: Json
       }
       start_conversation: {
         Args: {
