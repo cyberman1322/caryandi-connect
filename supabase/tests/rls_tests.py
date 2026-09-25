@@ -35,6 +35,9 @@ def admin(sql):
 # ---------------------------------------------------------------- setup users
 U = {k: str(uuid.uuid4()) for k in
      ["buyer", "seller", "dealer", "dealer_staff", "mechanic", "agent", "admin", "attacker"]}
+# Counting checks are limited to the test users' own rows, so the suite also gives the
+# right answer on a database that already holds real listings (see build_live_check.py).
+MINE = "owner_id in (" + ", ".join(f"'{v}'" for v in U.values()) + f", '{U['buyer'][:-4]}beef')"
 meta = {
     "buyer":        ('{"full_name":"Natasha Mwale","account_type":"buyer"}'),
     "seller":       ('{"full_name":"Mwamba Jere","account_type":"private_seller","phone":"+260971234567"}'),
@@ -170,7 +173,7 @@ denied("vehicle: seller without a phone cannot publish",
        f"'Mazda', 'Demio', 2016, 80000, 'used_good', 'automatic', 'petrol', 'registered', 'paid', 'local', 'lusaka', 'Lusaka', 'active');",
        U["dealer_staff"], match="phone number")
 ok("vehicle: anonymous visitor sees live listings via vehicle_listings",
-   "select count(*) from public.vehicle_listings where listing_status = 'active';", role="anon", expect="3")
+   f"select count(*) = 3 from public.vehicle_listings where listing_status = 'active' and {MINE};", role="anon", expect="t")
 ok("vehicle: search by text works (trigram)",
    "select make||' '||model from public.vehicle_listings where search_text ilike '%harrier%';", role="anon", expect="Toyota Harrier")
 
@@ -194,8 +197,8 @@ denied("features: attacker cannot change another seller's features",
 ok("features: dealer staff can set features on a business listing",
    f"update public.vehicles set features = array['bluetooth','tow_bar'] where id = '{DV2}';", U["dealer_staff"])
 ok("features: filter 'has reverse camera' finds only matching live cars",
-   "select count(*) from public.vehicle_listings where listing_status = 'active' and features @> array['reverse_camera'];",
-   role="anon", expect="1")
+   f"select count(*) = 1 from public.vehicle_listings where listing_status = 'active' and features @> array['reverse_camera'] and {MINE};",
+   role="anon", expect="t")
 
 # images: path must be in own folder
 ok("images: seller attaches photo from own folder",
@@ -400,8 +403,12 @@ ok("sellers: mechanics are not in the vehicle seller directory",
 ok("sellers: buyers without listings are not in the directory",
    f"select count(*) from public.vehicle_sellers where id = '{U['buyer']}';", role="anon", expect="0")
 ok("makes: live makes with counts",
-   "select string_agg(make || '=' || listing_count, ',' order by make) from public.vehicle_make_counts;",
-   role="anon", expect="Isuzu=1,Toyota=2")
+   "select bool_and(c.listing_count = (select count(*) from public.vehicle_listings v where v.make = c.make and v.listing_status = 'active')) "
+   "and bool_or(c.make = 'Isuzu') and bool_or(c.make = 'Toyota') from public.vehicle_make_counts c;",
+   role="anon", expect="t")
+ok("makes: counts include the test cars",
+   f"select string_agg(make || '=' || n, ',' order by make) from (select make, count(*) n from public.vehicle_listings "
+   f"where listing_status = 'active' and {MINE} group by make) x;", role="anon", expect="Isuzu=1,Toyota=2")
 ok("reviews: public feed shows reviewer as first name + initial",
    f"select reviewer_name || ' ' || rating from public.review_feed where business_id = '{MECH}';",
    role="anon", expect="Natasha M. 5")
@@ -439,8 +446,8 @@ ok("app: owner publishes (setVehicleStatus returns the row)",
 ok("app: live listing uses the chosen main photo",
    f"select primary_image_path from public.vehicle_listings where id = '{NV}';", role="anon", expect="/b.jpg")
 ok("app: search by word across make/model (searchVehicles)",
-   "select count(*) from public.vehicle_listings where listing_status = 'active' and (search_text ilike '%fit%' or city ilike '%fit%');",
-   role="anon", expect="1")
+   f"select count(*) = 1 from public.vehicle_listings where listing_status = 'active' and (search_text ilike '%fit%' or city ilike '%fit%') and {MINE};",
+   role="anon", expect="t")
 ok("app: owner edits details (updateVehicle)", f"update public.vehicles set price = 95000 where id = '{NV}';", U["seller"])
 ok("app: soft delete returns the row to the owner (deleteVehicle)",
    f"with u as (update public.vehicles set deleted_at = now(), listing_status = 'archived' where id = '{NV}' returning id) select count(*) from u;",
@@ -471,7 +478,7 @@ ok("app: business contacts upsert (saveMyBusiness)",
    f"on conflict (business_id) do update set phone = excluded.phone, whatsapp_number = excluded.whatsapp_number;", ND)
 ok("app: now the dealer can publish", f"update public.vehicles set listing_status = 'active' where id = '{DV3}';", ND)
 ok("app: unregistered + duty unpaid filters work together",
-   "select count(*) from public.vehicle_listings where registration_status = 'unregistered' and duty_status = 'unpaid';", role="anon", expect="1")
+   f"select count(*) = 1 from public.vehicle_listings where registration_status = 'unregistered' and duty_status = 'unpaid' and {MINE};", role="anon", expect="t")
 denied("app: dealer cannot list under another dealer's business",
        f"insert into public.vehicles (owner_id, business_id, make, model, year, price, condition, transmission, fuel_type, registration_status, "
        f"duty_status, import_status, province, city) values (auth.uid(), '{BIZ}', 'X', 'Y', 2020, 1, 'new', 'manual', 'petrol', 'registered', "
@@ -560,7 +567,8 @@ ok("content: admin publishes an info article",
    "('registering-an-imported-car', 'registration', 'Registering an imported car', 'Steps…', true);", U["admin"])
 denied("content: non-admin cannot write articles",
        "insert into public.info_articles (slug, category, title) values ('x-y', 'general', 'Hack');", U["buyer"], match="row-level security")
-ok("content: public reads published articles", "select count(*) from public.info_articles;", role="anon", expect="1")
+ok("content: public reads published articles",
+   "select count(*) = 1 from public.info_articles where slug = 'registering-an-imported-car';", role="anon", expect="t")
 
 # ---------------------------------------------------------------- report
 failed = [r for r in results if not r[0]]

@@ -1,0 +1,201 @@
+"""Builds supabase/tests/live_check.sql: the scenario suite from rls_tests.py as ONE
+PL/pgSQL block that can be pasted into the Supabase SQL editor.
+
+How it works
+  1. rls_tests.py runs against the local test database with a recorder attached,
+     capturing every step: who runs it, the SQL, what is expected, and the ids the
+     local run produced.
+  2. The steps are replayed inside a single DO block. Each step runs in its own
+     sub-transaction as the right user (role + JWT sub), exactly like the app.
+     Ids created on the target database replace the local ones as the run goes.
+  3. The block ALWAYS ends by raising an exception carrying the report, so Postgres
+     rolls back everything it did: demo users, listings, messages, reviews, reports,
+     notifications. Nothing is left behind.
+
+Usage (after run_tests.sh has created caryandi_test):
+    su postgres -c "PGHOST=/tmp PGPORT=5499 python3 supabase/tests/build_live_check.py"
+"""
+import json, re, sys, pathlib
+
+HERE = pathlib.Path(__file__).resolve().parent
+UUID_RE = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+
+# ---- 1. run the local suite with a recorder -----------------------------------------
+src = (HERE / 'rls_tests.py').read_text()
+src = src.replace('sys.exit(1 if failed else 0)', 'pass')
+recorder = '''
+STEPS = []
+_ok, _denied, _admin = ok, denied, admin
+def _last_run(kind, name, sql, user, role, expect=None, match=None):
+    STEPS.append(dict(kind=kind, name=name, sql=sql, user=user, role=role, expect=expect, match=match))
+def ok(name, sql, user=None, role="authenticated", expect=None):
+    out = _ok(name, sql, user, role, expect)
+    _last_run('ok', name, sql, user, role, expect=expect); STEPS[-1]['out'] = out; STEPS[-1]['passed'] = results[-1][0]
+    return out
+def denied(name, sql, user=None, role="authenticated", match=None):
+    _denied(name, sql, user, role, match)
+    _last_run('denied', name, sql, user, role, match=match); STEPS[-1]['passed'] = results[-1][0]
+def admin(sql):
+    out = _admin(sql)
+    _last_run('admin', None, sql, None, None); STEPS[-1]['out'] = out
+    return out
+'''
+marker = '# ---------------------------------------------------------------- setup users'
+assert marker in src
+src = src.replace(marker, recorder + marker, 1)
+ns = {'__name__': 'rls_tests'}
+exec(compile(src, 'rls_tests.py', 'exec'), ns)
+steps = ns['STEPS']
+local_fail = [s['name'] for s in steps if s['kind'] != 'admin' and not s['passed']]
+print(f'local: {len(steps)} steps, {sum(s["kind"] != "admin" for s in steps)} checks, {len(local_fail)} failing', file=sys.stderr)
+if local_fail:
+    print('\n'.join(local_fail), file=sys.stderr); sys.exit(1)
+
+# ---- 2. which step outputs are ids reused later? ---------------------------------------
+for i, s in enumerate(steps):
+    s['capture'] = False
+    out = s.get('out') or ''
+    first = out.split('\n')[0] if out else ''
+    if re.fullmatch(UUID_RE, first) and any(first in t['sql'] for t in steps[i + 1:]):
+        s['capture'] = True
+        s['local_id'] = first
+
+# ---- 3. split a step into statements (respecting quotes) -------------------------------
+def split_sql(sql):
+    parts, cur, q = [], [], False
+    for ch in sql:
+        if ch == "'": q = not q
+        if ch == ';' and not q:
+            if ''.join(cur).strip(): parts.append(''.join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+    if ''.join(cur).strip(): parts.append(''.join(cur).strip())
+    return parts
+
+def lit(s):
+    return 'NULL' if s is None else "'" + s.replace("'", "''") + "'"
+
+# Inside one transaction now() never advances. Where a check compares timestamps,
+# insert a setup step (run as the database owner) that ages the earlier event.
+TIME_TRAVEL = {
+    'inbox: buyer has unread messages from the seller':
+        "update public.conversation_participants set last_read_at = last_read_at - interval '1 second' "
+        "where conversation_id = '{CONV}' and profile_id = '{buyer}'",
+}
+conv = next(x['out'] for x in steps if x['name'] == "chat: buyer sends enquiry on private seller's car")
+buyer = ns['U']['buyer']
+expanded = []
+for x in steps:
+    if x['name'] in TIME_TRAVEL:
+        expanded.append(dict(kind='admin', name=None, sql=TIME_TRAVEL[x['name']].format(CONV=conv, buyer=buyer),
+                             user=None, role=None, expect=None, match=None, capture=False))
+    expanded.append(x)
+steps = expanded
+
+rows = []
+for i, s in enumerate(steps):
+    stmts = split_sql(s['sql'])
+    rows.append('(%d,%s,%s,%s,%s,%s,%s,%s,%s,%s)' % (
+        i, lit(s['kind']), lit(s['name']), lit(s['user']), lit(s['role']),
+        'ARRAY[' + ','.join(lit(x) for x in stmts) + ']::text[]',
+        lit(s['expect']), lit(s['match']), 'true' if s['capture'] else 'false', lit(s.get('local_id'))))
+
+# ---- 4. the replay block -----------------------------------------------------------------
+sql = r'''-- Caryandi · live feature check (generated by supabase/tests/build_live_check.py)
+-- Replays every scenario test as demo users against THIS database, then rolls
+-- everything back. Safe on production: the block always ends in an exception,
+-- so no demo user, listing, message or review is kept. Read the report in the error.
+do $check$
+declare
+  s record;
+  st text;
+  v_sql text;
+  v_out text;
+  v_err text;
+  v_pass boolean;
+  v_ids_local text[] := '{}';
+  v_ids_live  text[] := '{}';
+  v_total int := 0;
+  v_ok int := 0;
+  v_fail text := '';
+  v_rec record;
+  n int;
+  rc bigint;
+  v_expect text;
+  j int;
+begin
+  for s in select * from (values
+''' + ',\n'.join(rows) + r'''
+  ) as t(i, kind, name, uid, role, stmts, expect, match, capture, local_id) order by i
+  loop
+    v_out := ''; v_err := null;
+    begin
+      if s.role is not null then
+        perform set_config('request.jwt.claim.sub', coalesce(s.uid, ''), true);
+        perform set_config('request.jwt.claims', case when s.uid is null then '' else json_build_object('sub', s.uid, 'role', s.role)::text end, true);
+        perform set_config('role', s.role, true);
+      end if;
+      n := array_length(s.stmts, 1);
+      for j in 1 .. n loop
+        v_sql := s.stmts[j];
+        for k in 1 .. coalesce(array_length(v_ids_local, 1), 0) loop
+          v_sql := replace(v_sql, v_ids_local[k], v_ids_live[k]);
+        end loop;
+        if j < n then
+          execute v_sql;
+        elsif v_sql ~* '^\s*select\M' then
+          execute $q$select coalesce(string_agg((select string_agg(case when json_typeof(e.value) = 'null' then '' when json_typeof(e.value) = 'boolean' then left(e.value::text, 1) else e.value #>> '{}' end, '|' order by e.ord) from json_each(row_to_json(t)) with ordinality as e(key, value, ord)), E'\n'), '') from ($q$ || v_sql || $q$) t$q$ into v_out;
+        elsif v_sql ~* '^\s*with\M' or v_sql ~* '\mreturning\M' then
+          execute v_sql into v_rec;
+          get diagnostics rc = row_count;
+          if rc > 0 then
+            select coalesce(string_agg(case when json_typeof(e.value) = 'null' then '' when json_typeof(e.value) = 'boolean' then left(e.value::text, 1) else e.value #>> '{}' end, '|' order by e.ord), '')
+              into v_out from json_each(row_to_json(v_rec)) with ordinality as e(key, value, ord);
+          end if;
+        else
+          execute v_sql;
+        end if;
+      end loop;
+      perform set_config('role', 'none', true);
+      v_expect := s.expect;
+      for k in 1 .. coalesce(array_length(v_ids_local, 1), 0) loop
+        v_expect := replace(v_expect, v_ids_local[k], v_ids_live[k]);
+      end loop;
+      if s.kind = 'admin' then
+        null;
+      elsif s.kind = 'ok' then
+        v_pass := (v_expect is null or position(v_expect in v_out) > 0);
+      else
+        v_pass := (v_out = '0');
+      end if;
+    exception when others then
+      v_err := sqlerrm;
+      if s.kind = 'admin' then
+        raise exception 'SETUP FAILED at step %: % -- %', s.i, left(array_to_string(s.stmts, '; '), 300), v_err;
+      elsif s.kind = 'ok' then
+        v_pass := false; v_out := v_err;
+      else
+        v_pass := (s.match is null or position(lower(s.match) in lower(v_err)) > 0);
+        if not v_pass then v_out := v_err; end if;
+      end if;
+    end;
+    if s.capture and v_err is null then
+      v_ids_local := v_ids_local || s.local_id;
+      v_ids_live  := v_ids_live || split_part(v_out, E'\n', 1);
+    end if;
+    if s.kind <> 'admin' then
+      v_total := v_total + 1;
+      if v_pass then v_ok := v_ok + 1;
+      else v_fail := v_fail || E'\nFAIL ' || s.name || ' -> ' || left(coalesce(v_out, ''), 200);
+      end if;
+    end if;
+  end loop;
+  raise exception 'CARYANDI LIVE CHECK: %/% passed (all demo data rolled back)%', v_ok, v_total, v_fail;
+end
+$check$;
+'''
+import os
+out = pathlib.Path(os.environ.get('LIVE_CHECK_OUT', HERE / 'live_check.sql'))
+out.write_text(sql)
+print(f'wrote {out} ({len(sql)} chars)', file=sys.stderr)
