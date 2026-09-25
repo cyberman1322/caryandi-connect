@@ -4,7 +4,7 @@ import {ArrowRight,Car,FileText,MapPinned,Package,ShieldCheck,Wrench,type Lucide
 import hero from '@/assets/caryandi-hero.jpg';
 import {Button} from '@/components/ui/button';
 import {SearchBar} from './public-shell';
-import {Section} from './section';
+import {CollapsibleSection} from './section';
 import {VehicleCard,DirectoryCard} from './cards';
 import type {Provider} from '@/lib/directory/provider-service';
 import {useFavourites} from '@/lib/marketplace/hooks';
@@ -60,32 +60,39 @@ export function HomePage({latest,providers}:{latest:VehicleCardData[]|null;provi
     </section>
 
     <section className="border-y bg-muted/35">
-      <Section title="Everything your vehicle needs" description="Find reliable support before and after you buy">
+      <CollapsibleSection id="home-categories" title="Everything your vehicle needs" description="Find reliable support before and after you buy">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map(([Icon,title,body,to]) => <Link key={title} to={to as never} className="group rounded-lg border bg-card p-5 hover:border-primary/40">
             <Icon className="size-7 text-primary"/><h3 className="mt-4 font-semibold">{title}</h3><p className="mt-1 text-sm text-muted-foreground">{body}</p><ArrowRight className="mt-4 size-4 text-primary transition-transform group-hover:translate-x-1"/>
           </Link>)}
         </div>
-      </Section>
+      </CollapsibleSection>
     </section>
 
-    <Section title="Latest vehicles" description="Recently listed vehicles from across Zambia" action={{label:'View all vehicles',to:'/vehicles'}}>
+    <CollapsibleSection id="home-latest" title="Latest vehicles" description="Recently listed vehicles from across Zambia" action={{label:'View all vehicles',to:'/vehicles'}}>
       <LatestVehicles items={latest}/>
-    </Section>
+    </CollapsibleSection>
 
     <section className="border-y bg-muted/35">
-      <Section title="Know your dashboard warning lights" description="Common symbols, what they mean and what to do next">
+      <CollapsibleSection id="home-warning-lights" title="Know your dashboard warning lights" description="Common symbols, what they mean and what to do next" defaultOpen={false} preview={<WarningLightsPreview/>}>
         <WarningLights/>
-      </Section>
+      </CollapsibleSection>
     </section>
 
-    {providers.length>0&&<Section title="Automotive services" description="Profiles with practical details, availability and customer reviews" action={{label:'Browse services',to:'/services'}}><div className="grid gap-5 md:grid-cols-3">{providers.map(x=><DirectoryCard key={x.id} p={x}/>)}</div></Section>}
+    {providers.length>0&&<CollapsibleSection id="home-services" title="Automotive services" description="Profiles with practical details, availability and customer reviews" action={{label:'Browse services',to:'/services'}}><div className="grid gap-5 md:grid-cols-3">{providers.map(x=><DirectoryCard key={x.id} p={x}/>)}</div></CollapsibleSection>}
     <section className="bg-foreground text-background"><div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 md:grid-cols-[1fr_auto] md:items-center"><div><FileText className="size-7 text-brand-soft"/><h2 className="mt-4 text-2xl font-bold">Understand the paperwork before you commit</h2><p className="mt-2 max-w-2xl text-sm text-background/70">Read clear guides to vehicle registration, imports, duty and required documents.</p></div><Button variant="secondary" asChild><Link to="/information">Explore car information</Link></Button></div></section>
   </main>;
 }
 
 function WarningSvg({children,label,className='h-10 w-12'}:{children:ReactNode;label:string;className?:string}) {
   return <svg viewBox="0 0 48 48" role="img" aria-label={label} className={`${className} fill-none stroke-current`} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg>;
+}
+
+/** Shown while the warning-lights section is minimised: the symbols only, as a hint of what's inside. */
+function WarningLightsPreview(){
+  return <ul aria-label="Warning light symbols" className="flex flex-wrap gap-2">
+    {warningLights.map(light=>{const Icon=light.icon; return <li key={light.name} title={light.name} className={`rounded-md border bg-card p-1.5 ${light.level==='red'?'text-destructive':'text-warning-foreground'}`}><Icon className="h-6 w-7"/></li>;})}
+  </ul>;
 }
 
 function WarningLights(){
