@@ -1,5 +1,6 @@
-import {useEffect,useRef,useState,type FormEvent} from 'react'; import {useNavigate,useRouter,useRouterState} from '@tanstack/react-router'; import {useQuery} from '@tanstack/react-query'; import {SlidersHorizontal,Grid2X2,List,MapPin} from 'lucide-react'; import {Button} from '@/components/ui/button'; import {Input} from '@/components/ui/input'; import {Label} from '@/components/ui/label'; import {Checkbox} from '@/components/ui/checkbox'; import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from '@/components/ui/select'; import {Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger} from '@/components/ui/sheet'; import {PageHero} from './section'; import {VehicleCard,DirectoryCard,PartCard,SellerCard} from './cards'; import {services,agents,parts} from '@/data/mock-data'; import {EmptyState,ErrorState} from './states';
+import {useEffect,useRef,useState,type FormEvent} from 'react'; import {useNavigate,useRouter,useRouterState} from '@tanstack/react-router'; import {useQuery} from '@tanstack/react-query'; import {SlidersHorizontal,Grid2X2,List,MapPin} from 'lucide-react'; import {Button} from '@/components/ui/button'; import {Input} from '@/components/ui/input'; import {Label} from '@/components/ui/label'; import {Checkbox} from '@/components/ui/checkbox'; import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from '@/components/ui/select'; import {Sheet,SheetContent,SheetHeader,SheetTitle,SheetTrigger} from '@/components/ui/sheet'; import {PageHero} from './section'; import {VehicleCard,DirectoryCard,PartCard,SellerCard} from './cards'; import {EmptyState,ErrorState} from './states';
 import {useFavourites} from '@/lib/marketplace/hooks'; import {getMakeOptions,type VehicleSearchResult} from '@/lib/vehicles/vehicle-service'; import {SORTS,activeFilterCount,type VehicleFilters,type VehicleSort} from '@/lib/vehicles/filters'; import {CONDITIONS,DUTY_STATUSES,FUEL_TYPES,PROVINCES,REGISTRATION_STATUSES,TRANSMISSIONS,formatNumber,formatPrice,labelOf,type Province} from '@/lib/vehicles/vehicle-options'; import type {SellerSummary} from '@/lib/marketplace/seller-service';
+import type {Provider,ProviderFilters,ProviderKind} from '@/lib/directory/provider-service'; import type {PartCategory,PartFilters,PartSearchResult} from '@/lib/parts/parts-service'; import {PART_CONDITIONS,type PartCondition} from '@/lib/parts/validation';
 const ANY='any';
 const PRICE_RANGES:ReadonlyArray<readonly [string,string,number|undefined,number|undefined]>=[['u100','Under K100,000',undefined,100000],['100-250','K100,000 – K250,000',100000,250000],['250-500','K250,000 – K500,000',250000,500000],['500-1m','K500,000 – K1,000,000',500000,1000000],['o1m','Over K1,000,000',1000000,undefined]];
 const YEAR_OPTIONS=[2022,2020,2018,2015,2012,2010,2005] as const;
@@ -64,4 +65,52 @@ export function SellersDirectory({search,sellers,error}:{search:{q?:string;provi
   {!sellers?<div className="mt-6"><ErrorState message={error} onRetry={()=>void router.invalidate()}/></div>:sellers.length?<div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{sellers.map(x=><SellerCard key={`${x.seller_kind}-${x.id}`} s={x}/>)}</div>:<div className="mt-6"><EmptyState title={search.q||search.province?'No sellers match your search':'No sellers yet'} body={search.q||search.province?'Try another name or location.':'Dealers and private sellers appear here once they list a vehicle.'}/></div>}
   </main></>}
 
-export function DirectoryPage({type}:{type:'services'|'agents'|'parts'|'sellers'}){const title=type==='services'?'Mechanics & servicing':type==='agents'?'Vehicle import agents':type==='parts'?'Automotive parts':'Trusted sellers'; const body=type==='services'?'Compare trusted mechanics and service companies near you.':type==='agents'?'Find verified support for popular routes into Zambia.':type==='parts'?'Search new, used and reconditioned parts from local sellers.':'Browse established dealers and active private sellers.'; return <><PageHero eyebrow="Caryandi directory" title={title} body={body}/><main className="mx-auto max-w-7xl px-4 py-8 sm:px-6"><div className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-[1fr_200px_auto]"><Input placeholder={`Search ${title.toLowerCase()}`}/><Select><SelectTrigger><SelectValue placeholder="All locations"/></SelectTrigger><SelectContent><SelectItem value="lusaka">Lusaka</SelectItem><SelectItem value="ndola">Ndola</SelectItem><SelectItem value="kitwe">Kitwe</SelectItem></SelectContent></Select><Button>Search</Button></div><div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{type==='parts'?parts.map(p=><PartCard key={p.id} part={p}/>):type==='agents'?agents.map(x=><DirectoryCard key={x.id} item={x} kind="agent"/>):type==='sellers'?services.slice(0,2).map((x,i)=><DirectoryCard key={x.id} item={{...x,id:i?'copperbelt-motors':'autoworld-zambia',name:i?'Copperbelt Motors':'Autoworld Zambia',type:i?'Dealer':'Verified dealer',detail:'Quality inspected vehicles with transparent seller information.'}}/>):services.map(x=><DirectoryCard key={x.id} item={x}/>)}</div></main></>}
+
+const PROVIDER_COPY:Record<ProviderKind,{title:string;body:string;search:string;empty:string;emptyBody:string}>={
+  services:{title:'Mechanics & servicing',body:'Compare trusted mechanics and service companies near you.',search:'Search mechanics, services or town',empty:'No mechanics or servicing companies yet',emptyBody:'Mechanics and servicing companies appear here as soon as they create a profile.'},
+  agents:{title:'Vehicle import agents',body:'Find support for popular routes into Zambia.',search:'Search agents, countries or town',empty:'No import agents yet',emptyBody:'Import agents appear here as soon as they create a profile.'},
+};
+
+/** /services and /agents — results come from the route loader; filters live in the URL. */
+export function ProvidersDirectory({kind,search,providers,error}:{kind:ProviderKind;search:ProviderFilters;providers:Provider[]|null;error?:string}){
+  const navigate=useNavigate(); const router=useRouter(); const copy=PROVIDER_COPY[kind];
+  const [q,setQ]=useState(search.q??''); const [province,setProvince]=useState<string>(search.province??ANY); const [mobile,setMobile]=useState(Boolean(search.mobile));
+  useEffect(()=>{setQ(search.q??''); setProvince(search.province??ANY); setMobile(Boolean(search.mobile));},[search.q,search.province,search.mobile]);
+  const submit=(e:FormEvent)=>{e.preventDefault(); const text=q.trim().slice(0,80); const p=PROVINCES.find(([v])=>v===province)?.[0];
+    const next={...(text?{q:text}:{}),...(p?{province:p}:{}),...(kind==='services'&&mobile?{mobile:true}:{})};
+    void (kind==='agents'?navigate({to:'/agents',search:next}):navigate({to:'/services',search:next}));};
+  const filtered=Boolean(search.q||search.province||search.mobile);
+  return <><PageHero eyebrow="Caryandi directory" title={copy.title} body={copy.body}/><main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <form onSubmit={submit} className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-[1fr_200px_auto]"><Input value={q} onChange={e=>setQ(e.target.value)} maxLength={80} aria-label={copy.search} placeholder={copy.search}/><Select value={province} onValueChange={setProvince}><SelectTrigger aria-label="Province"><SelectValue/></SelectTrigger><SelectContent><SelectItem value={ANY}>All locations</SelectItem>{PROVINCES.map(([v,l])=><SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select><Button type="submit">Search</Button>
+      {kind==='services'&&<label className="flex items-center gap-2 text-sm sm:col-span-3"><Checkbox checked={mobile} onCheckedChange={c=>setMobile(c===true)}/> Only mechanics who come to you</label>}</form>
+    {!providers?<div className="mt-6"><ErrorState message={error} onRetry={()=>void router.invalidate()}/></div>:providers.length?<><p className="mt-6 text-sm text-muted-foreground">{providers.length} {providers.length===1?'result':'results'}</p><div className="mt-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{providers.map(x=><DirectoryCard key={x.id} p={x}/>)}</div></>
+      :<div className="mt-6"><EmptyState title={filtered?'Nothing matches your search':copy.empty} body={filtered?'Try another name, town or province.':copy.emptyBody}/></div>}
+  </main></>}
+
+export type PartsPageData={result:PartSearchResult|null;categories:PartCategory[];error?:string};
+
+/** /parts — paged results from the route loader; filters live in the URL. */
+export function PartsDirectory({filters,data}:{filters:PartFilters;data:PartsPageData}){
+  const navigate=useNavigate(); const router=useRouter();
+  const [q,setQ]=useState(filters.q??''); const [category,setCategory]=useState<string>(filters.category??ANY);
+  const [province,setProvince]=useState<string>(filters.province??ANY); const [condition,setCondition]=useState<string>(filters.condition??ANY);
+  useEffect(()=>{setQ(filters.q??''); setCategory(filters.category??ANY); setProvince(filters.province??ANY); setCondition(filters.condition??ANY);},[filters.q,filters.category,filters.province,filters.condition]);
+  const go=(f:PartFilters)=>void navigate({to:'/parts',search:f});
+  const submit=(e:FormEvent)=>{e.preventDefault(); const text=q.trim().slice(0,80); const p=PROVINCES.find(([v])=>v===province)?.[0]; const c=PART_CONDITIONS.find(([v])=>v===condition)?.[0];
+    go({...(text?{q:text}:{}),...(category!==ANY?{category}:{}),...(p?{province:p}:{}),...(c?{condition:c as PartCondition}:{})});};
+  const {result}=data; const filtered=Boolean(filters.q||filters.category||filters.province||filters.condition);
+  const page=(n:number)=>{const {page:_,...rest}=filters; go(n>1?{...rest,page:n}:rest);};
+  return <><PageHero eyebrow="Caryandi directory" title="Automotive parts" body="Search new, used and reconditioned parts from local sellers."/><main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <form onSubmit={submit} className="grid gap-3 rounded-lg border bg-card p-3 sm:grid-cols-2 lg:grid-cols-[1fr_180px_170px_170px_auto]">
+      <Input value={q} onChange={e=>setQ(e.target.value)} maxLength={80} aria-label="Search parts" placeholder="Search parts, e.g. brake pads Corolla"/>
+      <Select value={category} onValueChange={setCategory}><SelectTrigger aria-label="Category"><SelectValue/></SelectTrigger><SelectContent><SelectItem value={ANY}>All categories</SelectItem>{data.categories.map(c=><SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>)}</SelectContent></Select>
+      <Select value={province} onValueChange={setProvince}><SelectTrigger aria-label="Province"><SelectValue/></SelectTrigger><SelectContent><SelectItem value={ANY}>All locations</SelectItem>{PROVINCES.map(([v,l])=><SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select>
+      <Select value={condition} onValueChange={setCondition}><SelectTrigger aria-label="Condition"><SelectValue/></SelectTrigger><SelectContent><SelectItem value={ANY}>Any condition</SelectItem>{PART_CONDITIONS.map(([v,l])=><SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select>
+      <Button type="submit">Search</Button>
+    </form>
+    {!result?<div className="mt-6"><ErrorState message={data.error} onRetry={()=>void router.invalidate()}/></div>:result.items.length?<>
+      <p className="mt-6 text-sm text-muted-foreground">{result.total.toLocaleString()} {result.total===1?'part':'parts'}{filtered&&<> · <button type="button" className="font-medium text-primary" onClick={()=>go({})}>Clear search</button></>}</p>
+      <div className="mt-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{result.items.map(p=><PartCard key={p.id} part={p}/>)}</div>
+      {result.pageCount>1&&<nav aria-label="Pages" className="mt-8 flex items-center justify-center gap-3"><Button variant="outline" disabled={result.page<=1} onClick={()=>page(result.page-1)}>Previous</Button><span className="text-sm text-muted-foreground">Page {result.page} of {result.pageCount}</span><Button variant="outline" disabled={result.page>=result.pageCount} onClick={()=>page(result.page+1)}>Next</Button></nav>}
+    </>:<div className="mt-6"><EmptyState title={filtered?'No parts match your search':'No parts listed yet'} body={filtered?'Try fewer words or another category.':'Parts appear here as soon as sellers publish them.'}/></div>}
+  </main></>}

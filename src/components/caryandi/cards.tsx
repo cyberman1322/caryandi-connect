@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'; import { Heart, MapPin, Star, ShieldCheck, Gauge, Fuel, Settings2 } from 'lucide-react';
-import { Button } from '@/components/ui/button'; import { Badge } from '@/components/ui/badge'; import { ServiceImage, ListingPhoto, SellerImage } from './media'; import type {DirectoryItem,Part} from '@/data/mock-data';
+import { Button } from '@/components/ui/button'; import { Badge } from '@/components/ui/badge'; import { ListingPhoto, PartPhoto, ProviderImage, SellerImage } from './media';
 import type { VehicleCardData } from '@/lib/vehicles/vehicle-service'; import { FUEL_TYPES, PROVINCES, TRANSMISSIONS, formatMileage, formatPrice, labelOf, vehicleTitle } from '@/lib/vehicles/vehicle-options'; import { SELLER_TYPE_LABELS, sellerParam, type SellerSummary } from '@/lib/marketplace/seller-service';
+import { PROVIDER_TYPE_LABELS, providerParam, type Provider } from '@/lib/directory/provider-service'; import { PART_CONDITIONS } from '@/lib/parts/validation'; import type { PartCardData } from '@/lib/parts/parts-service';
 export function Rating({value,count}:{value:number;count:number}){return <span className="inline-flex items-center gap-1 text-sm"><Star className="size-4 fill-warning text-warning"/><b>{Number.isInteger(value)?value:value.toFixed(1)}</b><span className="text-muted-foreground">({count})</span></span>}
 export function VerifiedBadge(){return <Badge variant="secondary" className="gap-1 text-primary"><ShieldCheck className="size-3.5"/> Verified</Badge>}
 /** Listing card for real marketplace data. */
@@ -58,5 +59,46 @@ export function SellerCard({s}:{s:SellerSummary}){
       <Button className="mt-4 w-full" variant="outline" asChild><Link to="/sellers/$sellerId" params={{sellerId:param}}>View profile</Link></Button>
     </div>
   </article>}
-export function DirectoryCard({item,kind='service'}:{item:DirectoryItem;kind?:'service'|'agent'}){const to=kind==='agent'?'/agents/$agentId':'/services/$serviceId'; const params=kind==='agent'?{agentId:item.id}:{serviceId:item.id}; return <article className="overflow-hidden rounded-lg border bg-card"><ServiceImage index={item.image} alt={item.name} className="aspect-[16/9]"/><div className="p-5"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-semibold uppercase text-primary">{item.type}</p><h3 className="mt-1 text-lg font-semibold">{item.name}</h3></div>{item.verified&&<VerifiedBadge/>}</div><div className="mt-2 flex items-center justify-between"><Rating value={item.rating} count={item.reviews}/><span className="text-sm font-semibold">{item.price}</span></div><p className="mt-3 text-sm text-muted-foreground">{item.detail}</p><div className="mt-3 flex flex-wrap gap-1.5">{item.tags.map(t=><Badge key={t} variant="outline">{t}</Badge>)}</div><p className="mt-4 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-4"/>{item.location}</p><Button className="mt-4 w-full" variant="outline" asChild><Link to={to as never} params={params as never}>View profile</Link></Button></div></article>}
-export function PartCard({part}:{part:Part}){return <article className="overflow-hidden rounded-lg border bg-card"><ServiceImage index={part.image} alt={part.name} className="aspect-[4/3]"/><div className="p-4"><div className="flex justify-between"><Badge variant="outline">{part.condition}</Badge><span className="text-xs text-muted-foreground">{part.category}</span></div><Link to="/parts/$partId" params={{partId:part.id}}><h3 className="mt-3 font-semibold hover:text-primary">{part.name}</h3></Link><p className="mt-1 text-lg font-bold">K{part.price.toLocaleString()}</p><p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="size-3.5"/>{part.location} · {part.seller}</p></div></article>}
+
+/** Mechanic, servicing company or import agent card (real directory data). */
+export function DirectoryCard({p}:{p:Provider}){
+  const isAgent=p.business_type==='import_agent';
+  const param=providerParam(p);
+  const location=[p.area,p.city,labelOf(PROVINCES,p.province)].filter(x=>x&&x!=='—').join(', ');
+  const from=p.price_from??(isAgent?p.min_route_price:p.min_service_price);
+  const tags=(isAgent?p.route_labels:p.service_names)??[];
+  const ratingCount=p.rating_count??0;
+  return <article className="flex flex-col overflow-hidden rounded-lg border bg-card">
+    <ProviderImage type={p.business_type} path={p.cover_path??p.logo_path} alt={p.name??'Service provider'} className="aspect-[16/9] w-full"/>
+    <div className="flex flex-1 flex-col p-5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0"><p className="text-xs font-semibold uppercase text-primary">{PROVIDER_TYPE_LABELS[p.business_type??'']??'Service provider'}</p><h3 className="mt-1 truncate text-lg font-semibold">{p.name}</h3></div>
+        {p.is_verified&&<VerifiedBadge/>}
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        {ratingCount>0?<Rating value={Number(p.rating_avg??0)} count={ratingCount}/>:<span className="text-sm text-muted-foreground">No reviews yet</span>}
+        {from!=null&&<span className="text-sm font-semibold">From {formatPrice(from)}</span>}
+      </div>
+      {p.description&&<p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+      {(tags.length>0||p.is_mobile_service)&&<div className="mt-3 flex flex-wrap gap-1.5">{p.is_mobile_service&&<Badge variant="secondary">Comes to you</Badge>}{tags.slice(0,3).map(t=><Badge key={t} variant="outline" className="max-w-full truncate">{t}</Badge>)}</div>}
+      <p className="mt-4 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-4 shrink-0"/><span className="truncate">{location||'Zambia'}</span></p>
+      <div className="mt-auto pt-4"><Button className="w-full" variant="outline" asChild>{isAgent
+        ?<Link to="/agents/$agentId" params={{agentId:param}}>View profile</Link>
+        :<Link to="/services/$serviceId" params={{serviceId:param}}>View profile</Link>}</Button></div>
+    </div>
+  </article>}
+
+/** Part listing card (real marketplace data). */
+export function PartCard({part}:{part:PartCardData}){
+  const id=part.id??'';
+  const location=[part.city,labelOf(PROVINCES,part.province)].filter(x=>x&&x!=='—').join(', ');
+  return <article className="overflow-hidden rounded-lg border bg-card">
+    <Link to="/parts/$partId" params={{partId:id}} className="block overflow-hidden"><PartPhoto path={part.primary_image_path} alt={part.title??'Part'} className="aspect-[4/3] w-full"/></Link>
+    <div className="p-4">
+      <div className="flex justify-between gap-2"><Badge variant="outline">{labelOf(PART_CONDITIONS,part.condition)}</Badge><span className="truncate text-xs text-muted-foreground">{part.category_name}</span></div>
+      <Link to="/parts/$partId" params={{partId:id}}><h3 className="mt-3 line-clamp-2 font-semibold hover:text-primary">{part.title}</h3></Link>
+      <p className="mt-1 text-lg font-bold">{formatPrice(part.price)}</p>
+      <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="size-3.5 shrink-0"/><span className="truncate">{location||'Zambia'} · {part.seller_name}</span></p>
+      {part.is_verified&&<div className="mt-2"><VerifiedBadge/></div>}
+    </div>
+  </article>}
