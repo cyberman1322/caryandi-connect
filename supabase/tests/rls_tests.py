@@ -105,6 +105,37 @@ ROUTE = ok("routes: agent adds Japan → Durban → Lusaka route",
 ok("routes: agent adds direct Japan → Zambia route (no transit port)",
    f"insert into public.import_routes (business_id, origin_country, destination_city) values ('{AGENT_BIZ}', 'Japan', 'Lusaka');", U["agent"])
 
+# service providers directory (migration 0012)
+ok("providers: mechanic sets valid opening hours and mobile service",
+   f"update public.businesses set opening_hours = '{{\"mon\":{{\"open\":\"08:00\",\"close\":\"17:00\"}},\"sun\":null}}', "
+   f"is_mobile_service = true where id = '{MECH}';", U["mechanic"])
+denied("providers: closing before opening is rejected",
+       f"update public.businesses set opening_hours = '{{\"mon\":{{\"open\":\"17:00\",\"close\":\"08:00\"}}}}' where id = '{MECH}';",
+       U["mechanic"], match="opening_hours_valid")
+denied("providers: unknown day names are rejected",
+       f"update public.businesses set opening_hours = '{{\"monday\":{{\"open\":\"08:00\",\"close\":\"17:00\"}}}}' where id = '{MECH}';",
+       U["mechanic"], match="opening_hours_valid")
+denied("providers: extra keys in a day are rejected",
+       f"update public.businesses set opening_hours = '{{\"mon\":{{\"open\":\"08:00\",\"close\":\"17:00\",\"x\":1}}}}' where id = '{MECH}';",
+       U["mechanic"], match="opening_hours_valid")
+ok("providers: anonymous visitor sees the mechanic with its services and starting price",
+   f"select name || '|' || service_count || '|' || min_service_price || '|' || array_to_string(service_names, ',') "
+   f"from public.service_providers where id = '{MECH}';", role="anon", expect="Precision Auto Care|1|350.00|Pre-purchase inspection")
+ok("providers: import agent lists its routes (flexible origin / transit / destination)",
+   f"select array_to_string(route_labels, ';') from public.service_providers where id = '{AGENT_BIZ}';",
+   role="anon", expect="Japan → Durban → Lusaka;Japan → Lusaka")
+ok("providers: dealers are not in the service directory",
+   f"select count(*) from public.service_providers where id = '{BIZ}';", role="anon", expect="0")
+ok("providers: deactivated services disappear from the public summary",
+   f"update public.services set is_active = false where id = '{SVC}';", U["mechanic"])
+ok("providers: summary no longer counts the inactive service",
+   f"select service_count from public.service_providers where id = '{MECH}';", role="anon", expect="0")
+ok("providers: re-activate the service",
+   f"update public.services set is_active = true where id = '{SVC}';", U["mechanic"])
+denied("providers: another user cannot change the mechanic's hours",
+       f"with u as (update public.businesses set is_mobile_service = false where id = '{MECH}' returning 1) select count(*) from u;",
+       U["attacker"])
+
 # ---------------------------------------------------------------- vehicles
 VEH_FIELDS = ("make, model, year, price, condition, transmission, fuel_type, "
               "registration_status, duty_status, import_status, province, city")
