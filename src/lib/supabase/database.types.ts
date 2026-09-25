@@ -1089,6 +1089,38 @@ export type Database = {
         }
         Relationships: []
       }
+      service_providers: {
+        Row: {
+          id: string | null
+          slug: string | null
+          name: string | null
+          business_type: Database["public"]["Enums"]["business_type"] | null
+          description: string | null
+          province: Database["public"]["Enums"]["zambia_province"] | null
+          city: string | null
+          area: string | null
+          address: string | null
+          latitude: number | null
+          longitude: number | null
+          logo_path: string | null
+          cover_path: string | null
+          opening_hours: Json | null
+          is_mobile_service: boolean | null
+          price_from: number | null
+          price_note: string | null
+          is_verified: boolean | null
+          rating_avg: number | null
+          rating_count: number | null
+          created_at: string | null
+          service_names: string[] | null
+          service_count: number | null
+          min_service_price: number | null
+          route_labels: string[] | null
+          route_count: number | null
+          min_route_price: number | null
+        }
+        Relationships: []
+      }
       vehicle_listings: {
         Row: {
           id: string | null
