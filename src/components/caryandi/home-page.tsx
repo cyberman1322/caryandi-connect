@@ -106,9 +106,9 @@ function WarningLights(){
     </div>
     <div className={`grid ${cfg.gap} ${cfg.cols}`}>
       {warningLights.map(light=>{
-        const Icon=()=>light.icon;
+        const Icon=light.icon;
         return <article key={light.name} className={`rounded-lg border bg-card ${cfg.card} transition-[padding] duration-200`}>
-          <div className={light.level==='red'?'text-destructive':'text-warning-foreground'}><Icon/></div>
+          <div className={light.level==='red'?'text-destructive':'text-warning-foreground'}><Icon className={cfg.icon}/></div>
           <h3 className={`mt-4 ${cfg.title}`}>{light.name}</h3>
           <p className={`mt-2 ${cfg.body} text-muted-foreground`}>{light.meaning}</p>
           <p className={`mt-3 border-t pt-3 ${cfg.body}`}><strong>What to do:</strong> {light.action}</p>
