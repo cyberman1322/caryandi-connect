@@ -83,8 +83,39 @@ export function HomePage({latest,providers}:{latest:VehicleCardData[]|null;provi
   </main>;
 }
 
-function WarningSvg({children,label}:{children:ReactNode;label:string}) {
-  return <svg viewBox="0 0 48 48" role="img" aria-label={label} className="h-10 w-12 fill-none stroke-current" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg>;
+function WarningSvg({children,label,className='h-10 w-12'}:{children:ReactNode;label:string;className?:string}) {
+  return <svg viewBox="0 0 48 48" role="img" aria-label={label} className={`${className} fill-none stroke-current`} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg>;
+}
+
+function WarningLights(){
+  const [size,setSize]=useState<LightSize>('comfortable');
+  const cfg=sizeConfig[size];
+  return <>
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground">
+        <span className="inline-flex items-center gap-2"><span className="size-2.5 rounded-full bg-destructive"/>Red: stop safely and act now</span>
+        <span className="inline-flex items-center gap-2"><span className="size-2.5 rounded-full bg-warning"/>Amber: check the vehicle soon</span>
+      </div>
+      <div role="group" aria-label="Warning light card size" className="inline-flex rounded-md border bg-card p-0.5">
+        {(['compact','comfortable','spacious'] as const).map(s=>{
+          const active=s===size;
+          return <button key={s} type="button" onClick={()=>setSize(s)} aria-pressed={active} className={`rounded-[5px] px-2.5 py-1 text-xs font-medium capitalize transition-colors ${active?'bg-primary text-primary-foreground':'text-muted-foreground hover:text-foreground'}`}>{s}</button>;
+        })}
+      </div>
+    </div>
+    <div className={`grid ${cfg.gap} ${cfg.cols}`}>
+      {warningLights.map(light=>{
+        const Icon=()=>light.icon;
+        return <article key={light.name} className={`rounded-lg border bg-card ${cfg.card} transition-[padding] duration-200`}>
+          <div className={light.level==='red'?'text-destructive':'text-warning-foreground'}><Icon/></div>
+          <h3 className={`mt-4 ${cfg.title}`}>{light.name}</h3>
+          <p className={`mt-2 ${cfg.body} text-muted-foreground`}>{light.meaning}</p>
+          <p className={`mt-3 border-t pt-3 ${cfg.body}`}><strong>What to do:</strong> {light.action}</p>
+        </article>;
+      })}
+    </div>
+    <p className="mt-5 text-xs text-muted-foreground">Symbols and advice can vary by make and model. Always check your vehicle owner's manual.</p>
+  </>;
 }
 
 function OilWarningIcon(){return <WarningSvg label="Oil pressure warning symbol"><path d="M6 26h23l7-8h5v14H12a6 6 0 0 1-6-6Z"/><path d="M12 26V16h13l4 10M38 36c0 2-1.8 4-4 4s-4-2-4-4 4-6 4-6 4 4 4 6Z"/></WarningSvg>}
