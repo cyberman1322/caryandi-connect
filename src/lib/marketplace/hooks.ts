@@ -22,6 +22,12 @@ export const queryKeys = {
   reviewsAbout: (uid: string) => ['reviews-about', uid] as const,
   similar: (id: string) => ['similar-vehicles', id] as const,
   vehiclePage: (id: string, uid: string) => ['vehicle-page', id, uid] as const,
+  myParts: (uid: string) => ['my-parts', uid] as const,
+  myPart: (id: string) => ['my-part', id] as const,
+  partImages: (id: string) => ['part-images', id] as const,
+  partCategories: ['part-categories'] as const,
+  myServices: (businessId: string) => ['my-services', businessId] as const,
+  myRoutes: (businessId: string) => ['my-routes', businessId] as const,
 };
 
 /** Signed-in user id, or null while loading / signed out. */
