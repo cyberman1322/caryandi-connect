@@ -24,18 +24,19 @@ const categories: Array<[LucideIcon,string,string,string]> = [
   [MapPinned,'Import support','Explore trusted routes into Zambia','/agents'],
 ];
 
+type WarningIconCmp=({className}:{className?:string})=>ReactNode;
 type WarningLight = {
   name:string;
   meaning:string;
   action:string;
   level:'red'|'amber';
-  icon:ReactNode;
+  icon:WarningIconCmp;
 };
 
 const warningLights: WarningLight[] = [
-  {name:'Engine oil pressure',meaning:'The engine may not be getting enough oil pressure.',action:'Stop safely and switch off the engine. Check the oil level; get help if the light stays on.',level:'red',icon:<OilWarningIcon/>},
-  {name:'Brake system',meaning:'The parking brake may be on, brake fluid may be low, or the braking system may have a fault.',action:'Release the parking brake. If the light remains on, stop safely and seek assistance.',level:'red',icon:<BrakeWarningIcon/>},
-  {name:'Coolant temperature',meaning:'The engine is overheating.',action:'Stop safely, switch off the engine and let it cool. Never open a hot coolant cap.',level:'red',icon:<CoolantWarningIcon/>},
+  {name:'Engine oil pressure',meaning:'The engine may not be getting enough oil pressure.',action:'Stop safely and switch off the engine. Check the oil level; get help if the light stays on.',level:'red',icon:OilWarningIcon},
+  {name:'Brake system',meaning:'The parking brake may be on, brake fluid may be low, or the braking system may have a fault.',action:'Release the parking brake. If the light remains on, stop safely and seek assistance.',level:'red',icon:BrakeWarningIcon},
+  {name:'Coolant temperature',meaning:'The engine is overheating.',action:'Stop safely, switch off the engine and let it cool. Never open a hot coolant cap.',level:'red',icon:CoolantWarningIcon},
   {name:'Battery charge',meaning:'The battery is not charging while the engine is running.',action:'Switch off unnecessary electrical equipment and have the charging system checked promptly.',level:'red',icon:<BatteryWarningIcon/>},
   {name:'Check engine',meaning:'The engine or emissions system has detected a fault.',action:'Arrange a diagnostic check. If it flashes or the car loses power, stop safely and get help.',level:'amber',icon:<EngineWarningIcon/>},
   {name:'Tyre pressure',meaning:'One or more tyres may be underinflated or punctured.',action:'Slow down and check all tyre pressures as soon as it is safe.',level:'amber',icon:<TyreWarningIcon/>},
