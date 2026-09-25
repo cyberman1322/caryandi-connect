@@ -203,3 +203,18 @@ export async function uploadBusinessLogo(businessId: string, file: File): Promis
     throw new Error('The logo could not be saved.');
   }
 }
+
+export type TeamMember = { profileId: string; name: string; role: MemberRole; joinedAt: string };
+
+/** The signed-in user's business team (members can see their own team). */
+export async function listMyTeam(businessId: string): Promise<TeamMember[]> {
+  const supabase = getSupabase();
+  const members = await supabase.from('business_members').select('profile_id, role, created_at').eq('business_id', businessId).order('created_at');
+  if (members.error) throw new Error('We couldn’t load your team.');
+  const ids = (members.data ?? []).map((m) => m.profile_id);
+  if (!ids.length) return [];
+  const profiles = await supabase.from('profiles').select('id, full_name').in('id', ids);
+  if (profiles.error) throw new Error('We couldn’t load your team.');
+  const names = new Map((profiles.data ?? []).map((p) => [p.id, p.full_name]));
+  return (members.data ?? []).map((m) => ({ profileId: m.profile_id, name: names.get(m.profile_id) ?? 'Team member', role: m.role, joinedAt: m.created_at }));
+}
