@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import {useState,type ReactNode} from 'react';
 import {Link} from '@tanstack/react-router';
 import {ArrowRight,Car,FileText,MapPinned,Package,ShieldCheck,Wrench,type LucideIcon} from 'lucide-react';
 import hero from '@/assets/caryandi-hero.jpg';
@@ -9,6 +9,13 @@ import {VehicleCard,DirectoryCard} from './cards';
 import type {Provider} from '@/lib/directory/provider-service';
 import {useFavourites} from '@/lib/marketplace/hooks';
 import type {VehicleCardData} from '@/lib/vehicles/vehicle-service';
+
+type LightSize='compact'|'comfortable'|'spacious';
+const sizeConfig:Record<LightSize,{card:string;icon:string;title:string;body:string;gap:string;cols:string}>={
+  compact:{card:'p-3',icon:'h-7 w-9',title:'text-sm font-semibold',body:'text-xs',gap:'gap-2',cols:'md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4'},
+  comfortable:{card:'p-5',icon:'h-10 w-12',title:'font-semibold',body:'text-sm',gap:'gap-3',cols:'md:grid-cols-2 lg:grid-cols-4'},
+  spacious:{card:'p-7',icon:'h-14 w-16',title:'text-lg font-bold',body:'text-base',gap:'gap-5',cols:'md:grid-cols-2 lg:grid-cols-3'},
+};
 
 const categories: Array<[LucideIcon,string,string,string]> = [
   [Car,'Buy a vehicle','Browse clear, detailed listings','/vehicles'],
