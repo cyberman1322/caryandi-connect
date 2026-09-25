@@ -74,19 +74,7 @@ export function HomePage({latest,providers}:{latest:VehicleCardData[]|null;provi
 
     <section className="border-y bg-muted/35">
       <Section title="Know your dashboard warning lights" description="Common symbols, what they mean and what to do next">
-        <div className="mb-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground">
-          <span className="inline-flex items-center gap-2"><span className="size-2.5 rounded-full bg-destructive"/>Red: stop safely and act now</span>
-          <span className="inline-flex items-center gap-2"><span className="size-2.5 rounded-full bg-warning"/>Amber: check the vehicle soon</span>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-          {warningLights.map(light => <article key={light.name} className="rounded-lg border bg-card p-5">
-            <div className={light.level==='red'?'text-destructive':'text-warning-foreground'}>{light.icon}</div>
-            <h3 className="mt-4 font-semibold">{light.name}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{light.meaning}</p>
-            <p className="mt-3 border-t pt-3 text-sm"><strong>What to do:</strong> {light.action}</p>
-          </article>)}
-        </div>
-        <p className="mt-5 text-xs text-muted-foreground">Symbols and advice can vary by make and model. Always check your vehicle owner’s manual.</p>
+        <WarningLights/>
       </Section>
     </section>
 
