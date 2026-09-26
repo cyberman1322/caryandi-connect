@@ -8,7 +8,7 @@
 export const TERMS_VERSION = '2026-09-26';
 export const TERMS_EFFECTIVE_DATE = '26 September 2026';
 
-export const LEGAL_NAME = 'Caryandi';
+export const LEGAL_NAME = 'My Car Zambia';
 
 /**
  * Where people send privacy requests and legal notices. Until it is set, the
@@ -16,5 +16,5 @@ export const LEGAL_NAME = 'Caryandi';
  */
 export const LEGAL_CONTACT_EMAIL: string | null = null;
 
-/** The minimum age to use Caryandi. */
+/** The minimum age to use My Car Zambia. */
 export const MINIMUM_AGE = 18;
