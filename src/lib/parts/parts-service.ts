@@ -127,7 +127,7 @@ export async function getMyPart(id: string): Promise<Tables<'parts'> | null> {
 
 function friendlyWriteError(error: { message: string; code?: string }): string {
   if (error.message.includes('phone number')) return 'Add a phone number to your profile before publishing, so buyers can reach you.';
-  if (error.message.includes('Only administrators') || error.message.includes('under review')) return 'This listing is under review by Caryandi and can’t be changed right now.';
+  if (error.message.includes('Only administrators') || error.message.includes('under review')) return 'This listing is under review by My Car Zambia and can’t be changed right now.';
   if (error.code === '42501') return 'Your account can’t list parts, or this listing isn’t yours.';
   if (error.code === '23514' || error.code === '23503') return 'Some details are not valid. Please check the form and try again.';
   return 'We couldn’t save this part. Please try again.';
