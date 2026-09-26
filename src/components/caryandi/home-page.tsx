@@ -140,6 +140,6 @@ function AirbagWarningIcon({className}:{className?:string|undefined}){return <Wa
 function LatestVehicles({items}:{items:VehicleCardData[]|null}){
   const {isSaved,toggle}=useFavourites();
   if(!items) return <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">We couldn’t load the latest vehicles. <Link to="/vehicles" className="font-semibold text-primary">Browse all vehicles</Link></p>;
-  if(!items.length) return <div className="rounded-lg border border-dashed p-10 text-center"><h3 className="font-semibold">No vehicles listed yet</h3><p className="mt-1 text-sm text-muted-foreground">Be one of the first sellers on Caryandi.</p><Button className="mt-4" asChild><Link to="/dashboard/add-vehicle">Sell a car</Link></Button></div>;
+  if(!items.length) return <div className="rounded-lg border border-dashed p-10 text-center"><h3 className="font-semibold">No vehicles listed yet</h3><p className="mt-1 text-sm text-muted-foreground">Be one of the first sellers on My Car Zambia.</p><Button className="mt-4" asChild><Link to="/dashboard/add-vehicle">Sell a car</Link></Button></div>;
   return <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{items.map(v=><VehicleCard key={v.id} v={v} saved={isSaved(v.id)} onSave={()=>v.id&&toggle(v.id)}/>)}</div>;
 }

@@ -57,7 +57,7 @@ export function TermsConsentGate() {
         <AlertDialogHeader>
           <AlertDialogTitle>Before you continue</AlertDialogTitle>
           <AlertDialogDescription>
-            Caryandi is for adults only. Please confirm your age and accept our terms to keep listing, messaging and using your account.
+            My Car Zambia is for adults only. Please confirm your age and accept our terms to keep listing, messaging and using your account.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <label className="flex items-start gap-2 text-sm">

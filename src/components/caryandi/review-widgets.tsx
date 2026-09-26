@@ -20,7 +20,7 @@ function subjectKey(s: ReviewSubject) { return 'businessId' in s ? `b:${s.busine
 
 /**
  * "Write a review" / "Edit your review" under a profile's reviews. Only people
- * who contacted the seller on Caryandi can review (checked by the database).
+ * who contacted the seller on My Car Zambia can review (checked by the database).
  */
 export function ReviewAction({ subject, name }: { subject: ReviewSubject; name: string }) {
   const auth = useAuth();
@@ -85,7 +85,7 @@ export function ReviewAction({ subject, name }: { subject: ReviewSubject; name: 
     return <Button variant="outline" size="sm" className="mt-3" onClick={() => { toast('Sign in to write a review'); goToSignIn(); }}><PenLine />Write a review</Button>;
   }
   if (status === 'not_contacted') {
-    return <p className="mt-3 text-sm text-muted-foreground">Dealt with {name}? You can leave a review after contacting them on Caryandi — this keeps reviews genuine.</p>;
+    return <p className="mt-3 text-sm text-muted-foreground">Dealt with {name}? You can leave a review after contacting them on My Car Zambia — this keeps reviews genuine.</p>;
   }
 
   return (

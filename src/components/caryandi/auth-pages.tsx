@@ -18,9 +18,9 @@ type Mode = 'login' | 'register' | 'forgot' | 'reset';
 
 const TITLES: Record<Mode, [string, string]> = {
   login: ['Welcome back', 'Sign in to continue to your account.'],
-  register: ['Create your Caryandi account', 'Choose how you plan to use Caryandi.'],
+  register: ['Create your My Car Zambia account', 'Choose how you plan to use My Car Zambia.'],
   forgot: ['Reset your password', 'We’ll email you a secure link to choose a new password.'],
-  reset: ['Choose a new password', 'Enter a new password for your Caryandi account.'],
+  reset: ['Choose a new password', 'Enter a new password for your My Car Zambia account.'],
 };
 
 export function AuthPage({ mode, redirect }: { mode: Mode; redirect?: string | undefined }) {
@@ -47,7 +47,7 @@ export function AuthPage({ mode, redirect }: { mode: Mode; redirect?: string | u
           {mode === 'forgot' && <ForgotForm />}
           {mode === 'reset' && <ResetForm />}
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            {mode === 'login' ? <>New to Caryandi? <Link to="/register" className="font-medium text-primary">Create account</Link></>
+            {mode === 'login' ? <>New to My Car Zambia? <Link to="/register" className="font-medium text-primary">Create account</Link></>
               : mode === 'register' ? <>Already registered? <Link to="/login" className="font-medium text-primary">Sign in</Link></>
               : <Link to="/login" className="font-medium text-primary">Return to sign in</Link>}
           </p>
@@ -179,7 +179,7 @@ function RegisterFlow({ onHeading }: { onHeading: (h: [string, string] | null) =
   }, [auth.status, navigate]);
 
   useEffect(() => {
-    if (state.step === 'details') onHeading(['Create your Caryandi account', `You’re signing up as a ${ACCOUNT_TYPE_LABELS[state.accountType].toLowerCase()}.`]);
+    if (state.step === 'details') onHeading(['Create your My Car Zambia account', `You’re signing up as a ${ACCOUNT_TYPE_LABELS[state.accountType].toLowerCase()}.`]);
     else if (state.step === 'check-email') onHeading(['Check your email', 'One more step to activate your account.']);
     else onHeading(null);
   }, [state, onHeading]);

@@ -55,7 +55,7 @@ export function SellerProfile({ data }: { data: SellerRouteData }) {
               {s.is_verified && <VerifiedBadge label={s.seller_type === 'dealer' ? 'Verified dealer' : 'Verified business'} />}
             </div>
           </div>
-          <ShareButton title={`${s.name} on Caryandi`} />
+          <ShareButton title={`${s.name} on My Car Zambia`} />
         </div>
       </div>
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_340px]">
@@ -89,15 +89,15 @@ export function SellerProfile({ data }: { data: SellerRouteData }) {
           <h2 className="font-semibold">At a glance</h2>
           <dl className="mt-4 space-y-4 text-sm">
             <div className="flex justify-between"><dt className="text-muted-foreground">Live listings</dt><dd className="font-semibold">{s.active_vehicle_count ?? vehicles.length}</dd></div>
-            {since && <div className="flex justify-between"><dt className="text-muted-foreground">On Caryandi since</dt><dd className="font-semibold">{since}</dd></div>}
+            {since && <div className="flex justify-between"><dt className="text-muted-foreground">On My Car Zambia since</dt><dd className="font-semibold">{since}</dd></div>}
             <div className="flex justify-between"><dt className="text-muted-foreground">Verification</dt><dd className="font-semibold">{s.is_verified ? 'Verified' : 'Not verified'}</dd></div>
           </dl>
           {isSelf ? (
             <Button variant="outline" className="mt-5 w-full" asChild><Link to="/dashboard/profile">Edit your profile</Link></Button>
           ) : (
             <>
-              <ContactPanel target={isBusiness ? 'business' : 'profile'} id={id} label={`Contact ${isBusiness ? 'dealer' : 'seller'}`} whatsappMessage={`Hi ${s.name ?? ''}, I found you on Caryandi and I’m interested in your vehicles.`} />
-              <EnquiryActions target={isBusiness ? 'business' : 'profile'} id={id} meetup={isBusiness} defaultMessage={`Hi ${s.name ?? ''}, I found you on Caryandi and I’m interested in your vehicles.`} />
+              <ContactPanel target={isBusiness ? 'business' : 'profile'} id={id} label={`Contact ${isBusiness ? 'dealer' : 'seller'}`} whatsappMessage={`Hi ${s.name ?? ''}, I found you on My Car Zambia and I’m interested in your vehicles.`} />
+              <EnquiryActions target={isBusiness ? 'business' : 'profile'} id={id} meetup={isBusiness} defaultMessage={`Hi ${s.name ?? ''}, I found you on My Car Zambia and I’m interested in your vehicles.`} />
               <div className="mt-3 text-center"><ReportDialog target={isBusiness ? 'business' : 'profile'} id={id} subject={s.name ?? 'this seller'} /></div>
             </>
           )}

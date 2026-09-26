@@ -82,7 +82,7 @@ export function RequireAuth({ children, admin = false }: { children: ReactNode; 
           {profile.account_status === 'banned' ? 'This account has been closed' : 'This account is suspended'}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          If you think this is a mistake, contact Caryandi support.
+          If you think this is a mistake, contact My Car Zambia support.
         </p>
         <Button variant="outline" className="mt-5" onClick={() => void auth.signOut()}>Sign out</Button>
       </Centered>
@@ -107,7 +107,7 @@ export function RequireAuth({ children, admin = false }: { children: ReactNode; 
       <Centered>
         <LockKeyhole className="mx-auto size-9 text-muted-foreground" />
         <h1 className="mt-3 text-lg font-semibold">
-          {canBecomeSeller ? 'Sell your car on Caryandi' : 'Not available for your account'}
+          {canBecomeSeller ? 'Sell your car on My Car Zambia' : 'Not available for your account'}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {canBecomeSeller

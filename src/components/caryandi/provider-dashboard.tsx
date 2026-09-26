@@ -358,7 +358,7 @@ function PartPublishPanel({ partId, status }: { partId: string; status: ListingS
         {status === 'active' && 'Buyers can find this part right now.'}
         {status === 'sold' && 'Buyers see this part as sold. Relist it if you have more.'}
         {status === 'archived' && 'Hidden from buyers. Move it back to drafts to edit and relist.'}
-        {underReview && 'Caryandi is reviewing this part. You can move it back to drafts.'}
+        {underReview && 'My Car Zambia is reviewing this part. You can move it back to drafts.'}
       </p>
       <div className="mt-4 grid gap-2">
         {status === 'draft' && <Button onClick={publish} disabled={change.isPending || images.isPending}>{change.isPending ? <Loader2 className="animate-spin" /> : <Send />}Publish part</Button>}
@@ -494,7 +494,7 @@ export function PartCategoriesOverview() {
           })}
         </TableBody>
       </Table>
-      <p className="border-t p-3 text-xs text-muted-foreground">Categories are set by Caryandi so buyers can filter consistently. Pick the closest one when you add a part.</p>
+      <p className="border-t p-3 text-xs text-muted-foreground">Categories are set by My Car Zambia so buyers can filter consistently. Pick the closest one when you add a part.</p>
     </div>
   );
 }

@@ -73,7 +73,7 @@ export function SellerVerification() {
             <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Verify a car by uploading its documents, like the registration book or import papers. No selfie needed.</li>
             <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Approved cars show a “Verified vehicle” badge that buyers look for.</li>
             <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Dealers can also verify their business for a “Verified dealer” badge.</li>
-            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Your documents are private. Only Caryandi reviewers can see them.</li>
+            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Your documents are private. Only My Car Zambia reviewers can see them.</li>
           </ul>
         </Card>
       </aside>

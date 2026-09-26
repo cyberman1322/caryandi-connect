@@ -358,7 +358,7 @@ export function EnquiryActions({ target, id, defaultMessage, meetup = true }: { 
 
   const begin = (kind: 'enquiry' | 'meetup') => {
     if (auth.status === 'loading') return;
-    if (auth.status !== 'signed-in') { toast('Sign in to message sellers', { description: 'Your conversations are kept in your Caryandi inbox.' }); goToSignIn(); return; }
+    if (auth.status !== 'signed-in') { toast('Sign in to message sellers', { description: 'Your conversations are kept in your My Car Zambia inbox.' }); goToSignIn(); return; }
     setError(null); setOpen(kind);
   };
 
@@ -397,7 +397,7 @@ export function EnquiryActions({ target, id, defaultMessage, meetup = true }: { 
           <form onSubmit={submit} className="grid gap-4">
             <DialogHeader>
               <DialogTitle>{open === 'meetup' && copy ? copy.title : 'Send a message'}</DialogTitle>
-              <DialogDescription>{open === 'meetup' && copy ? copy.hint : 'Your message goes to their Caryandi inbox; replies come back to yours.'}</DialogDescription>
+              <DialogDescription>{open === 'meetup' && copy ? copy.hint : 'Your message goes to their My Car Zambia inbox; replies come back to yours.'}</DialogDescription>
             </DialogHeader>
             {open === 'meetup' && (
               <div className="grid gap-4 sm:grid-cols-2">

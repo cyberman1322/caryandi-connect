@@ -88,7 +88,7 @@ export function ShareButton({ title, text }: { title: string; text?: string }) {
   return <Button variant="ghost" size="icon" aria-label="Share" onClick={() => void share()}><Share2 /></Button>;
 }
 
-/** Report a listing or seller to the Caryandi team. */
+/** Report a listing or seller to the My Car Zambia team. */
 export function ReportDialog({ target, id, subject }: { target: ReportTarget; id: string; subject: string }) {
   const auth = useAuth();
   const goToSignIn = useSignInRedirect();

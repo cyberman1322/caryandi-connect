@@ -226,7 +226,7 @@ export function AdminUsers({ fixedType }: { fixedType?: AccountType }) {
       </TableShell>
       <ReasonDialog open={Boolean(action)} busy={change.isPending} destructive={action?.to !== 'active'}
         title={action ? `${action.to === 'active' ? 'Reactivate' : action.to === 'banned' ? 'Ban' : 'Suspend'} ${action.name}?` : ''}
-        description={action?.to === 'banned' ? 'Banned users cannot sign in to use Caryandi, and their listings are hidden.' : action?.to === 'suspended' ? 'Suspended users cannot post or message until reactivated.' : 'The account will work normally again.'}
+        description={action?.to === 'banned' ? 'Banned users cannot sign in to use My Car Zambia, and their listings are hidden.' : action?.to === 'suspended' ? 'Suspended users cannot post or message until reactivated.' : 'The account will work normally again.'}
         confirm={action?.to === 'active' ? 'Reactivate' : action?.to === 'banned' ? 'Ban account' : 'Suspend account'}
         onCancel={() => setAction(null)} onConfirm={(reason) => action && change.mutate({ id: action.id, to: action.to, reason })} />
     </div>

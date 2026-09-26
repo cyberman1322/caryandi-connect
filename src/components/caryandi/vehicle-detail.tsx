@@ -98,7 +98,7 @@ function VehicleView({ page }: { page: VehiclePageData }) {
     ['Import duty', labelOf(DUTY_STATUSES, v.duty_status)],
     ['Import status', labelOf(IMPORT_STATUSES, v.import_status)],
   ];
-  const whatsappMessage = `Hi, is the ${fullTitle} (${formatPrice(v.price)}) on Caryandi still available? ${typeof window === 'undefined' ? '' : window.location.href}`.trim();
+  const whatsappMessage = `Hi, is the ${fullTitle} (${formatPrice(v.price)}) on My Car Zambia still available? ${typeof window === 'undefined' ? '' : window.location.href}`.trim();
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
@@ -160,7 +160,7 @@ function VehicleView({ page }: { page: VehiclePageData }) {
                 <p className="mt-2 text-3xl font-bold">{formatPrice(v.price)}</p>
               </div>
               <div className="flex shrink-0">
-                <ShareButton title={`${fullTitle} for ${formatPrice(v.price)} — Caryandi`} />
+                <ShareButton title={`${fullTitle} for ${formatPrice(v.price)} — My Car Zambia`} />
                 {!isOwner && <Button variant="ghost" size="icon" aria-label={isSaved(id) ? 'Remove from saved' : 'Save'} aria-pressed={isSaved(id)} onClick={() => toggle(id)}><Heart className={isSaved(id) ? 'fill-primary text-primary' : ''} /></Button>}
               </div>
             </div>
@@ -238,7 +238,7 @@ function VerificationTab({ verified, sellerVerified, business }: { verified: boo
             <div>
               <h3 className="font-semibold">Verified vehicle</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Caryandi checked this car’s documents (such as the registration book or import papers) against the listing and approved them.
+                My Car Zambia checked this car’s documents (such as the registration book or import papers) against the listing and approved them.
                 {' '}Verification helps you assess a listing, but always inspect the vehicle and match the chassis and engine numbers to the papers before paying.
               </p>
             </div>
@@ -261,7 +261,7 @@ function VerificationTab({ verified, sellerVerified, business }: { verified: boo
         <p className="flex items-start gap-2 rounded-lg border p-4 text-sm text-muted-foreground">
           <ShieldCheck className={`mt-0.5 size-4 shrink-0 ${sellerVerified ? 'text-success' : 'text-muted-foreground'}`} />
           {sellerVerified
-            ? 'The dealer selling this car is a verified business: Caryandi reviewed its registration details.'
+            ? 'The dealer selling this car is a verified business: My Car Zambia reviewed its registration details.'
             : 'The dealer selling this car hasn’t verified their business yet.'}
         </p>
       )}

@@ -83,7 +83,7 @@ export function ProfileForm() {
 
   return (
     <form onSubmit={submit} noValidate className="grid gap-6">
-      <Card title="Your details" description="How you appear to buyers and sellers on Caryandi.">
+      <Card title="Your details" description="How you appear to buyers and sellers on My Car Zambia.">
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Full name" error={errors['fullName']}>
             {(id) => <Input id={id} autoComplete="name" value={values.fullName} onChange={set('fullName')} />}
@@ -196,7 +196,7 @@ export function SettingsPanel() {
         </Card>
       </form>
 
-      <Card title="Sign out" description="If you used Caryandi on a shared or lost phone, sign out everywhere to end all sessions.">
+      <Card title="Sign out" description="If you used My Car Zambia on a shared or lost phone, sign out everywhere to end all sessions.">
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={async () => { await auth.signOut(); void navigate({ to: '/' }); }}><LogOut />Sign out</Button>
           <Button variant="outline" disabled={busy !== null}

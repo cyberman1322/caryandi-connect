@@ -443,8 +443,8 @@ function PublishPanel({ vehicleId, status }: { vehicleId: string; status: Listin
         {status === 'active' && 'Buyers can find this vehicle in search right now.'}
         {status === 'sold' && 'Buyers see this vehicle as sold. Relist it if the sale falls through.'}
         {status === 'archived' && 'Hidden from buyers. Move it back to drafts to edit and relist.'}
-        {status === 'pending' && 'Caryandi is reviewing this listing. You can edit it or move it back to drafts.'}
-        {status === 'rejected' && 'Caryandi didn’t approve this listing. Edit it and move it back to drafts, or archive it.'}
+        {status === 'pending' && 'My Car Zambia is reviewing this listing. You can edit it or move it back to drafts.'}
+        {status === 'rejected' && 'My Car Zambia didn’t approve this listing. Edit it and move it back to drafts, or archive it.'}
       </p>
       <div className="mt-4 grid gap-2">
         {status === 'draft' && <Button onClick={publish} disabled={change.isPending || images.isPending}>{change.isPending ? <Loader2 className="animate-spin" /> : <Send />}Publish listing</Button>}
@@ -622,7 +622,7 @@ function DocumentsManager({ vehicleId }: { vehicleId: string }) {
   return (
     <section className="rounded-lg border bg-card p-5 sm:p-6">
       <h2 className="text-xl font-semibold">Documents (private)</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Buyers only see which documents you’ve provided, never the files. Caryandi uses them for verification.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Buyers only see which documents you’ve provided, never the files. My Car Zambia uses them for verification.</p>
       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
         <Select value={type} onValueChange={(v) => setType(v as VehicleDocumentType)}>
           <SelectTrigger aria-label="Document type"><SelectValue /></SelectTrigger>

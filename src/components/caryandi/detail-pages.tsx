@@ -89,7 +89,7 @@ export function ProfileDetail({ kind, data }: { kind: ProviderKind; data: Provid
               {p.is_mobile_service && <Badge variant="secondary" className="gap-1"><Truck className="size-3.5" />Comes to you</Badge>}
             </div>
           </div>
-          <ShareButton title={`${p.name} on Caryandi`} />
+          <ShareButton title={`${p.name} on My Car Zambia`} />
         </div>
       </div>
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_340px]">
@@ -164,15 +164,15 @@ export function ProfileDetail({ kind, data }: { kind: ProviderKind; data: Provid
             {p.price_note && <p className="-mt-2 text-right text-xs text-muted-foreground">{p.price_note}</p>}
             <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Availability</dt><dd className={`text-right font-semibold ${status?.open ? 'text-success' : ''}`}>{status ? status.label : 'Ask for hours'}</dd></div>
             {kind === 'services' && <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Comes to you</dt><dd className="font-semibold">{p.is_mobile_service ? 'Yes' : 'No'}</dd></div>}
-            {since && <div className="flex justify-between gap-3"><dt className="text-muted-foreground">On Caryandi since</dt><dd className="font-semibold">{since}</dd></div>}
+            {since && <div className="flex justify-between gap-3"><dt className="text-muted-foreground">On My Car Zambia since</dt><dd className="font-semibold">{since}</dd></div>}
             <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Verification</dt><dd className="font-semibold">{p.is_verified ? 'Verified' : 'Not verified'}</dd></div>
           </dl>
           {isSelf ? (
             <Button variant="outline" className="mt-5 w-full" asChild><Link to="/dashboard/profile">Edit your profile</Link></Button>
           ) : (
             <>
-              <ContactPanel target="business" id={id} label={kind === 'agents' ? 'Contact agent' : 'Contact business'} whatsappMessage={`Hi ${p.name ?? ''}, I found you on Caryandi and I’d like to ask about your ${kind === 'agents' ? 'import services' : 'services'}.`} />
-              <EnquiryActions target="business" id={id} defaultMessage={`Hi ${p.name ?? ''}, I found you on Caryandi and I’d like to ask about your ${kind === 'agents' ? 'import services' : 'services'}.`} />
+              <ContactPanel target="business" id={id} label={kind === 'agents' ? 'Contact agent' : 'Contact business'} whatsappMessage={`Hi ${p.name ?? ''}, I found you on My Car Zambia and I’d like to ask about your ${kind === 'agents' ? 'import services' : 'services'}.`} />
+              <EnquiryActions target="business" id={id} defaultMessage={`Hi ${p.name ?? ''}, I found you on My Car Zambia and I’d like to ask about your ${kind === 'agents' ? 'import services' : 'services'}.`} />
               <div className="mt-3 text-center"><ReportDialog target="business" id={id} subject={p.name ?? 'this business'} /></div>
             </>
           )}
@@ -237,7 +237,7 @@ export function PartDetail({ data }: { data: PartRouteData }) {
             <p className="mt-6 rounded-md bg-muted p-3 text-center text-sm">This part has been sold.</p>
           ) : (
             <>
-              <ContactPanel target="part" id={id} label="Contact seller" whatsappMessage={`Hi, I saw your ${p.title ?? 'part'} (${formatPrice(p.price)}) on Caryandi. Is it still available, and will it fit my vehicle?`} />
+              <ContactPanel target="part" id={id} label="Contact seller" whatsappMessage={`Hi, I saw your ${p.title ?? 'part'} (${formatPrice(p.price)}) on My Car Zambia. Is it still available, and will it fit my vehicle?`} />
               <EnquiryActions target="part" id={id} defaultMessage={`Hi, is the ${p.title ?? 'part'} still available? Will it fit my vehicle?`} />
               <div className="mt-3 text-center"><ReportDialog target="part" id={id} subject={p.title ?? 'this part'} /></div>
             </>
