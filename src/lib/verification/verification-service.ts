@@ -4,12 +4,13 @@ import { compressPhoto, checkDocumentFile, extensionFor, storagePath } from '@/l
 import { ServiceError } from '@/lib/vehicles/vehicle-service';
 
 /**
- * Seller verification (optional, earns the verified badge).
- *   - A business verifies ONCE; approval puts the badge on every car it lists.
- *   - A private seller verifies EACH car separately.
- *   - The selfie is taken live in the app (no file picker); documents are optional extras.
+ * Verification is optional and never blocks listing.
+ *   - Vehicle: any car (private or dealer) is verified on its own with its DOCUMENTS
+ *     (registration book, import papers …). No selfie. Earns "Verified vehicle".
+ *   - Business: a dealer / provider verifies the business once (live selfie + papers).
+ *     Earns "Verified dealer/business". It no longer marks every car verified.
  * Ownership, one-open-request and "already verified" rules are enforced by the
- * database (migration 0004); only administrators can decide (admin_review_verification).
+ * database (migrations 0004, 0016); only administrators can decide.
  */
 
 export type VerificationRequest = Views<'verification_request_details'>;
@@ -22,7 +23,16 @@ export const VERIFICATION_DOCUMENT_LABELS: Record<VerificationDocumentType, stri
   business_registration: 'Business registration (PACRA)',
   tax_certificate: 'Tax clearance / TPIN certificate',
   other: 'Other supporting document',
+  registration_book: 'Registration book (white book)',
+  import_papers: 'Import papers (bill of lading / export certificate)',
+  customs_clearance: 'ZRA customs clearance certificate',
+  police_clearance: 'Police (Interpol) clearance',
 };
+
+/** What a seller can attach when verifying a car. */
+export const VEHICLE_DOCUMENT_TYPES: VerificationDocumentType[] = [
+  'registration_book', 'import_papers', 'customs_clearance', 'police_clearance', 'other',
+];
 
 export const VERIFICATION_STATUS_LABELS: Record<VerificationStatus, string> = {
   unverified: 'Not verified',
@@ -54,7 +64,7 @@ function submitErrorText(error: { code?: string; message?: string }): string {
   const msg = error.message ?? '';
   if (error.code === '23505') return 'A verification request for this is already under review.';
   if (/already verified/i.test(msg)) return msg;
-  if (/only verify|must belong|covered by business/i.test(msg)) return msg;
+  if (/only verify|must belong|at least one document|at most|upload is missing|18 or older/i.test(msg)) return msg;
   return 'We couldn’t submit your verification. Please try again.';
 }
 
@@ -73,9 +83,7 @@ export async function listMyVerificationRequests(): Promise<VerificationRequest[
 
 export type VerificationDocumentInput = { type: VerificationDocumentType; file: File };
 
-export type SubmitVerificationInput =
-  | { subject: 'business'; businessId: string; vehicleId: string | null }
-  | { subject: 'vehicle'; vehicleId: string };
+export type SubmitVerificationInput = { subject: 'business'; businessId: string; vehicleId: string | null };
 
 export function checkVerificationDocument(file: File): string | null {
   const check = checkDocumentFile(file);
@@ -127,7 +135,7 @@ export async function submitVerification(
   const row = {
     requester_id: uid,
     subject: target.subject,
-    business_id: target.subject === 'business' ? target.businessId : null,
+    business_id: target.businessId,
     vehicle_id: target.vehicleId,
     selfie_path: selfiePath,
     selfie_captured_at: selfie.capturedAt.toISOString(),
@@ -152,6 +160,54 @@ export async function submitVerification(
     fail(`Your request was submitted, but these documents didn’t upload: ${failed.join(', ')}. Our team may ask you for them.`);
   }
   return data.id;
+}
+
+/** Re-encodes photos (strips EXIF/GPS) and uploads documents to the private bucket. */
+async function uploadDocuments(uid: string, documents: VerificationDocumentInput[]): Promise<Array<{ type: VerificationDocumentType; path: string }>> {
+  const bucket = getSupabase().storage.from('verification');
+  const prepared: Array<{ type: VerificationDocumentType; body: Blob; contentType: string }> = [];
+  for (const d of documents) {
+    const body: Blob = d.file.type === 'application/pdf' ? d.file : await compressPhoto(d.file, 2400, 0.85);
+    if (body.size > MAX_VERIFICATION_FILE_BYTES) fail(`${d.file.name}: this file is too large (max 8 MB).`);
+    prepared.push({ type: d.type, body, contentType: body.type || d.file.type });
+  }
+  const uploaded: Array<{ type: VerificationDocumentType; path: string }> = [];
+  for (const d of prepared) {
+    const path = storagePath(uid, 'request-docs', extensionFor(d.contentType));
+    const { error } = await bucket.upload(path, d.body, { contentType: d.contentType, upsert: false });
+    if (error) fail(`${VERIFICATION_DOCUMENT_LABELS[d.type]} couldn’t be uploaded. Check your connection and try again.`, error);
+    uploaded.push({ type: d.type, path });
+  }
+  return uploaded;
+}
+
+/** Verify one car with its documents (1–4). No selfie. Works for private and dealer cars. */
+export async function submitVehicleVerification(vehicleId: string, documents: VerificationDocumentInput[], notes: string): Promise<string> {
+  if (!documents.length) fail('Add at least one document, such as the registration book or import papers.');
+  if (documents.length > MAX_VERIFICATION_DOCUMENTS) fail(`Attach at most ${MAX_VERIFICATION_DOCUMENTS} documents.`);
+  for (const d of documents) {
+    const problem = checkVerificationDocument(d.file);
+    if (problem) fail(problem);
+  }
+  const uid = await currentUserId();
+  const uploaded = await uploadDocuments(uid, documents);
+  const { data, error } = await getSupabase().rpc('submit_vehicle_verification', {
+    p_vehicle_id: vehicleId,
+    p_documents: uploaded,
+    ...(notes.trim() ? { p_notes: notes.trim().slice(0, 1000) } : {}),
+  });
+  if (error || !data) fail(error ? submitErrorText(error) : 'We couldn’t submit your verification.', error);
+  return data;
+}
+
+export type MyVehicleVerification = { canVerify: boolean; status: VerificationStatus };
+
+/** The signed-in seller's view of one car's verification (null if it isn't theirs). */
+export async function getMyVehicleVerification(vehicleId: string): Promise<MyVehicleVerification | null> {
+  const { data, error } = await getSupabase().rpc('my_vehicle_verification', { p_vehicle_id: vehicleId });
+  if (error) fail('We couldn’t check this car’s verification.', error);
+  const row = data?.[0];
+  return row ? { canVerify: Boolean(row.can_verify), status: (row.status ?? 'unverified') as VerificationStatus } : null;
 }
 
 /* ------------------------------------------------------------------ admin side */
@@ -208,5 +264,5 @@ export async function reviewVerification(requestId: string, decision: 'approved'
 export function verificationSubjectLabel(r: VerificationRequest): string {
   const car = [r.vehicle_year, r.vehicle_make, r.vehicle_model, r.vehicle_variant].filter(Boolean).join(' ');
   if (r.subject === 'business') return r.business_name ?? 'Business';
-  return car || 'Vehicle';
+  return (car || 'Vehicle') + (r.vehicle_business_name ? ` · ${r.vehicle_business_name}` : '');
 }
