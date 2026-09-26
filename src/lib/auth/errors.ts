@@ -24,7 +24,7 @@ export function describeAuthError(error: AuthErrorLike): string {
     return 'Your new password must be different from the old one.';
   }
   if (message.includes('fetch') || message.includes('network')) {
-    return 'We couldn’t reach Caryandi. Check your connection and try again.';
+    return 'We couldn’t reach My Car Zambia. Check your connection and try again.';
   }
   return 'Something went wrong. Please try again.';
 }
