@@ -68,6 +68,7 @@ export const signUpSchema = z
     phone,
     password,
     confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((v) => v, 'You must be 18 or older and accept the Terms of Use and Privacy Policy'),
   })
   .refine((v) => v.password === v.confirmPassword, {
     message: 'Passwords do not match',

@@ -1,6 +1,7 @@
 import { getSupabase, setRememberSession } from '@/lib/supabase/client';
 import type { SelfServiceAccountType } from './account-types';
 import { describeAuthError } from './errors';
+import { TERMS_VERSION } from '@/lib/legal';
 
 export type AuthResult<T = void> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -26,14 +27,21 @@ export async function signUp(input: {
   fullName: string;
   phone: string;
   accountType: SelfServiceAccountType;
+  /** Must be true: the form requires the 18+ / terms tick box. */
+  acceptTerms: boolean;
 }): Promise<AuthResult<{ needsEmailConfirmation: boolean }>> {
+  if (!input.acceptTerms) return { ok: false, error: 'You must be 18 or older and accept the Terms of Use to create an account.' };
   setRememberSession(true);
   const { data, error } = await getSupabase().auth.signUp({
     email: input.email,
     password: input.password,
     options: {
       emailRedirectTo: siteUrl('/dashboard'),
-      data: { full_name: input.fullName, phone: input.phone, account_type: input.accountType },
+      // The database records the 18+ / terms consent from these two fields (migration 0016).
+      data: {
+        full_name: input.fullName, phone: input.phone, account_type: input.accountType,
+        terms_version: TERMS_VERSION, confirmed_adult: 'true',
+      },
     },
   });
   if (error) return { ok: false, error: describeAuthError(error) };
