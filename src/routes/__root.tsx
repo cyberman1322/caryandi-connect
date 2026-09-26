@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppChrome } from "../components/caryandi/app-chrome";
 import { Toaster } from "../components/ui/sonner";
 import { AuthProvider } from "../lib/auth/auth-context";
+import { NavigationProgress, RouteCodeWarmup } from "../components/caryandi/navigation-speed";
 
 function NotFoundComponent() {
   return (
@@ -123,6 +124,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <NavigationProgress />
+        <RouteCodeWarmup />
         <AppChrome><Outlet /></AppChrome>
         <Toaster position="top-right" />
       </AuthProvider>
