@@ -1,5 +1,5 @@
 -- =============================================================================
--- Caryandi · remove DEMO seed data
+-- My Car Zambia · remove DEMO seed data
 -- =============================================================================
 -- Deletes every account whose e-mail ends in @demo.caryandi.invalid and
 -- everything they created (businesses, listings, services, routes, chats,

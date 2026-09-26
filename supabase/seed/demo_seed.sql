@@ -1,7 +1,7 @@
 -- =============================================================================
--- Caryandi · DEMO SEED DATA (for testing only — remove before launch)
+-- My Car Zambia · DEMO SEED DATA (for testing only — remove before launch)
 -- =============================================================================
--- Fills an empty Caryandi database with realistic, clearly fictional Zambian
+-- Fills an empty My Car Zambia database with realistic, clearly fictional Zambian
 -- sample data so every page and dashboard can be tried end to end:
 --   2 dealers (Lusaka, Kitwe) · 2 private sellers · 2 mechanics
 --   1 servicing company · 1 parts seller · 2 import agents · 1 buyer
@@ -22,7 +22,7 @@
 
 do $seed$
 declare
-  demo_note constant text := 'Demo listing for testing Caryandi — not a real offer.';
+  demo_note constant text := 'Demo listing for testing My Car Zambia — not a real offer.';
   u jsonb := '{}'::jsonb;         -- key -> user id
   b jsonb := '{}'::jsonb;         -- key -> business id
   v_id uuid;
@@ -56,7 +56,7 @@ begin
             jsonb_build_object('full_name', r.full_name, 'account_type', r.account_type, 'phone', r.phone),
             now(), now());
     update public.profiles set province = r.province::public.zambia_province, city = r.city,
-           bio = 'Demo account for testing Caryandi.' where id = v_id;
+           bio = 'Demo account for testing My Car Zambia.' where id = v_id;
     u := u || jsonb_build_object(r.k, v_id);
   end loop;
 
@@ -74,7 +74,7 @@ begin
   loop
     insert into public.businesses (owner_id, business_type, name, description, province, city, area, address)
     values ((u ->> r.owner_key)::uuid, r.business_type::public.business_type, r.name,
-            'Demo business for testing Caryandi — not a real company.', r.province::public.zambia_province, r.city, r.area, r.address)
+            'Demo business for testing My Car Zambia — not a real company.', r.province::public.zambia_province, r.city, r.area, r.address)
     returning id into v_id;
     insert into public.business_contacts (business_id, phone, whatsapp_number)
     values (v_id, r.phone, r.phone)
