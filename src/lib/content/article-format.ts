@@ -34,7 +34,7 @@ export function parseArticle(text: string): ArticleBlock[] {
   const flushSteps = () => { if (steps.length) { blocks.push({ type: 'steps', items: steps }); steps = []; } };
   const flushTable = () => {
     if (table.length) {
-      const [header, ...rows] = table;
+      const [header = [], ...rows] = table;
       const width = header.length;
       blocks.push({ type: 'table', header, rows: rows.map((r) => Array.from({ length: width }, (_, i) => r[i] ?? '')) });
       table = [];
@@ -55,7 +55,7 @@ export function parseArticle(text: string): ArticleBlock[] {
     if (line.startsWith('## ')) { flushAll(); blocks.push({ type: 'heading', text: line.slice(3).trim() }); continue; }
     if (line.startsWith('- ')) { flushPara(); flushSteps(); list.push(line.slice(2).trim()); continue; }
     const step = /^\d+[.)]\s+(.*)$/.exec(line);
-    if (step) { flushPara(); flushList(); steps.push(step[1].trim()); continue; }
+    if (step) { flushPara(); flushList(); steps.push((step[1] ?? '').trim()); continue; }
     flushList(); flushSteps();
     para.push(line);
   }
@@ -72,7 +72,7 @@ export function parseInline(text: string): InlinePart[] {
   while ((m = re.exec(text))) {
     if (m.index > last) parts.push({ text: text.slice(last, m.index), bold: false });
     if (m[1] !== undefined) parts.push({ text: m[1], bold: true });
-    else parts.push({ text: m[2], bold: false, href: m[2] });
+    else { const url = m[2] ?? ''; parts.push({ text: url, bold: false, href: url }); }
     last = m.index + m[0].length;
   }
   if (last < text.length) parts.push({ text: text.slice(last), bold: false });
