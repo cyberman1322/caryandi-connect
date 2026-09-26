@@ -16,6 +16,9 @@ import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as InformationRouteImport } from './routes/information'
 import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as LoginRouteImport } from './routes/login'
@@ -108,6 +111,21 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InformationRoute = InformationRouteImport.update({
@@ -409,6 +427,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/cookies': typeof CookiesRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
@@ -473,6 +494,9 @@ export interface FileRoutesByTo {
   '/account-verification': typeof AccountVerificationRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/cookies': typeof CookiesRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
@@ -536,6 +560,9 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/cookies': typeof CookiesRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
@@ -605,6 +632,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/help'
+    | '/terms'
+    | '/privacy'
+    | '/cookies'
     | '/information'
     | '/locations'
     | '/login'
@@ -669,6 +699,9 @@ export interface FileRouteTypes {
     | '/account-verification'
     | '/forgot-password'
     | '/help'
+    | '/terms'
+    | '/privacy'
+    | '/cookies'
     | '/locations'
     | '/login'
     | '/profile'
@@ -731,6 +764,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forgot-password'
     | '/help'
+    | '/terms'
+    | '/privacy'
+    | '/cookies'
     | '/information'
     | '/locations'
     | '/login'
@@ -799,6 +835,9 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
+  TermsRoute: typeof TermsRoute
+  PrivacyRoute: typeof PrivacyRoute
+  CookiesRoute: typeof CookiesRoute
   InformationRoute: typeof InformationRouteWithChildren
   LocationsRoute: typeof LocationsRoute
   LoginRoute: typeof LoginRoute
@@ -861,6 +900,27 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/information': {
@@ -1448,6 +1508,9 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
+  TermsRoute: TermsRoute,
+  PrivacyRoute: PrivacyRoute,
+  CookiesRoute: CookiesRoute,
   InformationRoute: InformationRouteWithChildren,
   LocationsRoute: LocationsRoute,
   LoginRoute: LoginRoute,
