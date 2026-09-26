@@ -197,7 +197,7 @@ export async function getMyVehicle(id: string): Promise<Tables<'vehicles'> | nul
 
 function friendlyWriteError(error: { message: string; code?: string }): string {
   if (error.message.includes('phone number')) return 'Add a phone number to your profile before publishing, so buyers can reach you.';
-  if (error.message.includes('Only administrators') || error.message.includes('under review')) return 'This listing is under review by Caryandi and can’t be changed right now.';
+  if (error.message.includes('Only administrators') || error.message.includes('under review')) return 'This listing is under review by My Car Zambia and can’t be changed right now.';
   if (error.code === '42501') return 'You don’t have permission to change this listing.';
   if (error.code === '23514') return 'Some details are not valid. Please check the form and try again.';
   return 'We couldn’t save this listing. Please try again.';
