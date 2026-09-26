@@ -1,7 +1,7 @@
 import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Car, CheckCircle2, Eye, EyeOff, Loader2, LockKeyhole, Mail, Phone, ShieldCheck, UserRound, type LucideIcon } from 'lucide-react';
-import hero from '@/assets/caryandi-hero.jpg';
+import hero from '@/assets/caryandi-hero-1024.webp';
 import { Brand } from './brand';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,7 +35,7 @@ export function AuthPage({ mode, redirect }: { mode: Mode; redirect?: string | u
             <h1 className="text-4xl font-bold">Find it. Check it.<br />Drive it.</h1>
             <p className="mt-4 max-w-sm text-muted-foreground">Vehicles, parts and automotive services from sellers across Zambia.</p>
           </div>
-          <img src={hero} width={1536} height={1024} alt="Silver SUV" className="absolute inset-x-0 bottom-0 h-72 w-full object-cover object-center" />
+          <img src={hero} width={1024} height={683} alt="Silver SUV" loading="lazy" decoding="async" className="absolute inset-x-0 bottom-0 h-72 w-full object-cover object-center" />
         </section>
         <section className="flex flex-col justify-center p-6 sm:p-10 lg:p-16">
           <div className="md:hidden"><Brand /></div>

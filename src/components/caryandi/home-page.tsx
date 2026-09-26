@@ -1,7 +1,8 @@
 import {useState,type ReactNode} from 'react';
 import {Link} from '@tanstack/react-router';
 import {ArrowRight,Car,FileText,MapPinned,Package,ShieldCheck,Wrench,type LucideIcon} from 'lucide-react';
-import hero from '@/assets/caryandi-hero.jpg';
+import hero from '@/assets/caryandi-hero.webp';
+import heroSmall from '@/assets/caryandi-hero-1024.webp';
 import {Button} from '@/components/ui/button';
 import {SearchBar} from './public-shell';
 import {CollapsibleSection} from './section';
@@ -47,7 +48,7 @@ const warningLights: WarningLight[] = [
 export function HomePage({latest,providers}:{latest:VehicleCardData[]|null;providers:Provider[]}) {
   return <main>
     <section className="relative min-h-[590px] overflow-hidden bg-foreground">
-      <img src={hero} width={1536} height={1024} alt="Silver SUV in Lusaka" className="absolute inset-0 h-full w-full object-cover object-center opacity-65"/>
+      <picture><source media="(max-width: 767px)" srcSet={heroSmall} type="image/webp"/><img src={hero} width={1536} height={1024} alt="Silver SUV in Lusaka" fetchPriority="high" decoding="async" className="absolute inset-0 h-full w-full object-cover object-center opacity-65"/></picture>
       <div className="absolute inset-0 bg-hero-overlay"/>
       <div className="relative mx-auto flex min-h-[590px] max-w-7xl flex-col justify-end px-4 py-12 sm:px-6 sm:py-16">
         <div className="max-w-3xl text-primary-foreground">
