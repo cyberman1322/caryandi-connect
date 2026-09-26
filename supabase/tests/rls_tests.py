@@ -34,7 +34,7 @@ def admin(sql):
 
 # ---------------------------------------------------------------- setup users
 U = {k: str(uuid.uuid4()) for k in
-     ["buyer", "seller", "dealer", "dealer_staff", "mechanic", "agent", "admin", "attacker"]}
+     ["buyer", "seller", "dealer", "dealer_staff", "mechanic", "agent", "admin", "attacker", "newbie"]}
 # Counting checks are limited to the test users' own rows, so the suite also gives the
 # right answer on a database that already holds real listings (see build_live_check.py).
 MINE = "owner_id in (" + ", ".join(f"'{v}'" for v in U.values()) + f", '{U['buyer'][:-4]}beef')"
@@ -48,8 +48,17 @@ meta = {
     "admin":        ('{"full_name":"Caryandi Admin","account_type":"admin"}'),
     "attacker":     ('{"full_name":"Eve Attacker","account_type":"buyer"}'),
 }
+# Everyone signs up through the form, which sends the 18+ / terms consent (migration 0016)…
+CONSENT = ',"terms_version":"2026-09-26","confirmed_adult":"true"}'
 for k, m in meta.items():
+    m = m[:-1] + CONSENT
     admin(f"insert into auth.users (id, email, raw_user_meta_data) values ('{U[k]}', '{k}@example.com', '{m}');")
+# …except "newbie", an account created without it (e.g. before the terms existed).
+admin(f"insert into auth.users (id, email, raw_user_meta_data) values ('{U['newbie']}', 'newbie@example.com', "
+      "'{\"full_name\":\"Nora New\",\"account_type\":\"buyer\"}');")
+# Files the verification tests attach (uploaded by each user to the private bucket).
+for k in ("seller", "dealer", "attacker"):
+    admin(f"insert into storage.objects (bucket_id, name, owner) values ('verification', '{U[k]}/request-docs/book.jpg', '{U[k]}');")
 
 ok("signup: 'admin' cannot be self-requested at signup (falls back to buyer)",
    f"select account_type from public.profiles where id = '{U['admin']}';", role=None, expect="buyer")
@@ -218,31 +227,61 @@ ok("docs: public summary shows document type only",
    f"select document_type from public.vehicle_document_summary('{PV}');", role="anon", expect="registration_certificate")
 
 # ---------------------------------------------------------------- verification
+# Optional, per car, documents only (migration 0016). Businesses still verify with a selfie.
+def doc(k, t="registration_book"):
+    return f"'[{{\"type\":\"{t}\",\"path\":\"{U[k]}/request-docs/book.jpg\"}}]'::jsonb"
 denied("verification: seller cannot verify someone else's car",
+       f"select public.submit_vehicle_verification('{PV}', {doc('attacker')});", U["attacker"], match="own or manage")
+denied("verification: cars can no longer be submitted with a direct insert",
        f"insert into public.verification_requests (requester_id, subject, vehicle_id, selfie_path, selfie_captured_at) values "
-       f"(auth.uid(), 'vehicle', '{PV}', '{U['attacker']}/selfie.jpg', now());", U["attacker"], match="own vehicle")
-VR = ok("verification: private seller submits per-vehicle verification with in-app selfie",
-        f"insert into public.verification_requests (requester_id, subject, vehicle_id, selfie_path, selfie_captured_at) values "
-        f"(auth.uid(), 'vehicle', '{PV}', '{U['seller']}/selfie-1.jpg', now()) returning id;", U["seller"]).split("\n")[0]
+       f"(auth.uid(), 'vehicle', '{PV}', '{U['seller']}/selfie-1.jpg', now());", U["seller"], match="row-level security")
+denied("verification: a car needs at least one document",
+       f"select public.submit_vehicle_verification('{PV}', '[]'::jsonb);", U["seller"], match="at least one document")
+denied("verification: documents must have been uploaded by the requester",
+       f"select public.submit_vehicle_verification('{PV}', {doc('attacker')});", U["seller"], match="missing")
+denied("verification: unknown document types are refused",
+       f"select public.submit_vehicle_verification('{PV}', {doc('seller', 'selfie')});", U["seller"], match="unknown document type")
+VR = ok("verification: private seller submits a car with its registration book (no selfie)",
+        f"select public.submit_vehicle_verification('{PV}', {doc('seller')}, 'Registered in my name');", U["seller"]).split("\n")[0]
 ok("verification: vehicle now pending",
    f"select verification_status from public.vehicles where id = '{PV}';", role=None, expect="pending")
+ok("verification: the document is attached to the request",
+   f"select document_type from public.verification_documents where request_id = '{VR}';", U["seller"], expect="registration_book")
+ok("verification: seller's chat screen sees the car's status",
+   f"select can_verify || '|' || status from public.my_vehicle_verification('{PV}');", U["seller"], expect="true|pending")
+denied("verification: other users can't look up a car's verification state",
+       f"select count(*) from public.my_vehicle_verification('{PV}');", U["attacker"])
 denied("verification: seller cannot approve own request (no update rights)",
        f"update public.verification_requests set status = 'approved' where id = '{VR}';", U["seller"], match="permission denied")
 denied("verification: non-admin cannot call admin RPC",
        f"select public.admin_review_verification('{VR}', 'approved', 'ok');", U["seller"], match="administrator")
-BVR = ok("verification: dealer verifies business once using one car",
+denied("verification: dealer staff (not manager) cannot verify the dealer's car",
+       f"select public.submit_vehicle_verification('{DV}', {doc('dealer')});", U["dealer_staff"], match="own or manage")
+ok("verification: staff see the car's status but can't verify it",
+   f"select can_verify || '|' || status from public.my_vehicle_verification('{DV}');", U["dealer_staff"], expect="false|unverified")
+DVR = ok("verification: dealer verifies one of the business's cars on its own",
+         f"select public.submit_vehicle_verification('{DV}', {doc('dealer', 'import_papers')});", U["dealer"]).split("\n")[0]
+BVR = ok("verification: dealer verifies business once (with selfie)",
          f"insert into public.verification_requests (requester_id, subject, business_id, vehicle_id, selfie_path, selfie_captured_at) values "
          f"(auth.uid(), 'business', '{BIZ}', '{DV}', '{U['dealer']}/selfie.jpg', now()) returning id;", U["dealer"]).split("\n")[0]
+denied("verification: business verification still needs the selfie",
+       f"insert into public.verification_requests (requester_id, subject, business_id) values "
+       f"(auth.uid(), 'business', '{BIZ}');", U["dealer"], match="row-level security")
 denied("verification: dealer staff (not manager) cannot submit business verification",
        f"insert into public.verification_requests (requester_id, subject, business_id, selfie_path, selfie_captured_at) values "
        f"(auth.uid(), 'business', '{BIZ}', '{U['dealer_staff']}/s.jpg', now());", U["dealer_staff"], match="manage")
 ok("verification: admin approves business", f"select public.admin_review_verification('{BVR}', 'approved', 'Documents match');", U["admin"])
+ok("verification: a verified dealer does NOT make its cars 'verified vehicles'",
+   f"select count(*) from public.vehicle_listings where business_id = '{BIZ}' and is_verified;", role="anon", expect="0")
+ok("verification: …its cars show the verified-dealer badge instead",
+   f"select count(*) from public.vehicle_listings where business_id = '{BIZ}' and seller_is_verified;", role="anon", expect="2")
+ok("verification: admin approves the dealer's car", f"select public.admin_review_verification('{DVR}', 'approved', null);", U["admin"])
+ok("verification: only that dealer car shows the verified-vehicle badge",
+   f"select count(*) from public.vehicle_listings where business_id = '{BIZ}' and is_verified;", role="anon", expect="1")
 ok("verification: admin approves private car", f"select public.admin_review_verification('{VR}', 'approved', null);", U["admin"])
-ok("verification: EVERY car of the verified business shows the badge (incl. the one not used to verify)",
-   f"select count(*) from public.vehicle_listings where business_id = '{BIZ}' and is_verified;", role="anon", expect="2")
 ok("verification: private car shows badge", f"select is_verified from public.vehicle_listings where id = '{PV}';", role="anon", expect="t")
-ok("verification: requester notified", f"select count(*) from public.notifications where type = 'verification_update';", U["dealer"], expect="1")
-ok("audit: decisions written to audit log", "select count(*) from public.admin_audit_log where action like 'verification.%';", U["admin"], expect="2")
+ok("verification: requester notified", f"select count(*) from public.notifications where type = 'verification_update';", U["dealer"], expect="2")
+ok("audit: decisions written to audit log", "select count(*) from public.admin_audit_log where action like 'verification.%';", U["admin"], expect="3")
 
 # verification read model (migration 0011)
 ok("verification view: requester sees own request with car registration + duty status",
@@ -250,15 +289,16 @@ ok("verification view: requester sees own request with car registration + duty s
    U["seller"], expect="registered/unpaid/approved")
 ok("verification view: dealer sees own business request labelled with the business name",
    f"select business_name from public.verification_request_details where id = '{BVR}';", U["dealer"], expect="Autoworld Zambia")
+ok("verification view: a dealer car's request names the business it belongs to",
+   f"select vehicle_business_name from public.verification_request_details where id = '{DVR}';", U["admin"], expect="Autoworld Zambia")
 denied("verification view: other users see no requests",
        "select count(*) from public.verification_request_details;", U["attacker"])
 denied("verification view: anonymous visitors are refused",
        "select count(*) from public.verification_request_details;", role="anon", match="permission denied")
 ok("verification view: admin sees the whole queue with reviewer names",
-   "select count(*) from public.verification_request_details where reviewer_name is not null;", U["admin"], expect="2")
+   "select count(*) from public.verification_request_details where reviewer_name is not null;", U["admin"], expect="3")
 denied("verification: approved car cannot be submitted again",
-       f"insert into public.verification_requests (requester_id, subject, vehicle_id, selfie_path, selfie_captured_at) values "
-       f"(auth.uid(), 'vehicle', '{PV}', '{U['seller']}/selfie-again.jpg', now());", U["seller"], match="already verified")
+       f"select public.submit_vehicle_verification('{PV}', {doc('seller')});", U["seller"], match="already verified")
 denied("verification: document cannot be attached to another user's request",
        f"insert into public.verification_documents (request_id, document_type, storage_path) values "
        f"('{VR}', 'national_id', '{U['attacker']}/doc.pdf');", U["attacker"], match="row-level security")
@@ -457,7 +497,7 @@ denied("app: deleted listing can no longer be edited",
        f"with u as (update public.vehicles set price = 1 where id = '{NV}' returning 1) select count(*) from u;", U["seller"])
 
 admin("insert into auth.users (id, email, raw_user_meta_data) values "
-      f"('{U['buyer'][:-4]}beef', 'newdealer@example.com', '{{\"full_name\":\"Lweendo Hamoonga\",\"account_type\":\"dealer\"}}');")
+      f"('{U['buyer'][:-4]}beef', 'newdealer@example.com', '{{\"full_name\":\"Lweendo Hamoonga\",\"account_type\":\"dealer\",\"terms_version\":\"2026-09-26\",\"confirmed_adult\":\"true\"}}');")
 ND = U["buyer"][:-4] + "beef"
 NB = ok("app: new dealer creates business with blank slug (saveMyBusiness)",
         "insert into public.businesses (owner_id, business_type, slug, name, province, city) values "
@@ -531,9 +571,9 @@ denied("storage: user cannot upload into someone else's folder",
 ok("storage: selfie uploaded to private verification bucket",
    f"insert into storage.objects (bucket_id, name) values ('verification', '{U['buyer']}/selfie.jpg');", U["buyer"])
 denied("storage: other users cannot read verification selfies",
-       f"select count(*) from storage.objects where bucket_id = 'verification';", U["attacker"])
+       f"select count(*) from storage.objects where bucket_id = 'verification' and name not like auth.uid()::text || '/%';", U["attacker"])
 ok("storage: admins can read verification selfies",
-   "select count(*) from storage.objects where bucket_id = 'verification';", U["admin"], expect="1")
+   "select count(*) from storage.objects where bucket_id = 'verification' and name like '%/selfie.jpg';", U["admin"], expect="1")
 denied("storage: selfies cannot be deleted/overwritten once uploaded",
        f"with d as (delete from storage.objects where bucket_id = 'verification' returning 1) select count(*) from d;", U["buyer"])
 
@@ -560,6 +600,27 @@ ok("admin: hide a review (audited) and the rating is recalculated",
 ok("admin: publish it again",
    f"select public.admin_moderate_review((select id from public.reviews where business_id = '{MECH}' limit 1), 'published'); "
    f"select rating_count from public.businesses where id = '{MECH}';", U["admin"], expect="1")
+
+# ---------------------------------------------------------------- 18+ / terms (migration 0016)
+ok("consent: sign-up records the 18+ and terms confirmation",
+   "select terms_version from public.profile_consents where profile_id = auth.uid();", U["seller"], expect="2026-09-26")
+denied("consent: other users can't read someone's consent record",
+       f"select count(*) from public.profile_consents where profile_id = '{U['seller']}';", U["attacker"])
+denied("consent: an account without it cannot start conversations",
+       f"select public.start_conversation('vehicle', '{DV2}', 'Hello');", U["newbie"], match="18 or older")
+denied("consent: users cannot write their own consent row directly",
+       f"insert into public.profile_consents (profile_id, terms_version) values (auth.uid(), '2026-09-26');", U["newbie"], match="permission denied")
+denied("consent: must confirm being 18 or older",
+       "select public.accept_terms('2026-09-26', false);", U["newbie"], match="18 or older")
+denied("consent: an old terms version is refused",
+       "select public.accept_terms('2020-01-01', true);", U["newbie"], match="latest terms")
+ok("consent: accepting in the app unlocks the account",
+   "select public.accept_terms('2026-09-26', true); select private.has_accepted_terms();", U["newbie"], expect="t")
+
+# ---------------------------------------------------------------- badge integrity
+ok("verification: changing a verified car's model removes its badge",
+   f"update public.vehicles set model = 'Yaris' where id = '{PV}'; "
+   f"select verification_status from public.vehicles where id = '{PV}';", U["seller"], expect="unverified")
 
 # ---------------------------------------------------------------- content
 ok("content: admin publishes an info article",
