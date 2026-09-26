@@ -1,0 +1,2 @@
+import {createFileRoute} from '@tanstack/react-router'; import {PrivacyPage} from '@/components/caryandi/legal-pages';
+export const Route=createFileRoute('/privacy')({head:()=>({meta:[{title:'Privacy Policy — Caryandi'},{name:'description',content:'How Caryandi collects, uses and protects your personal data.'},{property:'og:title',content:'Privacy Policy — Caryandi'},{property:'og:description',content:'How Caryandi collects, uses and protects your personal data.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:PrivacyPage});

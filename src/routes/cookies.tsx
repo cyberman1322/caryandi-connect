@@ -1,0 +1,2 @@
+import {createFileRoute} from '@tanstack/react-router'; import {CookiesPage} from '@/components/caryandi/legal-pages';
+export const Route=createFileRoute('/cookies')({head:()=>({meta:[{title:'Cookie Policy — Caryandi'},{name:'description',content:'The cookies and browser storage Caryandi uses.'},{property:'og:title',content:'Cookie Policy — Caryandi'},{property:'og:description',content:'The cookies and browser storage Caryandi uses.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:CookiesPage});

@@ -15,6 +15,7 @@ import { AppChrome } from "../components/caryandi/app-chrome";
 import { Toaster } from "../components/ui/sonner";
 import { AuthProvider } from "../lib/auth/auth-context";
 import { NavigationProgress, RouteCodeWarmup } from "../components/caryandi/navigation-speed";
+import { CookieNotice, TermsConsentGate } from "../components/caryandi/consent-widgets";
 
 function NotFoundComponent() {
   return (
@@ -128,6 +129,8 @@ function RootComponent() {
         <RouteCodeWarmup />
         <AppChrome><Outlet /></AppChrome>
         <Toaster position="top-right" />
+        <TermsConsentGate />
+        <CookieNotice />
       </AuthProvider>
     </QueryClientProvider>
   );

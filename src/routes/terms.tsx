@@ -1,0 +1,2 @@
+import {createFileRoute} from '@tanstack/react-router'; import {TermsPage} from '@/components/caryandi/legal-pages';
+export const Route=createFileRoute('/terms')({head:()=>({meta:[{title:'Terms of Use — Caryandi'},{name:'description',content:'The rules for buying, selling and using Caryandi.'},{property:'og:title',content:'Terms of Use — Caryandi'},{property:'og:description',content:'The rules for buying, selling and using Caryandi.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:TermsPage});
