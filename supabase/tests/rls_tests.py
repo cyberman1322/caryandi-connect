@@ -622,6 +622,13 @@ ok("verification: changing a verified car's model removes its badge",
    f"update public.vehicles set model = 'Yaris' where id = '{PV}'; "
    f"select verification_status from public.vehicles where id = '{PV}';", U["seller"], expect="unverified")
 
+# ---------------------------------------------------------------- rename (migration 0017)
+ok("rename: no database message still says the old name",
+   "select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace "
+   "where n.nspname in ('public','private') and p.prosrc like '%Caryandi%';", role=None, expect="0")
+ok("rename: views keep security_invoker after the rename",
+   "select array_to_string(reloptions, ',') from pg_class where relname = 'inbox';", role=None, expect="security_invoker=true")
+
 # ---------------------------------------------------------------- content
 ok("content: admin publishes an info article",
    "insert into public.info_articles (slug, category, title, body, is_published) values "
