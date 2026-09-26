@@ -20,6 +20,7 @@ import {
 } from '@/lib/messaging/messaging-service';
 import { EmptyState, ErrorState } from './states';
 import { ReportDialog } from './engagement-widgets';
+import { VerifyCarPrompt } from './verify-car-prompt';
 
 const errorText = (e: unknown, fallback: string) => (e instanceof Error && e.message ? e.message : fallback);
 
@@ -183,6 +184,7 @@ function Thread({ conversationId, onBack }: { conversationId: string; onBack: ()
       <div ref={scrollRef} className="max-h-[60vh] flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
         {messages.map((m) => <MessageBubble key={m.id} m={m} uid={uid} conversationId={conversationId} />)}
       </div>
+      {!c.started_by_me && c.vehicle_id && <VerifyCarPrompt vehicleId={c.vehicle_id} />}
       <form onSubmit={submit} className="flex items-end gap-2 border-t p-3">
         <Label htmlFor="message-draft" className="sr-only">Message</Label>
         <Textarea id="message-draft" rows={2} value={draft} maxLength={MAX_MESSAGE_LENGTH} onChange={(e) => setDraft(e.target.value)}

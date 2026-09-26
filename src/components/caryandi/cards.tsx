@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button'; import { Badge } from '@/compon
 import type { VehicleCardData } from '@/lib/vehicles/vehicle-service'; import { FUEL_TYPES, PROVINCES, TRANSMISSIONS, formatMileage, formatPrice, labelOf, vehicleTitle } from '@/lib/vehicles/vehicle-options'; import { SELLER_TYPE_LABELS, sellerParam, type SellerSummary } from '@/lib/marketplace/seller-service';
 import { PROVIDER_TYPE_LABELS, providerParam, type Provider } from '@/lib/directory/provider-service'; import { PART_CONDITIONS } from '@/lib/parts/validation'; import type { PartCardData } from '@/lib/parts/parts-service';
 export function Rating({value,count}:{value:number;count:number}){return <span className="inline-flex items-center gap-1 text-sm"><Star className="size-4 fill-warning text-warning"/><b>{Number.isInteger(value)?value:value.toFixed(1)}</b><span className="text-muted-foreground">({count})</span></span>}
-export function VerifiedBadge(){return <Badge variant="secondary" className="gap-1 text-primary"><ShieldCheck className="size-3.5"/> Verified</Badge>}
+/** "Verified vehicle" = this car's documents were checked; "Verified dealer/business" = the business was checked. */
+export function VerifiedBadge({label='Verified',subtle=false}:{label?:string;subtle?:boolean}){return <Badge variant={subtle?'outline':'secondary'} className={`gap-1 ${subtle?'bg-card text-foreground':'text-primary'}`}><ShieldCheck className="size-3.5"/> {label}</Badge>}
 /** Listing card for real marketplace data. */
 export function VehicleCard({v,saved,onSave}:{v:VehicleCardData;saved?:boolean;onSave?:()=>void}){
   const id=v.id??'';
@@ -16,7 +17,7 @@ export function VehicleCard({v,saved,onSave}:{v:VehicleCardData;saved?:boolean;o
       </Link>
       {onSave&&<Button variant="secondary" size="icon" onClick={onSave} className="absolute right-3 top-3 rounded-full" aria-label={saved?'Remove saved vehicle':'Save vehicle'} aria-pressed={saved}><Heart className={saved?'fill-primary text-primary':''}/></Button>}
       {v.listing_status==='sold'&&<span className="absolute left-3 top-3"><Badge>Sold</Badge></span>}
-      {v.is_verified&&<span className="absolute bottom-3 left-3"><VerifiedBadge/></span>}
+      {(v.is_verified||v.seller_is_verified)&&<span className="absolute bottom-3 left-3">{v.is_verified?<VerifiedBadge label="Verified vehicle"/>:<VerifiedBadge label="Verified dealer" subtle/>}</span>}
     </div>
     <div className="p-4">
       <div className="flex items-start justify-between gap-3">
@@ -48,7 +49,7 @@ export function SellerCard({s}:{s:SellerSummary}){
     <div className="p-5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0"><p className="text-xs font-semibold uppercase text-primary">{SELLER_TYPE_LABELS[s.seller_type??'']??'Seller'}</p><h3 className="mt-1 truncate text-lg font-semibold">{s.name}</h3></div>
-        {s.is_verified&&<VerifiedBadge/>}
+        {s.is_verified&&<VerifiedBadge label={s.seller_type==='dealer'?'Verified dealer':'Verified business'}/>}
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
         {(s.rating_count??0)>0?<Rating value={Number(s.rating_avg??0)} count={s.rating_count??0}/>:<span className="text-sm text-muted-foreground">No reviews yet</span>}
@@ -73,7 +74,7 @@ export function DirectoryCard({p}:{p:Provider}){
     <div className="flex flex-1 flex-col p-5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0"><p className="text-xs font-semibold uppercase text-primary">{PROVIDER_TYPE_LABELS[p.business_type??'']??'Service provider'}</p><h3 className="mt-1 truncate text-lg font-semibold">{p.name}</h3></div>
-        {p.is_verified&&<VerifiedBadge/>}
+        {p.is_verified&&<VerifiedBadge label="Verified business"/>}
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
         {ratingCount>0?<Rating value={Number(p.rating_avg??0)} count={ratingCount}/>:<span className="text-sm text-muted-foreground">No reviews yet</span>}
@@ -99,6 +100,6 @@ export function PartCard({part}:{part:PartCardData}){
       <Link to="/parts/$partId" params={{partId:id}}><h3 className="mt-3 line-clamp-2 font-semibold hover:text-primary">{part.title}</h3></Link>
       <p className="mt-1 text-lg font-bold">{formatPrice(part.price)}</p>
       <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="size-3.5 shrink-0"/><span className="truncate">{location||'Zambia'} · {part.seller_name}</span></p>
-      {part.is_verified&&<div className="mt-2"><VerifiedBadge/></div>}
+      {part.is_verified&&<div className="mt-2"><VerifiedBadge label="Verified seller" subtle/></div>}
     </div>
   </article>}

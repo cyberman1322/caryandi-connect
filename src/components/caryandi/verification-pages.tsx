@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type ReactNode } from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useRouterState } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { BadgeCheck, Clock, ExternalLink, FileText, Loader2, ShieldAlert, ShieldCheck, Trash2, XCircle } from 'lucide-react';
@@ -15,12 +15,12 @@ import { useMyBusiness, useUserId } from '@/lib/marketplace/hooks';
 import { listMyVehicles, type VehicleCardData } from '@/lib/vehicles/vehicle-service';
 import { DUTY_STATUSES, IMPORT_STATUSES, REGISTRATION_STATUSES, formatDate, labelOf, vehicleTitle } from '@/lib/vehicles/vehicle-options';
 import {
-  MAX_VERIFICATION_DOCUMENTS, VERIFICATION_DOCUMENT_LABELS, VERIFICATION_STATUS_LABELS, checkVerificationDocument,
-  getVerificationFiles, listMyVerificationRequests, listVerificationQueue, reviewVerification, submitVerification,
+  MAX_VERIFICATION_DOCUMENTS, VEHICLE_DOCUMENT_TYPES, VERIFICATION_DOCUMENT_LABELS, VERIFICATION_STATUS_LABELS, checkVerificationDocument,
+  getVerificationFiles, listMyVerificationRequests, listVerificationQueue, reviewVerification, submitVehicleVerification, submitVerification,
   verificationSubjectLabel, type SubmitVerificationInput, type VerificationDocumentType, type VerificationRequest,
   type VerificationStatus,
 } from '@/lib/verification/verification-service';
-import { SelfieCapture, SelfieReviewNote, type CapturedSelfie } from './selfie-capture';
+import { SelfieCapture, type CapturedSelfie } from './selfie-capture';
 import { Card, Status } from './account-forms';
 import { EmptyState, ErrorState } from './states';
 
@@ -45,11 +45,14 @@ function Loading() {
 
 /* =============================================================== seller side */
 
-/** /dashboard/verification — businesses verify once, private sellers verify each car. */
+const CAR_SELLER_TYPES = new Set(['private_seller', 'dealer', 'import_agent']);
+
+/** /dashboard/verification — optional. Cars are verified one by one with their documents; businesses verify once. */
 export function SellerVerification() {
   const auth = useAuth();
   if (auth.status !== 'signed-in') return null;
   const type = auth.account.profile.account_type;
+  const sellsCars = CAR_SELLER_TYPES.has(type);
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <div className="grid min-w-0 content-start gap-6">
@@ -57,19 +60,22 @@ export function SellerVerification() {
           ? <Card title="Verification is for sellers" description="Buyers don’t need to verify. If you want to sell a car, switch to a private seller account from Add vehicle.">
               <Button asChild variant="outline"><Link to="/vehicles">Browse vehicles</Link></Button>
             </Card>
-          : isBusinessAccount(type) ? <BusinessVerification /> : <PrivateSellerVerification />}
+          : <>
+              {sellsCars && <CarVerification business={isBusinessAccount(type)} />}
+              {isBusinessAccount(type) && <BusinessVerification />}
+            </>}
         <MyRequestHistory />
       </div>
       <aside className="grid content-start gap-4">
         <Card title="How verification works">
           <ul className="grid gap-3 text-sm text-muted-foreground">
-            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Verification is optional, but verified listings show a badge buyers trust.</li>
-            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Businesses verify once. The badge then appears on every vehicle the business lists.</li>
-            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Private sellers verify each car separately.</li>
-            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Your selfie and documents are private. Only Caryandi reviewers can see them.</li>
+            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />It’s optional and free. You can list as many cars as you like without verifying.</li>
+            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Verify a car by uploading its documents, like the registration book or import papers. No selfie needed.</li>
+            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Approved cars show a “Verified vehicle” badge that buyers look for.</li>
+            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Dealers can also verify their business for a “Verified dealer” badge.</li>
+            <li className="flex gap-2"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />Your documents are private. Only Caryandi reviewers can see them.</li>
           </ul>
         </Card>
-        <SelfieReviewNote />
       </aside>
     </div>
   );
@@ -97,9 +103,9 @@ function BusinessVerification() {
   const status = b.verification_status as VerificationStatus;
 
   return (
-    <Card title={`Verify ${b.name}`} description={`${BUSINESS_TYPE_LABELS[b.business_type]} · one approval covers every listing under this business.`}>
+    <Card title={`Verify ${b.name} (optional)`} description={`${BUSINESS_TYPE_LABELS[b.business_type]} · earns a “Verified ${b.business_type === 'dealer' ? 'dealer' : 'business'}” badge on your profile and listings.`}>
       <div className="flex flex-wrap items-center gap-2"><StatusBadge status={status} />{b.verified_at && status === 'approved' && <span className="text-sm text-muted-foreground">since {formatDate(b.verified_at)}</span>}</div>
-      {status === 'approved' && <p className="mt-3 text-sm text-muted-foreground">Your business is verified. Every vehicle listed under it shows the verified badge.</p>}
+      {status === 'approved' && <p className="mt-3 text-sm text-muted-foreground">Your business is verified. Your profile and listings show the verified {b.business_type === 'dealer' ? 'dealer' : 'business'} badge. Cars can still be verified one by one for the “Verified vehicle” badge.</p>}
       {status === 'pending' && <p className="mt-3 text-sm text-muted-foreground">Your request is with our review team. We’ll notify you as soon as it’s decided.</p>}
       {(status === 'unverified' || status === 'rejected') && (
         business.data.role === 'staff'
@@ -149,73 +155,173 @@ function BusinessSubmit({ business }: { business: MyBusiness }) {
 
 type CarState = { car: VehicleCardData; status: VerificationStatus; lastNotes: string | null };
 
-function PrivateSellerVerification() {
+/** Every car the seller can verify: their own and, for business accounts, the business's cars. */
+function CarVerification({ business }: { business: boolean }) {
   const uid = useUserId();
-  const cars = useQuery({ queryKey: ['verifications', 'my-cars', uid ?? 'anon'], queryFn: () => listMyVehicles(null), enabled: Boolean(uid) });
+  const myBusiness = useMyBusiness();
+  const businessId = business ? myBusiness.data?.business.id ?? null : null;
+  const isStaff = business && myBusiness.data?.role === 'staff';
+  const cars = useQuery({
+    queryKey: ['verifications', 'my-cars', uid ?? 'anon', businessId ?? 'none'],
+    queryFn: () => listMyVehicles(businessId),
+    enabled: Boolean(uid) && (!business || !myBusiness.isPending),
+  });
   const requests = useMyRequests();
-  const [open, setOpen] = useState<string | null>(null);
+  const wanted = useRouterState({ select: (st) => (st.location.search as { vehicle?: unknown }).vehicle });
+  const [open, setOpen] = useState<string | null>(typeof wanted === 'string' ? wanted : null);
 
   if (cars.isPending || requests.isPending) return <Loading />;
   if (cars.isError || requests.isError) {
     return <ErrorState message="We couldn’t load your cars." onRetry={() => { void cars.refetch(); void requests.refetch(); }} />;
   }
   const states: CarState[] = (cars.data ?? [])
-    .filter((c) => c.id && !c.business_id && c.listing_status !== 'archived')
+    .filter((c) => c.id && c.listing_status !== 'archived')
     .map((car) => {
       const latest = (requests.data ?? []).find((r) => r.vehicle_id === car.id && r.subject === 'vehicle');
       const status: VerificationStatus = car.is_verified ? 'approved' : ((latest?.status as VerificationStatus | undefined) ?? 'unverified');
       return { car, status, lastNotes: latest?.status === 'rejected' ? latest.review_notes : null };
-    });
+    })
+    // The car the seller came to verify (e.g. from a buyer's chat) goes first.
+    .sort((x, y) => Number(y.car.id === open) - Number(x.car.id === open));
 
   if (!states.length) {
     return (
-      <Card title="Verify your cars" description="Private sellers verify each car separately.">
-        <p className="text-sm text-muted-foreground">Add a car first. You can verify it once it’s saved.</p>
+      <Card title="Verify your cars (optional)" description="Verified cars show a badge buyers trust.">
+        <p className="text-sm text-muted-foreground">Add a car first. You can verify it any time after it’s saved.</p>
         <Button asChild className="mt-4"><Link to="/dashboard/add-vehicle">Add a vehicle</Link></Button>
       </Card>
     );
   }
 
   return (
-    <Card title="Verify your cars" description="Each car is verified on its own. Verified cars show a badge on their listing.">
+    <Card title="Verify your cars (optional)" description="Upload a car’s documents and our team checks them against the listing. Approved cars show a “Verified vehicle” badge.">
+      {isStaff && <p className="mb-3 text-sm text-muted-foreground">Only the business owner or a manager can verify the business’s cars. You can still verify cars you listed yourself.</p>}
       <ul className="grid gap-3">
-        {states.map(({ car, status, lastNotes }) => (
-          <li key={car.id} className="rounded-lg border p-4">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-              <div className="min-w-0">
-                <b className="block truncate">{vehicleTitle(car)}</b>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {labelOf(REGISTRATION_STATUSES, car.registration_status)} · {labelOf(DUTY_STATUSES, car.duty_status)} · {labelOf(IMPORT_STATUSES, car.import_status)}
-                </p>
+        {states.map(({ car, status, lastNotes }) => {
+          const canVerify = car.owner_id === uid || !isStaff;
+          return (
+            <li key={car.id} className={`rounded-lg border p-4 ${open === car.id ? 'border-primary/50' : ''}`}>
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                <div className="min-w-0">
+                  <b className="block truncate">{vehicleTitle(car)}</b>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {labelOf(REGISTRATION_STATUSES, car.registration_status)} · {labelOf(DUTY_STATUSES, car.duty_status)} · {labelOf(IMPORT_STATUSES, car.import_status)}
+                  </p>
+                </div>
+                <StatusBadge status={status} />
               </div>
-              <StatusBadge status={status} />
-            </div>
-            {lastNotes && <p className="mt-2 text-sm text-destructive">Not approved: {lastNotes}</p>}
-            {(status === 'unverified' || status === 'rejected') && open !== car.id && (
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => setOpen(car.id!)}>
-                {status === 'rejected' ? 'Try again' : 'Verify this car'}
-              </Button>
-            )}
-            {open === car.id && (
-              <div className="mt-4 border-t pt-4">
-                <SubmitPanel
-                  target={{ subject: 'vehicle', vehicleId: car.id! }}
-                  suggestedDocs={['national_id', 'passport', 'other']}
-                  intro="Take a selfie and add your NRC or passport. The name should match the car’s registration or import papers."
-                  onDone={() => setOpen(null)}
-                  onCancel={() => setOpen(null)}
-                />
-              </div>
-            )}
-          </li>
-        ))}
+              {lastNotes && <p className="mt-2 text-sm text-destructive">Not approved: {lastNotes}</p>}
+              {status === 'pending' && <p className="mt-2 text-sm text-muted-foreground">Our team is checking the documents. We’ll notify you when it’s done.</p>}
+              {(status === 'unverified' || status === 'rejected') && canVerify && open !== car.id && (
+                <Button variant="outline" size="sm" className="mt-3" onClick={() => setOpen(car.id!)}>
+                  {status === 'rejected' ? 'Try again' : 'Verify this car'}
+                </Button>
+              )}
+              {(status === 'unverified' || status === 'rejected') && canVerify && open === car.id && (
+                <div className="mt-4 border-t pt-4">
+                  <VehicleSubmitPanel vehicleId={car.id!} onDone={() => setOpen(null)} onCancel={() => setOpen(null)} />
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </Card>
   );
 }
 
+/** Documents only: at least one, up to four. */
+function VehicleSubmitPanel({ vehicleId, onDone, onCancel }: { vehicleId: string; onDone: () => void; onCancel: () => void }) {
+  const queryClient = useQueryClient();
+  const [docs, setDocs] = useState<DocDraft[]>([]);
+  const [docType, setDocType] = useState<VerificationDocumentType>('registration_book');
+  const [notes, setNotes] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    if (!docs.length) { setError('Add at least one document, such as the registration book or import papers.'); return; }
+    setBusy(true); setError(null);
+    try {
+      await submitVehicleVerification(vehicleId, docs.map(({ type, file }) => ({ type, file })), notes);
+      toast.success('Sent for review. We’ll notify you when your car is verified.');
+      onDone();
+    } catch (e) {
+      setError(errorText(e, 'We couldn’t submit your verification.'));
+    } finally {
+      setBusy(false);
+      await queryClient.invalidateQueries({ queryKey: ['verifications'] });
+      await queryClient.invalidateQueries({ queryKey: ['vehicle-verification', vehicleId] });
+    }
+  };
+
+  return (
+    <div className="grid gap-5">
+      <p className="text-sm text-muted-foreground">Add clear photos or PDFs of this car’s papers. The registration book or import papers are best. The details should match the listing.</p>
+      <DocumentPicker docs={docs} setDocs={setDocs} docType={docType} setDocType={setDocType} types={VEHICLE_DOCUMENT_TYPES} busy={busy} setError={setError} required />
+      <div className="grid gap-2">
+        <Label htmlFor={`verify-notes-${vehicleId}`}>Note for the reviewer (optional)</Label>
+        <Textarea id={`verify-notes-${vehicleId}`} rows={2} maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} disabled={busy} placeholder="e.g. The car is registered in my company’s name." />
+      </div>
+      {error && <Status kind="error">{error}</Status>}
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => void submit()} disabled={busy || !docs.length}>{busy && <Loader2 className="animate-spin" />}{busy ? 'Submitting…' : 'Submit for review'}</Button>
+        <Button variant="ghost" onClick={onCancel} disabled={busy}>Cancel</Button>
+      </div>
+    </div>
+  );
+}
+
 type DocDraft = { key: string; type: VerificationDocumentType; file: File };
 
+function DocumentPicker({ docs, setDocs, docType, setDocType, types, busy, setError, required = false }: {
+  docs: DocDraft[];
+  setDocs: (update: (d: DocDraft[]) => DocDraft[]) => void;
+  docType: VerificationDocumentType;
+  setDocType: (t: VerificationDocumentType) => void;
+  types: VerificationDocumentType[];
+  busy: boolean;
+  setError: (e: string | null) => void;
+  required?: boolean;
+}) {
+  const addDoc = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const problem = checkVerificationDocument(file);
+    if (problem) { setError(problem); return; }
+    if (docs.length >= MAX_VERIFICATION_DOCUMENTS) { setError(`Attach at most ${MAX_VERIFICATION_DOCUMENTS} documents.`); return; }
+    setError(null);
+    setDocs((d) => [...d, { key: crypto.randomUUID(), type: docType, file }]);
+  };
+  return (
+    <div className="grid gap-3">
+      <Label>{required ? `Documents (at least 1, up to ${MAX_VERIFICATION_DOCUMENTS})` : `Supporting documents (optional, up to ${MAX_VERIFICATION_DOCUMENTS})`}</Label>
+      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+        <Select value={docType} onValueChange={(v) => setDocType(v as VerificationDocumentType)}>
+          <SelectTrigger aria-label="Document type"><SelectValue /></SelectTrigger>
+          <SelectContent>{types.map((t) => <SelectItem key={t} value={t}>{VERIFICATION_DOCUMENT_LABELS[t]}</SelectItem>)}</SelectContent>
+        </Select>
+        <Button variant="outline" asChild disabled={busy || docs.length >= MAX_VERIFICATION_DOCUMENTS}>
+          <label className="cursor-pointer"><FileText />Add document<input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={addDoc} disabled={busy} /></label>
+        </Button>
+      </div>
+      {docs.length > 0 && (
+        <ul className="grid gap-2">
+          {docs.map((d) => (
+            <li key={d.key} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md border px-3 py-2 text-sm">
+              <span className="min-w-0 truncate"><b>{VERIFICATION_DOCUMENT_LABELS[d.type]}</b> · {d.file.name}</span>
+              <Button variant="ghost" size="icon" aria-label={`Remove ${d.file.name}`} disabled={busy} onClick={() => setDocs((all) => all.filter((x) => x.key !== d.key))}><Trash2 /></Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="text-xs text-muted-foreground">PDF or photo, up to 8 MB. Photos are shrunk and their location data removed before upload.</p>
+    </div>
+  );
+}
+
+/** Business verification (live selfie + papers). */
 function SubmitPanel({ target, suggestedDocs, intro, children, onDone, onCancel }: {
   target: SubmitVerificationInput;
   suggestedDocs: VerificationDocumentType[];
@@ -231,17 +337,6 @@ function SubmitPanel({ target, suggestedDocs, intro, children, onDone, onCancel 
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const addDoc = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    const problem = checkVerificationDocument(file);
-    if (problem) { setError(problem); return; }
-    if (docs.length >= MAX_VERIFICATION_DOCUMENTS) { setError(`Attach at most ${MAX_VERIFICATION_DOCUMENTS} documents.`); return; }
-    setError(null);
-    setDocs((d) => [...d, { key: crypto.randomUUID(), type: docType, file }]);
-  };
 
   const submit = async () => {
     if (!selfie) { setError('Take your selfie first.'); return; }
@@ -265,29 +360,7 @@ function SubmitPanel({ target, suggestedDocs, intro, children, onDone, onCancel 
       <p className="text-sm text-muted-foreground">{intro}</p>
       {children}
       <SelfieCapture onChange={setSelfie} disabled={busy} />
-      <div className="grid gap-3">
-        <Label>Supporting documents (optional, up to {MAX_VERIFICATION_DOCUMENTS})</Label>
-        <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-          <Select value={docType} onValueChange={(v) => setDocType(v as VerificationDocumentType)}>
-            <SelectTrigger aria-label="Document type"><SelectValue /></SelectTrigger>
-            <SelectContent>{suggestedDocs.map((t) => <SelectItem key={t} value={t}>{VERIFICATION_DOCUMENT_LABELS[t]}</SelectItem>)}</SelectContent>
-          </Select>
-          <Button variant="outline" asChild disabled={busy || docs.length >= MAX_VERIFICATION_DOCUMENTS}>
-            <label className="cursor-pointer"><FileText />Add document<input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={addDoc} disabled={busy} /></label>
-          </Button>
-        </div>
-        {docs.length > 0 && (
-          <ul className="grid gap-2">
-            {docs.map((d) => (
-              <li key={d.key} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md border px-3 py-2 text-sm">
-                <span className="min-w-0 truncate"><b>{VERIFICATION_DOCUMENT_LABELS[d.type]}</b> · {d.file.name}</span>
-                <Button variant="ghost" size="icon" aria-label={`Remove ${d.file.name}`} disabled={busy} onClick={() => setDocs((all) => all.filter((x) => x.key !== d.key))}><Trash2 /></Button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="text-xs text-muted-foreground">PDF or photo. Photos are shrunk and their location data removed before upload.</p>
-      </div>
+      <DocumentPicker docs={docs} setDocs={setDocs} docType={docType} setDocType={setDocType} types={suggestedDocs} busy={busy} setError={setError} />
       <div className="grid gap-2">
         <Label htmlFor="verify-notes">Note for the reviewer (optional)</Label>
         <Textarea id="verify-notes" rows={3} maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} disabled={busy} placeholder="Anything that helps us check, e.g. the car is registered in my spouse’s name." />
@@ -352,7 +425,7 @@ export function AdminVerifications() {
                     <div className="min-w-0">
                       <b className="block truncate text-sm">{verificationSubjectLabel(r)}</b>
                       <p className="truncate text-xs text-muted-foreground">
-                        {r.subject === 'business' ? 'Business' : 'Private car'} · {r.requester_name} · {r.created_at ? formatDate(r.created_at) : ''} · {r.document_count ?? 0} document{r.document_count === 1 ? '' : 's'}
+                        {r.subject === 'business' ? 'Business' : r.vehicle_business_name ? 'Dealer car' : 'Private car'} · {r.requester_name} · {r.created_at ? formatDate(r.created_at) : ''} · {r.document_count ?? 0} document{r.document_count === 1 ? '' : 's'}
                       </p>
                     </div>
                     <StatusBadge status={r.status as VerificationStatus} />
@@ -364,7 +437,7 @@ export function AdminVerifications() {
       </section>
       <div className="min-w-0">
         {selected ? <ReviewPanel key={selected.id} request={selected} onDecided={() => setSelectedId(null)} /> : (
-          <div className="grid min-h-64 place-items-center rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">Select a request to review its selfie and documents.</div>
+          <div className="grid min-h-64 place-items-center rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">Select a request to review its documents.</div>
         )}
       </div>
     </div>
@@ -400,7 +473,7 @@ function ReviewPanel({ request: r, onDecided }: { request: VerificationRequest; 
   return (
     <section className="rounded-lg border bg-card p-5">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <div className="min-w-0"><h2 className="truncate text-lg font-semibold">{verificationSubjectLabel(r)}</h2><p className="text-sm text-muted-foreground">{r.subject === 'business' ? 'Business verification (covers all its listings)' : 'Private seller, this car only'}</p></div>
+        <div className="min-w-0"><h2 className="truncate text-lg font-semibold">{verificationSubjectLabel(r)}</h2><p className="text-sm text-muted-foreground">{r.subject === 'business' ? 'Business verification (Verified dealer / business badge)' : 'This car only (Verified vehicle badge)'}</p></div>
         <StatusBadge status={r.status as VerificationStatus} />
       </div>
       <div className="mt-4 divide-y">
@@ -420,11 +493,14 @@ function ReviewPanel({ request: r, onDecided }: { request: VerificationRequest; 
       </div>
 
       <div className="mt-5 grid gap-3">
-        <b className="text-sm">In-app selfie</b>
-        {files.isPending ? <Loading /> : files.isError ? <p className="text-sm text-destructive">Couldn’t load the files.</p> : files.data.selfieUrl
-          ? <a href={files.data.selfieUrl} target="_blank" rel="noreferrer noopener"><img src={files.data.selfieUrl} alt="Seller’s in-app selfie" className="aspect-[4/3] w-full rounded-md border object-cover" /></a>
-          : <p className="text-sm text-destructive">The selfie file is missing. Don’t approve this request.</p>}
-        {files.data && (files.data.documents.length ? (
+        {r.subject === 'business' && <>
+          <b className="text-sm">In-app selfie</b>
+          {files.isPending ? <Loading /> : files.isError ? <p className="text-sm text-destructive">Couldn’t load the files.</p> : files.data.selfieUrl
+            ? <a href={files.data.selfieUrl} target="_blank" rel="noreferrer noopener"><img src={files.data.selfieUrl} alt="Seller’s in-app selfie" className="aspect-[4/3] w-full rounded-md border object-cover" /></a>
+            : <p className="text-sm text-destructive">The selfie file is missing. Don’t approve this request.</p>}
+        </>}
+        <b className="text-sm">Documents</b>
+        {files.isPending ? <Loading /> : files.isError ? <p className="text-sm text-destructive">Couldn’t load the files.</p> : files.data.documents.length ? (
           <ul className="grid gap-2">
             {files.data.documents.map((d) => (
               <li key={d.id}>{d.url
@@ -432,8 +508,8 @@ function ReviewPanel({ request: r, onDecided }: { request: VerificationRequest; 
                 : <span className="text-sm text-muted-foreground">{VERIFICATION_DOCUMENT_LABELS[d.type]} (unavailable)</span>}</li>
             ))}
           </ul>
-        ) : <p className="text-sm text-muted-foreground">No supporting documents attached.</p>)}
-        <p className="text-xs text-muted-foreground">Links expire after 5 minutes. Check the face matches the documents and the name matches the car’s papers.</p>
+        ) : <p className={`text-sm ${r.subject === 'vehicle' ? 'text-destructive' : 'text-muted-foreground'}`}>No documents attached.{r.subject === 'vehicle' ? ' A car can’t be approved without them.' : ''}</p>}
+        <p className="text-xs text-muted-foreground">Links expire after 5 minutes. {r.subject === 'vehicle' ? 'Check the papers match this listing (make, model, year) and look genuine.' : 'Check the face matches the ID and the business papers are genuine.'}</p>
       </div>
 
       {pending && (
@@ -442,7 +518,7 @@ function ReviewPanel({ request: r, onDecided }: { request: VerificationRequest; 
           <Textarea id="review-notes" rows={3} maxLength={2000} value={notes} onChange={(e) => setNotes(e.target.value)} disabled={busy !== null} placeholder="e.g. The NRC photo is blurry. Please retake it in good light." />
           {error && <Status kind="error">{error}</Status>}
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => void decide('approved')} disabled={busy !== null || !files.data?.selfieUrl}>{busy === 'approved' ? <Loader2 className="animate-spin" /> : <BadgeCheck />}Approve</Button>
+            <Button onClick={() => void decide('approved')} disabled={busy !== null || (r.subject === 'business' ? !files.data?.selfieUrl : !files.data?.documents.length)}>{busy === 'approved' ? <Loader2 className="animate-spin" /> : <BadgeCheck />}Approve</Button>
             <Button variant="outline" onClick={() => void decide('rejected')} disabled={busy !== null}>{busy === 'rejected' ? <Loader2 className="animate-spin" /> : <ShieldAlert />}Not approved</Button>
           </div>
         </div>

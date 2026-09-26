@@ -217,6 +217,7 @@ function RegisterForm({ accountType, onBack, onNeedsConfirmation }: {
   accountType: SelfServiceAccountType; onBack: () => void; onNeedsConfirmation: (email: string) => void;
 }) {
   const [values, setValues] = useState({ fullName: '', email: '', phone: '', password: '', confirmPassword: '' });
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -225,7 +226,7 @@ function RegisterForm({ accountType, onBack, onNeedsConfirmation }: {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    const parsed = signUpSchema.safeParse({ ...values, accountType });
+    const parsed = signUpSchema.safeParse({ ...values, accountType, acceptTerms });
     if (!parsed.success) { setErrors(fieldErrors(parsed.error)); return; }
     setErrors({}); setFormError(null); setBusy(true);
     const result = await signUp(parsed.data);
@@ -253,6 +254,13 @@ function RegisterForm({ accountType, onBack, onNeedsConfirmation }: {
           error={errors['confirmPassword']} autoComplete="new-password" placeholder="Repeat password" />
       </div>
       {isBusiness && <p className="text-xs text-muted-foreground">You’ll add your business name, location and contact details from your dashboard after signing up.</p>}
+      <div className="grid gap-1">
+        <label className="flex items-start gap-2 text-sm">
+          <Checkbox className="mt-0.5" checked={acceptTerms} onCheckedChange={(v) => setAcceptTerms(v === true)} aria-invalid={Boolean(errors['acceptTerms'])} />
+          <span>I am 18 or older and I agree to the <Link to="/terms" target="_blank" className="font-medium text-primary hover:underline">Terms of Use</Link> and <Link to="/privacy" target="_blank" className="font-medium text-primary hover:underline">Privacy Policy</Link>.</span>
+        </label>
+        {errors['acceptTerms'] && <p className="text-xs text-destructive">{errors['acceptTerms']}</p>}
+      </div>
       {formError && <FormAlert>{formError}</FormAlert>}
       <SubmitButton busy={busy} busyLabel="Creating account…">Create account</SubmitButton>
     </form>

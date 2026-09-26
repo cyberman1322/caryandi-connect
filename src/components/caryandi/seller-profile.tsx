@@ -52,7 +52,7 @@ export function SellerProfile({ data }: { data: SellerRouteData }) {
             {location && <p className="mt-2 flex items-center gap-1 text-muted-foreground"><MapPin className="size-4" />{location}</p>}
             <div className="mt-3 flex flex-wrap items-center gap-3">
               {ratingCount > 0 ? <Rating value={Number(s.rating_avg ?? 0)} count={ratingCount} /> : <span className="text-sm text-muted-foreground">No reviews yet</span>}
-              {s.is_verified && <VerifiedBadge />}
+              {s.is_verified && <VerifiedBadge label={s.seller_type === 'dealer' ? 'Verified dealer' : 'Verified business'} />}
             </div>
           </div>
           <ShareButton title={`${s.name} on Caryandi`} />

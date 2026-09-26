@@ -85,7 +85,7 @@ export function ProfileDetail({ kind, data }: { kind: ProviderKind; data: Provid
             {location && <p className="mt-2 flex items-center gap-1 text-muted-foreground"><MapPin className="size-4" />{location}</p>}
             <div className="mt-3 flex flex-wrap items-center gap-3">
               {ratingCount > 0 ? <Rating value={Number(p.rating_avg ?? 0)} count={ratingCount} /> : <span className="text-sm text-muted-foreground">No reviews yet</span>}
-              {p.is_verified && <VerifiedBadge />}
+              {p.is_verified && <VerifiedBadge label="Verified business" />}
               {p.is_mobile_service && <Badge variant="secondary" className="gap-1"><Truck className="size-3.5" />Comes to you</Badge>}
             </div>
           </div>
@@ -221,7 +221,7 @@ export function PartDetail({ data }: { data: PartRouteData }) {
           )}
         </div>
         <div className="min-w-0">
-          <div className="flex flex-wrap gap-2">{p.category_name && <Badge>{p.category_name}</Badge>}<Badge variant="outline">{labelOf(PART_CONDITIONS, p.condition)}</Badge>{p.is_verified && <VerifiedBadge />}</div>
+          <div className="flex flex-wrap gap-2">{p.category_name && <Badge>{p.category_name}</Badge>}<Badge variant="outline">{labelOf(PART_CONDITIONS, p.condition)}</Badge>{p.is_verified && <VerifiedBadge label="Verified seller" />}</div>
           <h1 className="mt-4 text-3xl font-bold">{p.title}</h1>
           <p className="mt-3 text-3xl font-bold">{formatPrice(p.price)}</p>
           {location && <p className="mt-4 flex items-center gap-2 text-muted-foreground"><MapPin className="size-4" />{location}</p>}

@@ -147,7 +147,7 @@ function VehicleView({ page }: { page: VehiclePageData }) {
               </div>
             </TabsContent>
             <TabsContent value="documents"><DocumentsTab documents={documents} /></TabsContent>
-            <TabsContent value="verification"><VerificationTab verified={Boolean(v.is_verified)} business={Boolean(v.business_id)} /></TabsContent>
+            <TabsContent value="verification"><VerificationTab verified={Boolean(v.is_verified)} sellerVerified={Boolean(v.seller_is_verified)} business={Boolean(v.business_id)} /></TabsContent>
           </Tabs>
         </div>
 
@@ -155,7 +155,7 @@ function VehicleView({ page }: { page: VehiclePageData }) {
           <div className="sticky top-24 rounded-lg border bg-card p-5 shadow-sm">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="flex flex-wrap gap-2">{v.year && <Badge variant="outline">{v.year}</Badge>}{v.listing_status === 'sold' && <Badge>Sold</Badge>}</div>
+                <div className="flex flex-wrap gap-2">{v.year && <Badge variant="outline">{v.year}</Badge>}{v.listing_status === 'sold' && <Badge>Sold</Badge>}{v.is_verified && <VerifiedBadge label="Verified vehicle" />}</div>
                 <h1 className="mt-3 text-2xl font-bold">{name}</h1>
                 <p className="mt-2 text-3xl font-bold">{formatPrice(v.price)}</p>
               </div>
@@ -172,7 +172,7 @@ function VehicleView({ page }: { page: VehiclePageData }) {
                 <p className="text-sm text-muted-foreground">{SELLER_TYPE_LABELS[v.seller_type ?? ''] ?? 'Seller'}</p>
                 {(v.seller_rating_count ?? 0) > 0 && <div className="mt-1"><Rating value={Number(v.seller_rating_avg ?? 0)} count={v.seller_rating_count ?? 0} /></div>}
               </div>
-              {v.is_verified && <VerifiedBadge />}
+              {v.seller_is_verified && <VerifiedBadge label="Verified dealer" subtle />}
             </div>
             {isOwner ? (
               <p className="mt-5 rounded-md bg-muted p-3 text-sm text-muted-foreground">Buyers see a “Show contact details” button here.</p>
@@ -228,36 +228,43 @@ function DocumentsTab({ documents }: { documents: VehicleDocumentType[] }) {
   );
 }
 
-function VerificationTab({ verified, business }: { verified: boolean; business: boolean }) {
-  if (verified) {
-    return (
-      <div className="mt-4 rounded-lg border bg-success/5 p-5">
-        <div className="flex gap-3">
-          <ShieldCheck className="size-6 shrink-0 text-success" />
-          <div>
-            <h3 className="font-semibold">{business ? 'Verified business' : 'Seller verified for this vehicle'}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {business
-                ? 'Caryandi reviewed this business’s details and approved its verification.'
-                : 'Caryandi reviewed this seller’s verification request for this listing, including a live selfie, and approved it.'}
-              {' '}Verification helps you assess a listing, but always inspect the vehicle and its documents before payment.
-            </p>
+function VerificationTab({ verified, sellerVerified, business }: { verified: boolean; sellerVerified: boolean; business: boolean }) {
+  return (
+    <div className="mt-4 grid gap-3">
+      {verified ? (
+        <div className="rounded-lg border bg-success/5 p-5">
+          <div className="flex gap-3">
+            <ShieldCheck className="size-6 shrink-0 text-success" />
+            <div>
+              <h3 className="font-semibold">Verified vehicle</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Caryandi checked this car’s documents (such as the registration book or import papers) against the listing and approved them.
+                {' '}Verification helps you assess a listing, but always inspect the vehicle and match the chassis and engine numbers to the papers before paying.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    );
-  }
-  return (
-    <div className="mt-4 rounded-lg border p-5">
-      <div className="flex gap-3">
-        <ShieldQuestion className="size-6 shrink-0 text-muted-foreground" />
-        <div>
-          <h3 className="font-semibold">Not verified yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Caryandi hasn’t checked this {business ? 'business' : 'seller'} yet. Meet in a safe public place, inspect the vehicle and its papers, and never pay a deposit before viewing.
-          </p>
+      ) : (
+        <div className="rounded-lg border p-5">
+          <div className="flex gap-3">
+            <ShieldQuestion className="size-6 shrink-0 text-muted-foreground" />
+            <div>
+              <h3 className="font-semibold">This vehicle isn’t verified yet</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Verification is optional for sellers, so many good cars aren’t verified. Ask the seller for the registration book or import papers, meet in a safe public place, and never pay a deposit before viewing.
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+      {business && (
+        <p className="flex items-start gap-2 rounded-lg border p-4 text-sm text-muted-foreground">
+          <ShieldCheck className={`mt-0.5 size-4 shrink-0 ${sellerVerified ? 'text-success' : 'text-muted-foreground'}`} />
+          {sellerVerified
+            ? 'The dealer selling this car is a verified business: Caryandi reviewed its registration details.'
+            : 'The dealer selling this car hasn’t verified their business yet.'}
+        </p>
+      )}
     </div>
   );
 }
