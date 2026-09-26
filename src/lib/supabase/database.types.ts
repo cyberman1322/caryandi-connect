@@ -662,6 +662,27 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_consents: {
+        Row: {
+          profile_id: string
+          terms_version: string
+          terms_accepted_at: string
+          age_confirmed_at: string
+        }
+        Insert: {
+          profile_id: string
+          terms_version: string
+          terms_accepted_at?: string
+          age_confirmed_at?: string
+        }
+        Update: {
+          profile_id?: string
+          terms_version?: string
+          terms_accepted_at?: string
+          age_confirmed_at?: string
+        }
+        Relationships: []
+      }
       profile_contacts: {
         Row: {
           profile_id: string
@@ -1044,8 +1065,8 @@ export type Database = {
           subject: Database["public"]["Enums"]["verification_subject"]
           business_id: string | null
           vehicle_id: string | null
-          selfie_path: string
-          selfie_captured_at: string
+          selfie_path: string | null
+          selfie_captured_at: string | null
           requester_notes: string | null
           status: Database["public"]["Enums"]["verification_status"]
           reviewed_by: string | null
@@ -1060,8 +1081,8 @@ export type Database = {
           subject: Database["public"]["Enums"]["verification_subject"]
           business_id?: string | null
           vehicle_id?: string | null
-          selfie_path: string
-          selfie_captured_at: string
+          selfie_path?: string | null
+          selfie_captured_at?: string | null
           requester_notes?: string | null
           status?: Database["public"]["Enums"]["verification_status"]
           reviewed_by?: string | null
@@ -1076,8 +1097,8 @@ export type Database = {
           subject?: Database["public"]["Enums"]["verification_subject"]
           business_id?: string | null
           vehicle_id?: string | null
-          selfie_path?: string
-          selfie_captured_at?: string
+          selfie_path?: string | null
+          selfie_captured_at?: string | null
           requester_notes?: string | null
           status?: Database["public"]["Enums"]["verification_status"]
           reviewed_by?: string | null
@@ -1379,6 +1400,7 @@ export type Database = {
           seller_rating_count: number | null
           primary_image_path: string | null
           features: string[] | null
+          seller_is_verified: boolean | null
         }
         Relationships: []
       }
@@ -1438,11 +1460,19 @@ export type Database = {
           vehicle_listing_status: Database["public"]["Enums"]["listing_status"] | null
           document_count: number | null
           reviewer_name: string | null
+          vehicle_business_name: string | null
         }
         Relationships: []
       }
     }
     Functions: {
+      accept_terms: {
+        Args: {
+          p_version: string
+          p_confirm_adult: boolean
+        }
+        Returns: undefined
+      }
       admin_get_scam_report_details: {
         Args: {
           p_report_id: string
@@ -1538,6 +1568,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      my_vehicle_verification: {
+        Args: {
+          p_vehicle_id: string
+        }
+        Returns: {
+          can_verify: boolean | null
+          status: Database["public"]["Enums"]["verification_status"] | null
+        }[]
+      }
       request_meetup: {
         Args: {
           p_target_type: string
@@ -1571,6 +1610,14 @@ export type Database = {
         }
         Returns: string
       }
+      submit_vehicle_verification: {
+        Args: {
+          p_vehicle_id: string
+          p_documents: Json
+          p_notes?: string
+        }
+        Returns: string
+      }
       vehicle_document_summary: {
         Args: {
           p_vehicle_id: string
@@ -1584,7 +1631,7 @@ export type Database = {
     Enums: {
       account_status: "active" | "suspended" | "banned"
       account_type: "buyer" | "private_seller" | "dealer" | "mechanic" | "servicing_company" | "parts_seller" | "import_agent" | "admin"
-      admin_document_type: "national_id" | "passport" | "business_registration" | "tax_certificate" | "other"
+      admin_document_type: "national_id" | "passport" | "business_registration" | "tax_certificate" | "other" | "registration_book" | "import_papers" | "customs_clearance" | "police_clearance"
       business_member_role: "owner" | "manager" | "staff"
       business_type: "dealer" | "mechanic" | "servicing_company" | "parts_seller" | "import_agent"
       duty_status: "paid" | "unpaid"
