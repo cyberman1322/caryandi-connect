@@ -477,7 +477,7 @@ function ReportDialog({ report: r, onClose }: { report: AdminReport; onClose: ()
                   <dt className="text-muted-foreground">contact reveals by reporter</dt><dd>{Array.isArray(details['contact_between_reporter_and_user']) ? details['contact_between_reporter_and_user'].length : 0}</dd>
                 </dl>
               ) : <Button className="mt-2" size="sm" variant="outline" disabled={investigate.isPending} onClick={() => investigate.mutate()}>{investigate.isPending && <Loader2 className="animate-spin" />}Show reported user details</Button>}
-              {user?.['profile_id'] && <p className="mt-2 text-xs text-muted-foreground">To suspend or ban this user, use Users and search for their name.</p>}
+              {Boolean(user?.['profile_id']) && <p className="mt-2 text-xs text-muted-foreground">To suspend or ban this user, use Users and search for their name.</p>}
             </div>
           )}
           <div className="grid gap-2">
