@@ -5,7 +5,7 @@ import { ServiceError } from '@/lib/vehicles/vehicle-service';
 /**
  * Reviews of a business or a private seller. The database enforces the rules:
  * sign-in, one review per person per seller, only after contacting them on
- * Caryandi, never your own business. Ratings are recalculated by the database.
+ * My Car Zambia, never your own business. Ratings are recalculated by the database.
  */
 
 export type ReviewSubject = { businessId: string } | { sellerId: string };
@@ -50,7 +50,7 @@ function checkInput(rating: number, body: string): string | null {
 function friendly(error: { message?: string; code?: string }, fallback: string): string {
   const msg = error.message ?? '';
   if (error.code === '23505') return 'You’ve already reviewed them — you can edit your review instead.';
-  if (/after contacting/i.test(msg)) return 'You can leave a review after contacting them on Caryandi.';
+  if (/after contacting/i.test(msg)) return 'You can leave a review after contacting them on My Car Zambia.';
   if (/yourself|own business/i.test(msg)) return 'You can’t review yourself or your own business.';
   return fallback;
 }
