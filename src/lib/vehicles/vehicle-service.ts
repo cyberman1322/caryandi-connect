@@ -31,14 +31,14 @@ async function currentUserId(): Promise<string> {
 /** Columns needed for listing cards (keeps search responses small on mobile data). */
 const CARD_COLUMNS =
   'id, owner_id, business_id, business_slug, make, model, variant, year, price, mileage_km, transmission, fuel_type, ' +
-  'condition, registration_status, duty_status, import_status, province, city, listing_status, is_verified, ' +
+  'condition, registration_status, duty_status, import_status, province, city, listing_status, is_verified, seller_is_verified, ' +
   'seller_name, seller_type, primary_image_path, published_at, created_at';
 
 export type VehicleCardData = Pick<
   VehicleListing,
   | 'id' | 'owner_id' | 'business_id' | 'business_slug' | 'make' | 'model' | 'variant' | 'year' | 'price' | 'mileage_km'
   | 'transmission' | 'fuel_type' | 'condition' | 'registration_status' | 'duty_status' | 'import_status' | 'province'
-  | 'city' | 'listing_status' | 'is_verified' | 'seller_name' | 'seller_type' | 'primary_image_path' | 'published_at'
+  | 'city' | 'listing_status' | 'is_verified' | 'seller_is_verified' | 'seller_name' | 'seller_type' | 'primary_image_path' | 'published_at'
   | 'created_at'
 >;
 
