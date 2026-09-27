@@ -1,0 +1,49 @@
+<!--
+  Supabase → Authentication → Emails → "Confirm signup"
+  Subject: Confirm your My Car Zambia account
+  The button goes to /auth/confirm, which confirms the email in the app (verifyOtp) and signs the person in.
+  Keep {{ .SiteURL }} set to https://mycarzambia.vercel.app (Authentication → URL Configuration).
+-->
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#0d1626;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7fb;padding:32px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border:1px solid #dde5f0;border-radius:14px;">
+            <tr>
+              <td style="padding:28px 28px 8px 28px;">
+                <img src="{{ .SiteURL }}/icon-192.png" width="44" height="44" alt="" style="display:block;border-radius:10px;">
+                <p style="margin:14px 0 0 0;font-size:20px;font-weight:bold;">My Car <span style="color:#186bec;">Zambia</span></p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 4px 28px;">
+                <h1 style="margin:12px 0 8px 0;font-size:22px;line-height:1.3;">Confirm your email</h1>
+                <p style="margin:0 0 20px 0;font-size:15px;line-height:1.5;color:#4a5568;">
+                  Thanks for joining My Car Zambia. Tap the button below to confirm this is your email address and activate your account.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:0 28px 8px 28px;">
+                <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
+                   style="display:inline-block;background:#186bec;color:#ffffff;text-decoration:none;font-size:16px;font-weight:bold;padding:14px 32px;border-radius:10px;">
+                  Confirm it&rsquo;s me
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 28px 28px 28px;">
+                <p style="margin:0;font-size:13px;line-height:1.5;color:#6b7280;">
+                  If you didn&rsquo;t create a My Car Zambia account, you can ignore this email &mdash; nothing will happen.
+                </p>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:16px 0 0 0;font-size:12px;color:#8a94a6;">My Car Zambia &middot; For users aged 18 and over</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
