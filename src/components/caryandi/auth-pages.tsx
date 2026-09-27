@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Car, CheckCircle2, Eye, EyeOff, Loader2, LockKeyhole, Mail, Phone, ShieldCheck, UserRound, type LucideIcon } from 'lucide-react';
 import hero from '@/assets/caryandi-hero-1024.webp';
@@ -9,7 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { roles } from '@/data/mock-data';
 import { useAuth } from '@/lib/auth/auth-context';
-import { requestPasswordReset, resendConfirmation, signIn, signUp, updatePassword } from '@/lib/auth/auth-service';
+import { onEmailConfirmedElsewhere, requestPasswordReset, resendConfirmation, signIn, signUp, updatePassword } from '@/lib/auth/auth-service';
+import { toast } from 'sonner';
+import { GoogleSignIn } from './google-sign-in';
 import { ACCOUNT_TYPE_LABELS, fromUiRole, type SelfServiceAccountType } from '@/lib/auth/account-types';
 import { fieldErrors, forgotPasswordSchema, newPasswordSchema, signInSchema, signUpSchema } from '@/lib/auth/validation';
 import { safeRedirectPath } from '@/lib/auth/redirect';
@@ -138,6 +140,8 @@ function LoginForm({ redirect }: { redirect?: string | undefined }) {
   const unconfirmed = formError?.startsWith('Please confirm your email');
 
   return (
+    <>
+    <GoogleSignIn next={target} />
     <form className="mt-8 grid gap-5" onSubmit={submit} noValidate>
       <TextField label="Email address" icon={Mail} type="email" autoComplete="email" placeholder="you@example.com"
         value={email} onChange={(e) => setEmail(e.target.value)} error={errors['email']} required />
@@ -154,20 +158,21 @@ function LoginForm({ redirect }: { redirect?: string | undefined }) {
           {unconfirmed && !resent && (
             <button type="button" className="ml-1 font-medium underline"
               onClick={async () => { const r = await resendConfirmation(email.trim().toLowerCase()); if (r.ok) setResent(true); else setFormError(r.error); }}>
-              Resend the link
+              Resend the email
             </button>
           )}
         </FormAlert>
       )}
-      {resent && <FormAlert tone="success">We’ve sent a new confirmation link to {email}.</FormAlert>}
+      {resent && <FormAlert tone="success">We’ve sent a new confirmation email to {email}. Tap <b>Confirm it’s me</b> in it, then sign in.</FormAlert>}
       <SubmitButton busy={busy || auth.status === 'signed-in'} busyLabel="Signing in…">Sign in</SubmitButton>
     </form>
+    </>
   );
 }
 
 /* -------------------------------------------------------------------- register */
 
-type RegisterStep = { step: 'role' } | { step: 'details'; accountType: SelfServiceAccountType } | { step: 'check-email'; email: string };
+type RegisterStep = { step: 'role' } | { step: 'details'; accountType: SelfServiceAccountType } | { step: 'check-email'; email: string; password: string };
 
 function RegisterFlow({ onHeading }: { onHeading: (h: [string, string] | null) => void }) {
   const auth = useAuth();
@@ -185,9 +190,9 @@ function RegisterFlow({ onHeading }: { onHeading: (h: [string, string] | null) =
   }, [state, onHeading]);
 
   if (state.step === 'role') return <RolePicker onContinue={(accountType) => setState({ step: 'details', accountType })} />;
-  if (state.step === 'check-email') return <CheckEmail email={state.email} />;
+  if (state.step === 'check-email') return <CheckEmail email={state.email} password={state.password} />;
   return <RegisterForm accountType={state.accountType} onBack={() => setState({ step: 'role' })}
-    onNeedsConfirmation={(email) => setState({ step: 'check-email', email })} />;
+    onNeedsConfirmation={(email, password) => setState({ step: 'check-email', email, password })} />;
 }
 
 function RolePicker({ onContinue }: { onContinue: (type: SelfServiceAccountType) => void }) {
@@ -214,7 +219,7 @@ function RolePicker({ onContinue }: { onContinue: (type: SelfServiceAccountType)
 }
 
 function RegisterForm({ accountType, onBack, onNeedsConfirmation }: {
-  accountType: SelfServiceAccountType; onBack: () => void; onNeedsConfirmation: (email: string) => void;
+  accountType: SelfServiceAccountType; onBack: () => void; onNeedsConfirmation: (email: string, password: string) => void;
 }) {
   const [values, setValues] = useState({ fullName: '', email: '', phone: '', password: '', confirmPassword: '' });
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -232,7 +237,7 @@ function RegisterForm({ accountType, onBack, onNeedsConfirmation }: {
     const result = await signUp(parsed.data);
     setBusy(false);
     if (!result.ok) { setFormError(result.error); return; }
-    if (result.data.needsEmailConfirmation) onNeedsConfirmation(parsed.data.email);
+    if (result.data.needsEmailConfirmation) onNeedsConfirmation(parsed.data.email, parsed.data.password);
     // Otherwise the new session signs them in and RegisterFlow redirects to the dashboard.
   }
 
@@ -241,6 +246,7 @@ function RegisterForm({ accountType, onBack, onNeedsConfirmation }: {
       <button type="button" onClick={onBack} className="inline-flex w-fit items-center gap-1 text-sm text-primary">
         <ArrowLeft className="size-4" />Change account type
       </button>
+      <GoogleSignIn accountType={accountType} dividerLabel="or sign up with email" />
       <TextField label={isBusiness ? 'Your full name (account owner)' : 'Full name'} icon={UserRound} autoComplete="name"
         placeholder="e.g. Mulenga Banda" value={values.fullName} onChange={set('fullName')} error={errors['fullName']} required />
       <TextField label="Email address" icon={Mail} type="email" autoComplete="email" placeholder="you@example.com"
@@ -267,20 +273,72 @@ function RegisterForm({ accountType, onBack, onNeedsConfirmation }: {
   );
 }
 
-function CheckEmail({ email }: { email: string }) {
+/**
+ * Waits for the person to tap "Confirm it's me" in the email. It notices straight
+ * away when they confirm in another tab of this browser, and otherwise checks
+ * every 20 seconds (and whenever this tab comes back into view) by trying to sign
+ * in with the password they just chose — which only works once the email is
+ * confirmed. The password stays in this page's memory only.
+ */
+function CheckEmail({ email, password }: { email: string; password: string }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const lastCheck = useRef(0);
+  const checking = useRef(false);
+
+  useEffect(() => {
+    let stopped = false;
+    const startedAt = Date.now();
+    const check = async (force = false) => {
+      if (stopped || checking.current) return;
+      if (!force && Date.now() - lastCheck.current < 8_000) return;
+      if (Date.now() - startedAt > 30 * 60_000) return; // stop checking after 30 minutes
+      checking.current = true; lastCheck.current = Date.now();
+      const result = await signIn({ email, password, remember: true });
+      checking.current = false;
+      if (result.ok && !stopped) {
+        stopped = true;
+        setConfirmed(true);
+        toast.success('Email confirmed — welcome to My Car Zambia!');
+        // The auth listener signs them in; RegisterFlow then opens the dashboard.
+      }
+    };
+    const timer = window.setInterval(() => void check(), 20_000);
+    const onVisible = () => { if (document.visibilityState === 'visible') void check(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    const stopListening = onEmailConfirmedElsewhere(() => void check(true));
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
+      stopListening();
+    };
+  }, [email, password]);
+
+  if (confirmed) {
+    return (
+      <div className="mt-8 grid gap-4">
+        <div className="flex gap-3 rounded-lg border bg-success/5 p-4">
+          <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" />
+          <p className="text-sm"><b>Email confirmed.</b> Signing you in…</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mt-8 grid gap-4">
       <div className="flex gap-3 rounded-lg border bg-success/5 p-4">
-        <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" />
-        <p className="text-sm">We’ve sent a confirmation link to <b>{email}</b>. Open it on this device to activate your account, then you’ll be signed in.</p>
+        <Mail className="mt-0.5 size-5 shrink-0 text-success" />
+        <p className="text-sm">We’ve sent an email to <b>{email}</b>. Open it and tap <b>Confirm it’s me</b>. This page will notice as soon as you do and sign you in — on this device or any other.</p>
       </div>
-      <p className="text-sm text-muted-foreground">Can’t find it? Check your spam folder.</p>
+      <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />Waiting for you to confirm… Can’t find the email? Check your spam folder.</p>
       {error && <FormAlert>{error}</FormAlert>}
       <Button variant="outline" className="h-11" disabled={status !== 'idle'}
         onClick={async () => { setStatus('sending'); const r = await resendConfirmation(email); if (r.ok) setStatus('sent'); else { setError(r.error); setStatus('idle'); } }}>
-        {status === 'sent' ? 'Link sent again' : status === 'sending' ? 'Sending…' : 'Resend confirmation email'}
+        {status === 'sent' ? 'Email sent again' : status === 'sending' ? 'Sending…' : 'Resend the email'}
       </Button>
     </div>
   );
