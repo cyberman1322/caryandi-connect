@@ -35,6 +35,21 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
+/** /sitemap.xml for search engines, built from live listings (cached at the edge for an hour). */
+async function maybeSitemap(request: Request): Promise<Response | null> {
+  const url = new URL(request.url);
+  if (url.pathname !== "/sitemap.xml" || (request.method !== "GET" && request.method !== "HEAD")) return null;
+  const { buildSitemap } = await import("./lib/seo/sitemap");
+  const xml = await buildSitemap(url.origin);
+  return new Response(request.method === "HEAD" ? null : xml, {
+    status: 200,
+    headers: {
+      "content-type": "application/xml; charset=utf-8",
+      "cache-control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
+    },
+  });
+}
+
 function isH3SwallowedErrorBody(body: string): boolean {
   try {
     const payload = JSON.parse(body) as { unhandled?: unknown; message?: unknown };
@@ -47,6 +62,8 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const sitemap = await maybeSitemap(request);
+      if (sitemap) return sitemap;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
