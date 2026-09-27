@@ -9,7 +9,7 @@ export function describeAuthError(error: AuthErrorLike): string {
     return 'That email and password don’t match. Check them and try again.';
   }
   if (code === 'email_not_confirmed' || message.includes('email not confirmed')) {
-    return 'Please confirm your email first — check your inbox for the link we sent.';
+    return 'Please confirm your email first — open the email we sent and tap “Confirm it’s me”.';
   }
   if (code === 'user_already_exists' || message.includes('already registered')) {
     return 'An account with this email already exists. Try signing in instead.';
