@@ -13,24 +13,22 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountVerificationRouteImport } from './routes/account-verification'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AgentsRouteImport } from './routes/agents'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HelpRouteImport } from './routes/help'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as InformationRouteImport } from './routes/information'
 import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PartsRouteImport } from './routes/parts'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SellersRouteImport } from './routes/sellers'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VehiclesRouteImport } from './routes/vehicles'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminContentRouteImport } from './routes/admin.content'
@@ -47,6 +45,8 @@ import { Route as AdminVehiclesRouteImport } from './routes/admin.vehicles'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 import { Route as AgentsIndexRouteImport } from './routes/agents.index'
 import { Route as AgentsAgentIdRouteImport } from './routes/agents.$agentId'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAddPartRouteImport } from './routes/dashboard.add-part'
 import { Route as DashboardAddVehicleRouteImport } from './routes/dashboard.add-vehicle'
@@ -100,6 +100,11 @@ const AgentsRoute = AgentsRouteImport.update({
   path: '/agents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -113,31 +118,6 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthConfirmRoute = AuthConfirmRouteImport.update({
-  id: '/auth/confirm',
-  path: '/auth/confirm',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CookiesRoute = CookiesRouteImport.update({
-  id: '/cookies',
-  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InformationRoute = InformationRouteImport.update({
@@ -158,6 +138,11 @@ const LoginRoute = LoginRouteImport.update({
 const PartsRoute = PartsRouteImport.update({
   id: '/parts',
   path: '/parts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -188,6 +173,11 @@ const ServicesRoute = ServicesRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VehiclesRoute = VehiclesRouteImport.update({
@@ -269,6 +259,16 @@ const AgentsAgentIdRoute = AgentsAgentIdRouteImport.update({
   id: '/$agentId',
   path: '/$agentId',
   getParentRoute: () => AgentsRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthConfirmRoute = AuthConfirmRouteImport.update({
+  id: '/auth/confirm',
+  path: '/auth/confirm',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
@@ -436,24 +436,22 @@ export interface FileRoutesByFullPath {
   '/account-verification': typeof AccountVerificationRoute
   '/admin': typeof AdminRouteWithChildren
   '/agents': typeof AgentsRouteWithChildren
+  '/cookies': typeof CookiesRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
-  '/terms': typeof TermsRoute
-  '/auth/confirm': typeof AuthConfirmRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/privacy': typeof PrivacyRoute
-  '/cookies': typeof CookiesRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
   '/parts': typeof PartsRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sellers': typeof SellersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/vehicles': typeof VehiclesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/dealers': typeof AdminDealersRoute
@@ -468,6 +466,8 @@ export interface FileRoutesByFullPath {
   '/admin/vehicles': typeof AdminVehiclesRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/dashboard/add-part': typeof DashboardAddPartRoute
   '/dashboard/add-vehicle': typeof DashboardAddVehicleRoute
   '/dashboard/availability': typeof DashboardAvailabilityRoute
@@ -506,19 +506,17 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account-verification': typeof AccountVerificationRoute
+  '/cookies': typeof CookiesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
-  '/terms': typeof TermsRoute
-  '/auth/confirm': typeof AuthConfirmRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/privacy': typeof PrivacyRoute
-  '/cookies': typeof CookiesRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/admin/content': typeof AdminContentRoute
   '/admin/dealers': typeof AdminDealersRoute
   '/admin/import-agents': typeof AdminImportAgentsRoute
@@ -532,6 +530,8 @@ export interface FileRoutesByTo {
   '/admin/vehicles': typeof AdminVehiclesRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/dashboard/add-part': typeof DashboardAddPartRoute
   '/dashboard/add-vehicle': typeof DashboardAddVehicleRoute
   '/dashboard/availability': typeof DashboardAvailabilityRoute
@@ -573,24 +573,22 @@ export interface FileRoutesById {
   '/account-verification': typeof AccountVerificationRoute
   '/admin': typeof AdminRouteWithChildren
   '/agents': typeof AgentsRouteWithChildren
+  '/cookies': typeof CookiesRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
-  '/terms': typeof TermsRoute
-  '/auth/confirm': typeof AuthConfirmRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/privacy': typeof PrivacyRoute
-  '/cookies': typeof CookiesRoute
   '/information': typeof InformationRouteWithChildren
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
   '/parts': typeof PartsRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sellers': typeof SellersRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/vehicles': typeof VehiclesRouteWithChildren
   '/admin/content': typeof AdminContentRoute
   '/admin/dealers': typeof AdminDealersRoute
@@ -605,6 +603,8 @@ export interface FileRoutesById {
   '/admin/vehicles': typeof AdminVehiclesRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/agents/$agentId': typeof AgentsAgentIdRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/dashboard/add-part': typeof DashboardAddPartRoute
   '/dashboard/add-vehicle': typeof DashboardAddVehicleRoute
   '/dashboard/availability': typeof DashboardAvailabilityRoute
@@ -647,24 +647,22 @@ export interface FileRouteTypes {
     | '/account-verification'
     | '/admin'
     | '/agents'
+    | '/cookies'
     | '/dashboard'
     | '/forgot-password'
     | '/help'
-    | '/terms'
-    | '/auth/confirm'
-    | '/auth/callback'
-    | '/privacy'
-    | '/cookies'
     | '/information'
     | '/locations'
     | '/login'
     | '/parts'
+    | '/privacy'
     | '/profile'
     | '/register'
     | '/reset-password'
     | '/sellers'
     | '/services'
     | '/settings'
+    | '/terms'
     | '/vehicles'
     | '/admin/content'
     | '/admin/dealers'
@@ -679,6 +677,8 @@ export interface FileRouteTypes {
     | '/admin/vehicles'
     | '/admin/verifications'
     | '/agents/$agentId'
+    | '/auth/callback'
+    | '/auth/confirm'
     | '/dashboard/add-part'
     | '/dashboard/add-vehicle'
     | '/dashboard/availability'
@@ -717,19 +717,17 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account-verification'
+    | '/cookies'
     | '/forgot-password'
     | '/help'
-    | '/terms'
-    | '/auth/confirm'
-    | '/auth/callback'
-    | '/privacy'
-    | '/cookies'
     | '/locations'
     | '/login'
+    | '/privacy'
     | '/profile'
     | '/register'
     | '/reset-password'
     | '/settings'
+    | '/terms'
     | '/admin/content'
     | '/admin/dealers'
     | '/admin/import-agents'
@@ -743,6 +741,8 @@ export interface FileRouteTypes {
     | '/admin/vehicles'
     | '/admin/verifications'
     | '/agents/$agentId'
+    | '/auth/callback'
+    | '/auth/confirm'
     | '/dashboard/add-part'
     | '/dashboard/add-vehicle'
     | '/dashboard/availability'
@@ -783,24 +783,22 @@ export interface FileRouteTypes {
     | '/account-verification'
     | '/admin'
     | '/agents'
+    | '/cookies'
     | '/dashboard'
     | '/forgot-password'
     | '/help'
-    | '/terms'
-    | '/auth/confirm'
-    | '/auth/callback'
-    | '/privacy'
-    | '/cookies'
     | '/information'
     | '/locations'
     | '/login'
     | '/parts'
+    | '/privacy'
     | '/profile'
     | '/register'
     | '/reset-password'
     | '/sellers'
     | '/services'
     | '/settings'
+    | '/terms'
     | '/vehicles'
     | '/admin/content'
     | '/admin/dealers'
@@ -815,6 +813,8 @@ export interface FileRouteTypes {
     | '/admin/vehicles'
     | '/admin/verifications'
     | '/agents/$agentId'
+    | '/auth/callback'
+    | '/auth/confirm'
     | '/dashboard/add-part'
     | '/dashboard/add-vehicle'
     | '/dashboard/availability'
@@ -856,25 +856,25 @@ export interface RootRouteChildren {
   AccountVerificationRoute: typeof AccountVerificationRoute
   AdminRoute: typeof AdminRouteWithChildren
   AgentsRoute: typeof AgentsRouteWithChildren
+  CookiesRoute: typeof CookiesRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
-  TermsRoute: typeof TermsRoute
-  AuthConfirmRoute: typeof AuthConfirmRoute
-  AuthCallbackRoute: typeof AuthCallbackRoute
-  PrivacyRoute: typeof PrivacyRoute
-  CookiesRoute: typeof CookiesRoute
   InformationRoute: typeof InformationRouteWithChildren
   LocationsRoute: typeof LocationsRoute
   LoginRoute: typeof LoginRoute
   PartsRoute: typeof PartsRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SellersRoute: typeof SellersRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
   SettingsRoute: typeof SettingsRoute
+  TermsRoute: typeof TermsRoute
   VehiclesRoute: typeof VehiclesRouteWithChildren
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthConfirmRoute: typeof AuthConfirmRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -907,6 +907,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -926,41 +933,6 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/confirm': {
-      id: '/auth/confirm'
-      path: '/auth/confirm'
-      fullPath: '/auth/confirm'
-      preLoaderRoute: typeof AuthConfirmRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cookies': {
-      id: '/cookies'
-      path: '/cookies'
-      fullPath: '/cookies'
-      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/information': {
@@ -989,6 +961,13 @@ declare module '@tanstack/react-router' {
       path: '/parts'
       fullPath: '/parts'
       preLoaderRoute: typeof PartsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -1031,6 +1010,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vehicles': {
@@ -1144,6 +1130,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/agents/$agentId'
       preLoaderRoute: typeof AgentsAgentIdRouteImport
       parentRoute: typeof AgentsRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/confirm': {
+      id: '/auth/confirm'
+      path: '/auth/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof AuthConfirmRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
       id: '/dashboard/'
@@ -1545,25 +1545,25 @@ const rootRouteChildren: RootRouteChildren = {
   AccountVerificationRoute: AccountVerificationRoute,
   AdminRoute: AdminRouteWithChildren,
   AgentsRoute: AgentsRouteWithChildren,
+  CookiesRoute: CookiesRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
-  TermsRoute: TermsRoute,
-  AuthConfirmRoute: AuthConfirmRoute,
-  AuthCallbackRoute: AuthCallbackRoute,
-  PrivacyRoute: PrivacyRoute,
-  CookiesRoute: CookiesRoute,
   InformationRoute: InformationRouteWithChildren,
   LocationsRoute: LocationsRoute,
   LoginRoute: LoginRoute,
   PartsRoute: PartsRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SellersRoute: SellersRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
   SettingsRoute: SettingsRoute,
+  TermsRoute: TermsRoute,
   VehiclesRoute: VehiclesRouteWithChildren,
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthConfirmRoute: AuthConfirmRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
