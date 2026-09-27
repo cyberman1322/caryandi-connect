@@ -17,6 +17,8 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as InformationRouteImport } from './routes/information'
@@ -116,6 +118,16 @@ const HelpRoute = HelpRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthConfirmRoute = AuthConfirmRouteImport.update({
+  id: '/auth/confirm',
+  path: '/auth/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -428,6 +440,8 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/terms': typeof TermsRoute
+  '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/privacy': typeof PrivacyRoute
   '/cookies': typeof CookiesRoute
   '/information': typeof InformationRouteWithChildren
@@ -495,6 +509,8 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/terms': typeof TermsRoute
+  '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/privacy': typeof PrivacyRoute
   '/cookies': typeof CookiesRoute
   '/locations': typeof LocationsRoute
@@ -561,6 +577,8 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/terms': typeof TermsRoute
+  '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/privacy': typeof PrivacyRoute
   '/cookies': typeof CookiesRoute
   '/information': typeof InformationRouteWithChildren
@@ -633,6 +651,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/help'
     | '/terms'
+    | '/auth/confirm'
+    | '/auth/callback'
     | '/privacy'
     | '/cookies'
     | '/information'
@@ -700,6 +720,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/help'
     | '/terms'
+    | '/auth/confirm'
+    | '/auth/callback'
     | '/privacy'
     | '/cookies'
     | '/locations'
@@ -765,6 +787,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/help'
     | '/terms'
+    | '/auth/confirm'
+    | '/auth/callback'
     | '/privacy'
     | '/cookies'
     | '/information'
@@ -836,6 +860,8 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
   TermsRoute: typeof TermsRoute
+  AuthConfirmRoute: typeof AuthConfirmRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   PrivacyRoute: typeof PrivacyRoute
   CookiesRoute: typeof CookiesRoute
   InformationRoute: typeof InformationRouteWithChildren
@@ -907,6 +933,20 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/confirm': {
+      id: '/auth/confirm'
+      path: '/auth/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof AuthConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -1509,6 +1549,8 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
   TermsRoute: TermsRoute,
+  AuthConfirmRoute: AuthConfirmRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   PrivacyRoute: PrivacyRoute,
   CookiesRoute: CookiesRoute,
   InformationRoute: InformationRouteWithChildren,
