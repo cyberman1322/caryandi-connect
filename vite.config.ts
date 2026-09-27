@@ -10,14 +10,14 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 // Public Supabase settings baked into the browser code. They normally come from .env; on
 // Vercel the Supabase integration provides SUPABASE_URL / SUPABASE_ANON_KEY, so fall back to
 // those. Only the public URL and anon key are used here — never a service-role or secret key.
-const fileEnv = loadEnv(process.env.NODE_ENV === "development" ? "development" : "production", process.cwd(), "VITE_");
+const fileEnv = loadEnv(process.env['NODE_ENV'] === "development" ? "development" : "production", process.cwd(), "VITE_");
 const pick = (...values: Array<string | undefined>) => values.find((v) => typeof v === "string" && v.trim() !== "")?.trim() ?? "";
-const supabaseUrl = pick(process.env.VITE_SUPABASE_URL, fileEnv.VITE_SUPABASE_URL, process.env.SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_URL);
+const supabaseUrl = pick(process.env['VITE_SUPABASE_URL'], fileEnv.VITE_SUPABASE_URL, process.env['SUPABASE_URL'], process.env['NEXT_PUBLIC_SUPABASE_URL']);
 const supabaseAnonKey = pick(
-  process.env.VITE_SUPABASE_ANON_KEY,
+  process.env['VITE_SUPABASE_ANON_KEY'],
   fileEnv.VITE_SUPABASE_ANON_KEY,
-  process.env.SUPABASE_ANON_KEY,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  process.env['SUPABASE_ANON_KEY'],
+  process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'],
 );
 
 let supabaseHost = "MISSING";
