@@ -14,6 +14,7 @@ import { Route as AccountVerificationRouteImport } from './routes/account-verifi
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as WarningLightsRouteImport } from './routes/warning-lights'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HelpRouteImport } from './routes/help'
@@ -103,6 +104,11 @@ const AgentsRoute = AgentsRouteImport.update({
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WarningLightsRoute = WarningLightsRouteImport.update({
+  id: '/warning-lights',
+  path: '/warning-lights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -437,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/agents': typeof AgentsRouteWithChildren
   '/cookies': typeof CookiesRoute
+  '/warning-lights': typeof WarningLightsRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -507,6 +514,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account-verification': typeof AccountVerificationRoute
   '/cookies': typeof CookiesRoute
+  '/warning-lights': typeof WarningLightsRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/locations': typeof LocationsRoute
@@ -574,6 +582,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/agents': typeof AgentsRouteWithChildren
   '/cookies': typeof CookiesRoute
+  '/warning-lights': typeof WarningLightsRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -648,6 +657,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/agents'
     | '/cookies'
+    | '/warning-lights'
     | '/dashboard'
     | '/forgot-password'
     | '/help'
@@ -718,6 +728,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account-verification'
     | '/cookies'
+    | '/warning-lights'
     | '/forgot-password'
     | '/help'
     | '/locations'
@@ -784,6 +795,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/agents'
     | '/cookies'
+    | '/warning-lights'
     | '/dashboard'
     | '/forgot-password'
     | '/help'
@@ -857,6 +869,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AgentsRoute: typeof AgentsRouteWithChildren
   CookiesRoute: typeof CookiesRoute
+  WarningLightsRoute: typeof WarningLightsRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
@@ -912,6 +925,13 @@ declare module '@tanstack/react-router' {
       path: '/cookies'
       fullPath: '/cookies'
       preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/warning-lights': {
+      id: '/warning-lights'
+      path: '/warning-lights'
+      fullPath: '/warning-lights'
+      preLoaderRoute: typeof WarningLightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -1546,6 +1566,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AgentsRoute: AgentsRouteWithChildren,
   CookiesRoute: CookiesRoute,
+  WarningLightsRoute: WarningLightsRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,

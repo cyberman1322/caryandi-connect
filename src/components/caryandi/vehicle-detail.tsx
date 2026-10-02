@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, FileCheck, FileX, Heart, Loader2, MapPin, Pencil, ShieldCheck, ShieldQuestion } from 'lucide-react';
@@ -18,6 +17,7 @@ import {
 } from '@/lib/vehicles/vehicle-options';
 import { ListingPhoto } from './media';
 import { BackButton } from './back-button';
+import { PhotoGallery } from './photo-gallery';
 import { Check } from 'lucide-react';
 import { Rating, VehicleCard, VerifiedBadge } from './cards';
 import { ContactPanel, ReportDialog, ShareButton } from './engagement-widgets';
@@ -66,7 +66,6 @@ function VehicleView({ page }: { page: VehiclePageData }) {
   const uid = useUserId();
   const myBusiness = useMyBusiness();
   const { isSaved, toggle } = useFavourites();
-  const [photo, setPhoto] = useState(0);
   const id = v.id ?? '';
   const name = vehicleTitle({ make: v.make, model: v.model, variant: v.variant });
   const fullTitle = `${v.year ?? ''} ${name}`.trim();
@@ -75,7 +74,6 @@ function VehicleView({ page }: { page: VehiclePageData }) {
   const isOwner = Boolean(uid && (uid === v.owner_id || (v.business_id && myBusiness.data?.business.id === v.business_id)));
   const isLive = v.listing_status === 'active';
   const sellerParam = sellerParamFromListing(v);
-  const current = images[photo] ?? images[0];
 
   const similar = useQuery({
     queryKey: queryKeys.similar(id),
@@ -113,17 +111,10 @@ function VehicleView({ page }: { page: VehiclePageData }) {
 
       <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,.7fr)]">
         <div className="min-w-0">
-          <ListingPhoto path={current?.storage_path} alt={fullTitle} eager className="aspect-[16/10] w-full rounded-lg" />
-          {images.length > 1 && (
-            <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-6">
-              {images.map((img, i) => (
-                <button key={img.id} type="button" onClick={() => setPhoto(i)} aria-label={`Show photo ${i + 1} of ${images.length}`} aria-current={photo === i}
-                  className={`overflow-hidden rounded-md border-2 ${photo === i ? 'border-primary' : 'border-transparent'}`}>
-                  <ListingPhoto path={img.storage_path} alt="" className="aspect-[4/3] w-full" />
-                </button>
-              ))}
-            </div>
-          )}
+          <PhotoGallery images={images} Photo={ListingPhoto} alt={fullTitle}
+            mainClassName="aspect-[16/10] w-full rounded-lg"
+            thumbClassName="aspect-[4/3] w-full"
+            thumbGridClassName="grid grid-cols-4 gap-2 sm:grid-cols-6" />
 
           <Tabs defaultValue="overview" className="mt-8">
             <TabsList><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="documents">Documents</TabsTrigger><TabsTrigger value="verification">Verification</TabsTrigger></TabsList>

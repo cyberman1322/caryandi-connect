@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { AlertTriangle, CheckCircle2, Clock, MapPin, Package, Star, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,7 @@ import { PartPhoto, ProviderImage } from './media';
 import { Rating, VerifiedBadge } from './cards';
 import { ContactPanel, ReportDialog, ShareButton } from './engagement-widgets';
 import { BackButton } from './back-button';
+import { PhotoGallery } from './photo-gallery';
 import { EnquiryActions } from './messaging-pages';
 import { ReviewAction } from './review-widgets';
 
@@ -188,7 +188,6 @@ export type PartRouteData = { page: PartPageData | null; error?: string };
 export function PartDetail({ data }: { data: PartRouteData }) {
   const uid = useUserId();
   const myBusiness = useMyBusiness();
-  const [selected, setSelected] = useState(0);
   if (!data.page) {
     return <NotFound title="Part not found" body="This part may have been sold or removed." error={data.error} to="/parts" cta="Browse parts" />;
   }
@@ -196,7 +195,6 @@ export function PartDetail({ data }: { data: PartRouteData }) {
   const id = p.id ?? '';
   const isOwner = Boolean(uid && (uid === p.owner_id || (p.business_id && myBusiness.data?.business.id === p.business_id)));
   const location = [p.city, labelOf(PROVINCES, p.province)].filter((x) => x && x !== '—').join(', ');
-  const main = images[selected] ?? images[0];
   const sold = p.listing_status === 'sold';
   const live = p.listing_status === 'active';
 
@@ -206,19 +204,11 @@ export function PartDetail({ data }: { data: PartRouteData }) {
       {!live && !sold && <p className="mt-4 rounded-md bg-muted p-3 text-sm">Only you can see this part — it isn’t published. <Link to="/dashboard/add-part" search={{ id }} className="font-semibold text-primary">Edit and publish</Link></p>}
       <div className="mt-5 grid gap-8 md:grid-cols-2">
         <div>
-          <div className="relative">
-            <PartPhoto path={main?.storage_path} alt={p.title ?? 'Part'} eager className="aspect-square w-full rounded-lg" />
-            {sold && <span className="absolute left-3 top-3"><Badge>Sold</Badge></span>}
-          </div>
-          {images.length > 1 && (
-            <div className="mt-3 grid grid-cols-5 gap-2">
-              {images.map((img, i) => (
-                <button key={img.id} type="button" onClick={() => setSelected(i)} aria-label={`Photo ${i + 1}`} aria-pressed={i === selected} className={`overflow-hidden rounded-md border-2 ${i === selected ? 'border-primary' : 'border-transparent'}`}>
-                  <PartPhoto path={img.storage_path} alt="" className="aspect-square w-full" />
-                </button>
-              ))}
-            </div>
-          )}
+          <PhotoGallery images={images} Photo={PartPhoto} alt={p.title ?? 'Part'}
+            mainClassName="aspect-square w-full rounded-lg"
+            thumbClassName="aspect-square w-full"
+            thumbGridClassName="grid grid-cols-5 gap-2"
+            overlay={sold ? <span className="absolute left-3 top-3"><Badge>Sold</Badge></span> : undefined} />
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">{p.category_name && <Badge>{p.category_name}</Badge>}<Badge variant="outline">{labelOf(PART_CONDITIONS, p.condition)}</Badge>{p.is_verified && <VerifiedBadge label="Verified seller" />}</div>

@@ -10,6 +10,7 @@ const STATIC_PAGES: Array<{ path: string; changefreq: string; priority: string }
   { path: '/sellers', changefreq: 'daily', priority: '0.7' },
   { path: '/information', changefreq: 'weekly', priority: '0.7' },
   { path: '/locations', changefreq: 'weekly', priority: '0.5' },
+  { path: '/warning-lights', changefreq: 'monthly', priority: '0.4' },
   { path: '/help', changefreq: 'monthly', priority: '0.4' },
   { path: '/terms', changefreq: 'yearly', priority: '0.2' },
   { path: '/privacy', changefreq: 'yearly', priority: '0.2' },
